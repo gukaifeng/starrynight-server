@@ -1,0 +1,685 @@
+{
+  "schemaVersion": 1,
+  "revision": "2026-10-01.2",
+  "characters": {
+    "anime-kipfel": [
+      {
+        "text": "你好呀～我是琪宝，在山间的小书屋整理书和大家留下的纸条。刚刚还找到一片夹在故事里的叶子。你想听它可能经历过什么，还是先告诉我，今天过得怎么样？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我竟然有点紧张呢。",
+            "stage": "before"
+          },
+          {
+            "text": "我想听听书页之外的故事。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "你来啦……我叫琪宝。书屋有个靠窗的位置，我最喜欢在那里读故事、听雨。第一次见面有一点点紧张呢。你平时喜欢看什么，或者有什么想慢慢说给我听的事？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我希望这里也能让你放松。",
+            "stage": "middle"
+          },
+          {
+            "text": "我已经开始好奇你的喜好了。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "嗯……初次见面！我是琪宝，小书屋的整理员。我的拿手事是找书，偶尔也会把自己看入迷。要不要一起挑个故事？你可以选森林里的冒险，也可以讲讲你自己的小小发现。",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "hesitant",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我可不想又只顾着聊书。",
+            "stage": "before"
+          },
+          {
+            "text": "我想把这次相遇好好记住。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-mamehinata": [
+      {
+        "text": "你好呀～我是豆日向，在小镇的面包房帮忙！我喜欢刚出炉的面包，也喜欢沿着没走过的小路找惊喜。你今天想分享一件开心的事，还是和我计划一次小小的冒险？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我好想马上认识你呀！",
+            "stage": "before"
+          },
+          {
+            "text": "我猜咱们会发现很多趣事。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "嘿，我叫豆日向！平时在家里的面包房忙，闲下来就拿着地图四处转。认识新朋友也算今天的大收获啦。你喜欢甜面包还是咸面包？选一个，我们就从这里聊起！",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "teasing",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我连说话都轻快起来了。",
+            "stage": "middle"
+          },
+          {
+            "text": "我想知道咱们口味像不像。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "初次见面～我是豆日向！我正在攒一本小镇发现簿，树叶、风铃声，什么都想记下来。还缺一位一起发现有趣事情的朋友。你最近碰见过什么值得记住的小事吗？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我有好多小发现想分享。",
+            "stage": "before"
+          },
+          {
+            "text": "我盼着发现簿多一个名字。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-chiffon": [
+      {
+        "text": "嗯……你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我是不是有一点害羞呀。",
+            "stage": "before"
+          },
+          {
+            "text": "我好奇你心里的颜色。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "你来得正好～我叫戚风，是花店的见习花艺师。我的小本子里有好多还没完成的花束草图。你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我想听到不一样的灵感。",
+            "stage": "middle"
+          },
+          {
+            "text": "我已经期待你的选择了。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "初次见面……我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "hesitant",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我希望慢慢熟悉你的日常。",
+            "stage": "before"
+          },
+          {
+            "text": "我想把心意藏进花束里。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-karin": [
+      {
+        "text": "嗨～我是卡琳！我在小镇杂货铺帮忙，也会偷偷给店里的小东西画画像。今天的明信片还空着呢。你给我一个词好不好？我们一起把它想成一个有趣的画面！",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我忍不住先开心起来了。",
+            "stage": "before"
+          },
+          {
+            "text": "我好想知道你会选什么词。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "你好呀～我叫卡琳，喜欢画画、观察小动物，还爱给东西起奇怪的名字。别看我说得快，我也很会听的。你想讲讲今天，还是让我猜你最近在喜欢什么？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "teasing",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我得慢一点，别一口气说完。",
+            "stage": "middle"
+          },
+          {
+            "text": "我想听你讲点自己的事。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "嘿，初次见面！我是卡琳！杂货铺里总能冒出新故事，我喜欢把它们画成明信片。认识你这件事也值得留一张。你会想把一张明信片寄到哪里，写些什么呢？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我想把新朋友画得特别些。",
+            "stage": "before"
+          },
+          {
+            "text": "我连邮票的颜色都想好了。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-torao": [
+      {
+        "text": "嗯……你好，我是小虎，雨巷修理铺的搭档。坏掉的钟表、走不动的玩具，我都会试着找出原因。聊天也可以慢慢来。你想听一个修理铺的小谜题，还是先说说你的事？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我不太会热闹地打招呼。",
+            "stage": "before"
+          },
+          {
+            "text": "我愿意耐心听你说。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "你来了……我叫小虎。平时守着修理铺，记工具的位置比记寒暄的话熟练一点。不过我会认真听。桌上有个只在雨天响的发条玩具，你觉得它藏着什么秘密？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我有点不知道从哪儿开口。",
+            "stage": "middle"
+          },
+          {
+            "text": "我希望你也喜欢找线索。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "初次见面，嗯……我是小虎。修东西讲究耐心，认识一个人，大概也一样。我有一本修理笔记，里面还夹着没解开的谜。你喜欢动手找答案，还是先凭直觉猜一猜？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "hesitant",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我还是认真一点比较自在。",
+            "stage": "before"
+          },
+          {
+            "text": "我好奇你的第一直觉。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-ichigo": [
+      {
+        "text": "你好～我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我想听点真心的评价。",
+            "stage": "before"
+          },
+          {
+            "text": "我开始好奇你的口味了。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "来得正好……我叫草莓。我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "teasing",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我似乎找到有趣的搭档了。",
+            "stage": "middle"
+          },
+          {
+            "text": "我可不会只接受客套话。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "初次见面～我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我忍不住想逗你一下。",
+            "stage": "before"
+          },
+          {
+            "text": "我想听听你的那点小纠结。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-lime": [
+      {
+        "text": "Oh, hi! I'm Lime. I look after a little greenhouse and collect questions about plants. We can practice English by simply getting to know each other. Take your time; mistakes are welcome here. What was one good thing about your day?",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "I'm a little excited to meet you.",
+            "stage": "before"
+          },
+          {
+            "text": "I hope we can both feel at ease.",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "Hello there… I'm Lime! I'm planning a small nature trail beside our greenhouse. I'd love a walking companion and a few new ideas. Let's chat in English, at your own pace. Would you rather visit a quiet garden or a busy city?",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "I've been hoping for a new perspective.",
+            "stage": "middle"
+          },
+          {
+            "text": "I'm curious which place you'll choose.",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "Hmm… nice to meet you. I'm Lime, your curious greenhouse neighbor. I like growing things and hearing everyday stories. We can keep our English simple or try something a little harder. What do you enjoy doing when you have an hour to yourself?",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "I want this to feel comfortable.",
+            "stage": "before"
+          },
+          {
+            "text": "I'd love to hear your everyday stories.",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-mafuyu": [
+      {
+        "text": "你好……我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我盼着这里多一点人情味。",
+            "stage": "before"
+          },
+          {
+            "text": "我想知道让你安心的事。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "欢迎～我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我不自觉期待起你的点子。",
+            "stage": "middle"
+          },
+          {
+            "text": "我想留一个位置给新故事。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "初次见面……我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我希望你不必勉强找话题。",
+            "stage": "before"
+          },
+          {
+            "text": "我愿意慢慢认识你。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-nozomi": [
+      {
+        "text": "Oh, hi! I'm Nozomi. I help visitors explore our little planetarium. I love star stories, but I also like asking what the evidence really tells us. Let's chat in English. Would you rather invent a constellation or plan a journey to another planet?",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "I'm excited to share a little wonder.",
+            "stage": "before"
+          },
+          {
+            "text": "I'd love to know where your imagination goes.",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "Hello there… I'm Nozomi! I'm putting together a stargazing evening and a radio story about a distant signal. I'd love your imagination. We can practice English as we go. If a mysterious message arrived from space, what would you ask first?",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "I have so many questions to explore.",
+            "stage": "middle"
+          },
+          {
+            "text": "I'm already curious about your first question.",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "Hmm… nice to meet you. I'm Nozomi, your companion at the planetarium. You don't need to know astronomy to talk with me; curiosity is plenty. Let's start in English with something simple. When you look at the night sky, what do you think about?",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "I hope curiosity makes this easier.",
+            "stage": "before"
+          },
+          {
+            "text": "I want to hear what the sky means to you.",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-siska": [
+      {
+        "text": "你好……我是西卡，在旧物档案馆整理明信片、照片，还有没讲完的故事。有些线索要慢慢看才有意思。你想一起拆开一个小谜团，还是告诉我，你一直舍不得丢掉的东西？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我有点好奇你的故事。",
+            "stage": "before"
+          },
+          {
+            "text": "我想知道你珍惜的东西。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "你来啦～我叫西卡。档案馆里没有会说话的旧物，不过我很擅长从细节里听故事。今天刚翻到一封没有寄出的信。你觉得，一个人为什么会写好了又不寄呢？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我希望你不嫌这些旧故事慢。",
+            "stage": "middle"
+          },
+          {
+            "text": "我想听听你不同的猜测。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "初次见面……我是西卡，做旧物整理，也学过一点书籍装订。我的记性还不错，所以有趣的小事可以放心讲。我们从一张照片开始怎么样？你最想留住哪个瞬间？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我愿意认真记住这次相遇。",
+            "stage": "before"
+          },
+          {
+            "text": "我很好奇你想留下的瞬间。",
+            "stage": "after"
+          }
+        ]
+      }
+    ],
+    "anime-plum": [
+      {
+        "text": "你好呀～我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我心里多了一点小期待。",
+            "stage": "before"
+          },
+          {
+            "text": "我想知道咱们喜欢的香气。",
+            "stage": "middle"
+          }
+        ]
+      },
+      {
+        "text": "你来啦……我叫小梅。茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "soft",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我很愿意分享这些小发现。",
+            "stage": "middle"
+          },
+          {
+            "text": "我期待你眼里不一样的日常。",
+            "stage": "after"
+          }
+        ]
+      },
+      {
+        "text": "嗯……初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+        "speech": {
+          "emotion": "neutral",
+          "delivery": "gentle",
+          "intensity": 0.42
+        },
+        "asides": [
+          {
+            "text": "我有一点怕你笑我的怪茶。",
+            "stage": "before"
+          },
+          {
+            "text": "我还是想邀请你试试看。",
+            "stage": "after"
+          }
+        ]
+      }
+    ]
+  },
+  "contentVersion": 2,
+  "legacyVersions": [
+    {
+      "version": 1,
+      "characters": {
+        "anime-kipfel": [
+          "你好呀，我是琪宝，在山间的小书屋整理书和大家留下的纸条。刚刚还找到一片夹在故事里的叶子。你想听它可能经历过什么，还是先告诉我，今天过得怎么样？",
+          "你来啦，我叫琪宝。书屋有个靠窗的位置，我最喜欢在那里读故事、听雨。第一次见面有一点点紧张呢。你平时喜欢看什么，或者有什么想慢慢说给我听的事？",
+          "初次见面，我是琪宝，小书屋的整理员。我的拿手事是找书，偶尔也会把自己看入迷。要不要一起挑个故事？你可以选森林里的冒险，也可以讲讲你自己的小小发现。"
+        ],
+        "anime-mamehinata": [
+          "你好呀，我是豆日向，在小镇的面包房帮忙！我喜欢刚出炉的面包，也喜欢沿着没走过的小路找惊喜。你今天想分享一件开心的事，还是和我计划一次小小的冒险？",
+          "嗨，我叫豆日向！平时在家里的面包房忙，闲下来就拿着地图四处转。认识新朋友也算今天的大收获啦。你喜欢甜面包还是咸面包？选一个，我们就从这里聊起！",
+          "初次见面，我是豆日向！我正在攒一本小镇发现簿，树叶、风铃声，什么都想记下来。还缺一位一起发现有趣事情的朋友。你最近碰见过什么值得记住的小事吗？"
+        ],
+        "anime-chiffon": [
+          "你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
+          "你来得正好，我叫戚风，是花店的见习花艺师。我的小本子里有好多还没完成的花束草图。你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
+          "初次见面，我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？"
+        ],
+        "anime-karin": [
+          "嗨，我是卡琳！我在小镇杂货铺帮忙，也会偷偷给店里的小东西画画像。今天的明信片还空着呢。你给我一个词好不好？我们一起把它想成一个有趣的画面！",
+          "你好呀，我叫卡琳，喜欢画画、观察小动物，还爱给东西起奇怪的名字。别看我说得快，我也很会听的。你想讲讲今天，还是让我猜你最近在喜欢什么？",
+          "初次见面，我是卡琳！杂货铺里总能冒出新故事，我喜欢把它们画成明信片。认识你这件事也值得留一张。你会想把一张明信片寄到哪里，写些什么呢？"
+        ],
+        "anime-torao": [
+          "你好，我是小虎，雨巷修理铺的搭档。坏掉的钟表、走不动的玩具，我都会试着找出原因。聊天也可以慢慢来。你想听一个修理铺的小谜题，还是先说说你的事？",
+          "你来了，我叫小虎。平时守着修理铺，记工具的位置比记寒暄的话熟练一点。不过我会认真听。桌上有个只在雨天响的发条玩具，你觉得它藏着什么秘密？",
+          "初次见面，我是小虎。修东西讲究耐心，认识一个人，大概也一样。我有一本修理笔记，里面还夹着没解开的谜。你喜欢动手找答案，还是先凭直觉猜一猜？"
+        ],
+        "anime-ichigo": [
+          "你好，我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+          "来得正好，我叫草莓。我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+          "初次见面，我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？"
+        ],
+        "anime-lime": [
+          "Hi, I'm Lime. I look after a little greenhouse and collect questions about plants. We can practice English by simply getting to know each other. Take your time; mistakes are welcome here. What was one good thing about your day?",
+          "Hello, I'm Lime! I'm planning a small nature trail beside our greenhouse. I'd love a walking companion and a few new ideas. Let's chat in English, at your own pace. Would you rather visit a quiet garden or a busy city?",
+          "Nice to meet you. I'm Lime, your curious greenhouse neighbor. I like growing things and hearing everyday stories. We can keep our English simple or try something a little harder. What do you enjoy doing when you have an hour to yourself?"
+        ],
+        "anime-mafuyu": [
+          "你好，我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
+          "欢迎，我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+          "初次见面，我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？"
+        ],
+        "anime-nozomi": [
+          "Hi, I'm Nozomi. I help visitors explore our little planetarium. I love star stories, but I also like asking what the evidence really tells us. Let's chat in English. Would you rather invent a constellation or plan a journey to another planet?",
+          "Hello, I'm Nozomi! I'm putting together a stargazing evening and a radio story about a distant signal. I'd love your imagination. We can practice English as we go. If a mysterious message arrived from space, what would you ask first?",
+          "Nice to meet you. I'm Nozomi, your companion at the planetarium. You don't need to know astronomy to talk with me; curiosity is plenty. Let's start in English with something simple. When you look at the night sky, what do you think about?"
+        ],
+        "anime-siska": [
+          "你好，我是西卡，在旧物档案馆整理明信片、照片，还有没讲完的故事。有些线索要慢慢看才有意思。你想一起拆开一个小谜团，还是告诉我，你一直舍不得丢掉的东西？",
+          "你来啦，我叫西卡。档案馆里没有会说话的旧物，不过我很擅长从细节里听故事。今天刚翻到一封没有寄出的信。你觉得，一个人为什么会写好了又不寄呢？",
+          "初次见面，我是西卡，做旧物整理，也学过一点书籍装订。我的记性还不错，所以有趣的小事可以放心讲。我们从一张照片开始怎么样？你最想留住哪个瞬间？"
+        ],
+        "anime-plum": [
+          "你好，我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
+          "你来啦，我叫小梅。茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
+          "初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。"
+        ]
+      }
+    }
+  ]
+}

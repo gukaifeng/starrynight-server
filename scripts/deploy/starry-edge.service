@@ -1,0 +1,16 @@
+[Unit]
+Description=StarryNight HTTPS edge and ACME validation
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/app
+ExecStart=%h/app/bin/caddy run --config %h/app/config/Caddyfile --adapter caddyfile
+ExecReload=%h/app/bin/caddy reload --config %h/app/config/Caddyfile --adapter caddyfile
+Restart=on-failure
+RestartSec=5
+UMask=0077
+LimitNOFILE=8192
+
+[Install]
+WantedBy=default.target

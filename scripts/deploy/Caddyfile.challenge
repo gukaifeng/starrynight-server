@@ -1,0 +1,15 @@
+{
+	admin 127.0.0.1:2019
+	auto_https off
+}
+
+:80 {
+	@challenge path /.well-known/acme-challenge/*
+	handle @challenge {
+		root * /home/starrynight/app/acme-webroot
+		file_server
+	}
+	handle {
+		respond 404
+	}
+}

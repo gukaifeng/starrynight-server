@@ -1,0 +1,9 @@
+[Unit]
+Description=Renew StarryNight IP HTTPS certificate
+After=starry-edge.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/app/certbot-venv/bin/certbot renew --quiet --config-dir %h/app/config/certbot --work-dir %h/app/cache/certbot --logs-dir %h/app/logs/certbot
+UMask=0077
+NoNewPrivileges=true

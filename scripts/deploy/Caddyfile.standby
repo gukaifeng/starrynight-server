@@ -1,0 +1,37 @@
+{
+	admin 127.0.0.1:2019
+	auto_https off
+	default_sni 39.105.116.74
+	servers {
+		protocols h1 h2
+	}
+}
+
+:80 {
+	@challenge path /.well-known/acme-challenge/*
+	handle @challenge {
+		root * /home/starrynight/app/acme-webroot
+		file_server
+	}
+	handle {
+		respond 404
+	}
+}
+
+https://39.105.116.74:8443 {
+	tls /home/starrynight/app/config/certbot/live/starrynight-ip/fullchain.pem /home/starrynight/app/config/certbot/live/starrynight-ip/privkey.pem
+	header -Server
+	handle /health/ai {
+		rewrite * /health
+		reverse_proxy 127.0.0.1:8766
+	}
+	@health path /health/live /health/ready
+	handle @health {
+		reverse_proxy 127.0.0.1:8090
+	}
+	handle {
+		header Retry-After 300
+		header Content-Type application/json
+		respond `{"status":"standby","message":"Migration prepared; awaiting operator cutover"}` 503
+	}
+}

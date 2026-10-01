@@ -1,0 +1,51 @@
+name: starrynight-server-dev
+services:
+  postgres:
+    image: postgres:17.11-bookworm
+    environment:
+      POSTGRES_USER: starry
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: starry
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:55433:5432"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U starry"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:8.10.2-bookworm
+    command: [redis-server, --appendonly, "yes", --maxmemory, 256mb, --maxmemory-policy, noeviction]
+    volumes: [redis-data:/data]
+    ports: ["127.0.0.1:56380:6379"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  migrate:
+    build: {context: .., dockerfile: deploy/Dockerfile}
+    entrypoint: [/usr/local/bin/starry-migrate]
+    environment:
+      DATABASE_URL: postgres://starry:${POSTGRES_PASSWORD}@postgres:5432/starry?sslmode=disable
+    depends_on:
+      postgres: {condition: service_healthy}
+  api:
+    build: {context: .., dockerfile: deploy/Dockerfile}
+    environment:
+      STARRY_ENV: development
+      STARRY_LISTEN: 0.0.0.0:8090
+      DATABASE_URL: postgres://starry:${POSTGRES_PASSWORD}@postgres:5432/starry?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      ALLOW_TEST_GUEST: "true"
+    ports: ["127.0.0.1:18090:8090"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    restart: unless-stopped
+volumes:
+  postgres-data:
+  redis-data:

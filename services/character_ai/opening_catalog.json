@@ -1,0 +1,2567 @@
+{
+  "schemaVersion": 1,
+  "revision": "2026-10-01.2",
+  "characters": [
+    {
+      "characterID": "anime-kipfel",
+      "variants": [
+        {
+          "id": "anime-kipfel-v2-1",
+          "text": "你好呀～我是琪宝，在山间的小书屋整理书和大家留下的纸条。刚刚还找到一片夹在故事里的叶子。你想听它可能经历过什么，还是先告诉我，今天过得怎么样？",
+          "audio": "Opening_anime_kipfel_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "kipfel-facial-catsmile",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "露出猫咪般俏皮的笑意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "kipfel-catear-down",
+              "group": "ears",
+              "durationMs": 3500,
+              "grounding": "耳朵轻轻垂下",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "kipfel-facial-happy2",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "露出开心的表情",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我竟然有点紧张呢。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出猫咪般俏皮的笑意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你好呀～我是琪宝，在山间的小书屋整理书和大家留下的纸条。刚刚还找到一片夹在故事里的叶子。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我想听听书页之外的故事。",
+              "at": 0.6197
+            },
+            {
+              "kind": "narration",
+              "text": "露出开心的表情",
+              "at": 0.6197
+            },
+            {
+              "kind": "dialogue",
+              "text": "你想听它可能经历过什么，还是先告诉我，今天过得怎么样？",
+              "at": 0.6197
+            }
+          ],
+          "readingDuration": 12.909090909090908,
+          "audioReady": true,
+          "duration": 15.04,
+          "audioSHA256": "c32e7b3b3221eceb94196295db36a3f8903c32875fff1e1209d45b9bd2dc8d0c"
+        },
+        {
+          "id": "anime-kipfel-v2-2",
+          "text": "你来啦……我叫琪宝。书屋有个靠窗的位置，我最喜欢在那里读故事、听雨。第一次见面有一点点紧张呢。你平时喜欢看什么，或者有什么想慢慢说给我听的事？",
+          "audio": "Opening_anime_kipfel_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "kipfel-facial-happy2",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "露出开心的表情",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "kipfel-catear-pyoko-left",
+              "group": "ears",
+              "durationMs": 3500,
+              "grounding": "耳朵呈现左耳轻动",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "kipfel-facial-kirakira2",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "眼神变得亮晶晶",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "露出开心的表情",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你来啦……我叫琪宝。书屋有个靠窗的位置，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我希望这里也能让你放松。",
+              "at": 0.2817
+            },
+            {
+              "kind": "dialogue",
+              "text": "我最喜欢在那里读故事、听雨。",
+              "at": 0.2817
+            },
+            {
+              "kind": "narration",
+              "text": "眼神变得亮晶晶",
+              "at": 0.4789
+            },
+            {
+              "kind": "dialogue",
+              "text": "第一次见面有一点点紧张呢。你平时喜欢看什么，或者有什么想慢慢说给我听的事？",
+              "at": 0.4789
+            },
+            {
+              "kind": "thought",
+              "text": "我已经开始好奇你的喜好了。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.909090909090908,
+          "audioReady": true,
+          "duration": 15.76,
+          "audioSHA256": "a953524757d15412b8f1f93ca95a0505a3245d2599cd17ced7cb7131f2e95b4f"
+        },
+        {
+          "id": "anime-kipfel-v2-3",
+          "text": "嗯……初次见面！我是琪宝，小书屋的整理员。我的拿手事是找书，偶尔也会把自己看入迷。要不要一起挑个故事？你可以选森林里的冒险，也可以讲讲你自己的小小发现。",
+          "audio": "Opening_anime_kipfel_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "kipfel-facial-kirakira2",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "眼神变得亮晶晶",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "kipfel-catear-pyoko-loop",
+              "group": "ears",
+              "durationMs": 4000,
+              "grounding": "耳朵轻轻动了起来",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "kipfel-facial-niyari",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "嘴角露出一丝狡黠的笑意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "hesitant",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我可不想又只顾着聊书。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "眼神变得亮晶晶",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……初次见面！我是琪宝，小书屋的整理员。我的拿手事是找书，偶尔也会把自己看入迷。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "嘴角露出一丝狡黠的笑意",
+              "at": 0.5395
+            },
+            {
+              "kind": "dialogue",
+              "text": "要不要一起挑个故事？你可以选森林里的冒险，也可以讲讲你自己的小小发现。",
+              "at": 0.5395
+            },
+            {
+              "kind": "thought",
+              "text": "我想把这次相遇好好记住。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 13.818181818181818,
+          "audioReady": true,
+          "duration": 18.0,
+          "audioSHA256": "db8410b55f2d5f30f7d9c562cb9b6695110416f5e6d9d4a96e872eb2d6f1d2cd"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-kipfel-1",
+          "text": "你好呀，我是琪宝，在山间的小书屋整理书和大家留下的纸条。刚刚还找到一片夹在故事里的叶子。你想听它可能经历过什么，还是先告诉我，今天过得怎么样？",
+          "audio": "Opening_anime_kipfel_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.64,
+          "audioSHA256": "cee4c92bf4dd8e6fc3d6837b903926032fecd53df125250e5cc6303e4e57451b"
+        },
+        {
+          "id": "anime-kipfel-2",
+          "text": "你来啦，我叫琪宝。书屋有个靠窗的位置，我最喜欢在那里读故事、听雨。第一次见面有一点点紧张呢。你平时喜欢看什么，或者有什么想慢慢说给我听的事？",
+          "audio": "Opening_anime_kipfel_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.16,
+          "audioSHA256": "3bde0475bde0ba0702883c74e68ed2f60bd96aec46b4c28c8f9c2a51dcf2cf98"
+        },
+        {
+          "id": "anime-kipfel-3",
+          "text": "初次见面，我是琪宝，小书屋的整理员。我的拿手事是找书，偶尔也会把自己看入迷。要不要一起挑个故事？你可以选森林里的冒险，也可以讲讲你自己的小小发现。",
+          "audio": "Opening_anime_kipfel_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.0,
+          "audioSHA256": "d60b6ac0a221acb95c9b91fc7d810bbbccb69be7096faf0fb854759662973fdf"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-mamehinata",
+      "variants": [
+        {
+          "id": "anime-mamehinata-v2-1",
+          "text": "你好呀～我是豆日向，在小镇的面包房帮忙！我喜欢刚出炉的面包，也喜欢沿着没走过的小路找惊喜。你今天想分享一件开心的事，还是和我计划一次小小的冒险？",
+          "audio": "Opening_anime_mamehinata_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "f-bigsmile",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "露出灿烂的笑容",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "dogear-down",
+              "group": "ears",
+              "durationMs": 3500,
+              "grounding": "耳朵轻轻垂下",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "f-doya",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "露出有一点得意的神情",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我好想马上认识你呀！",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出灿烂的笑容",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你好呀～我是豆日向，在小镇的面包房帮忙！我喜欢刚出炉的面包，",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出有一点得意的神情",
+              "at": 0.4167
+            },
+            {
+              "kind": "dialogue",
+              "text": "也喜欢沿着没走过的小路找惊喜。",
+              "at": 0.4167
+            },
+            {
+              "kind": "thought",
+              "text": "我猜咱们会发现很多趣事。",
+              "at": 0.625
+            },
+            {
+              "kind": "dialogue",
+              "text": "你今天想分享一件开心的事，还是和我计划一次小小的冒险？",
+              "at": 0.625
+            }
+          ],
+          "readingDuration": 13.090909090909092,
+          "audioReady": true,
+          "duration": 16.88,
+          "audioSHA256": "7545f6ac5242d66fe4204963bcb7f5c3ca8171bf2e7b229d945ecbdeb87c4086"
+        },
+        {
+          "id": "anime-mamehinata-v2-2",
+          "text": "嘿，我叫豆日向！平时在家里的面包房忙，闲下来就拿着地图四处转。认识新朋友也算今天的大收获啦。你喜欢甜面包还是咸面包？选一个，我们就从这里聊起！",
+          "audio": "Opening_anime_mamehinata_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "f-doya",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "露出有一点得意的神情",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "dogear-pyoko",
+              "group": "ears",
+              "durationMs": 4000,
+              "grounding": "耳朵轻轻动了起来",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "f-kirakira",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "teasing",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "露出有一点得意的神情",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "嘿，我叫豆日向！平时在家里的面包房忙，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我连说话都轻快起来了。",
+              "at": 0.2676
+            },
+            {
+              "kind": "dialogue",
+              "text": "闲下来就拿着地图四处转。",
+              "at": 0.2676
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛闪亮起来",
+              "at": 0.4366
+            },
+            {
+              "kind": "dialogue",
+              "text": "认识新朋友也算今天的大收获啦。你喜欢甜面包还是咸面包？选一个，我们就从这里聊起！",
+              "at": 0.4366
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道咱们口味像不像。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.909090909090908,
+          "audioReady": true,
+          "duration": 14.96,
+          "audioSHA256": "375a36d652f9a6d3297d171ca4469ed657bd68ad907eaabd890b1ed03c76dd25"
+        },
+        {
+          "id": "anime-mamehinata-v2-3",
+          "text": "初次见面～我是豆日向！我正在攒一本小镇发现簿，树叶、风铃声，什么都想记下来。还缺一位一起发现有趣事情的朋友。你最近碰见过什么值得记住的小事吗？",
+          "audio": "Opening_anime_mamehinata_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "f-kirakira",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "dogear-up",
+              "group": "ears",
+              "durationMs": 3500,
+              "grounding": "耳朵竖了起来",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "f-smile",
+              "group": "expression",
+              "durationMs": 3500,
+              "grounding": "嘴角浮起轻柔的笑意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我有好多小发现想分享。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛闪亮起来",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "初次见面～我是豆日向！我正在攒一本小镇发现簿，树叶、风铃声，什么都想记下来。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "嘴角浮起轻柔的笑意",
+              "at": 0.5352
+            },
+            {
+              "kind": "dialogue",
+              "text": "还缺一位一起发现有趣事情的朋友。你最近碰见过什么值得记住的小事吗？",
+              "at": 0.5352
+            },
+            {
+              "kind": "thought",
+              "text": "我盼着发现簿多一个名字。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.909090909090908,
+          "audioReady": true,
+          "duration": 15.84,
+          "audioSHA256": "8aa02ee6099e4842715d00cb9ad32b873d6efaa7f3847b6534453ae1e306c2e6"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-mamehinata-1",
+          "text": "你好呀，我是豆日向，在小镇的面包房帮忙！我喜欢刚出炉的面包，也喜欢沿着没走过的小路找惊喜。你今天想分享一件开心的事，还是和我计划一次小小的冒险？",
+          "audio": "Opening_anime_mamehinata_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 15.12,
+          "audioSHA256": "1f05b9dc2647b961b3a227d9bd45bf82b2ee572935de37fcd5385a4818b59ab9"
+        },
+        {
+          "id": "anime-mamehinata-2",
+          "text": "嗨，我叫豆日向！平时在家里的面包房忙，闲下来就拿着地图四处转。认识新朋友也算今天的大收获啦。你喜欢甜面包还是咸面包？选一个，我们就从这里聊起！",
+          "audio": "Opening_anime_mamehinata_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.48,
+          "audioSHA256": "9c7d7f8ecfd6c998a3a67d2dffd1490e3b0fa3e84429c6c418bc63623bcf7a09"
+        },
+        {
+          "id": "anime-mamehinata-3",
+          "text": "初次见面，我是豆日向！我正在攒一本小镇发现簿，树叶、风铃声，什么都想记下来。还缺一位一起发现有趣事情的朋友。你最近碰见过什么值得记住的小事吗？",
+          "audio": "Opening_anime_mamehinata_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 15.84,
+          "audioSHA256": "e0aecb39c21483d92a0288e458025560149ec9b5c7fcd5b6181e250cb02e6fe2"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-chiffon",
+      "variants": [
+        {
+          "id": "anime-chiffon-v2-1",
+          "text": "嗯……你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
+          "audio": "Opening_anime_chiffon_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我是不是有一点害羞呀。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出轻柔的笑意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇你心里的颜色。",
+              "at": 0.6622
+            },
+            {
+              "kind": "dialogue",
+              "text": "今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
+              "at": 0.6622
+            }
+          ],
+          "readingDuration": 13.454545454545455,
+          "audioReady": true,
+          "duration": 18.24,
+          "audioSHA256": "c6c4c5f13682c23a44cf23ef94fe12bc8a7a3528c880cf4af881af8975ea39bb"
+        },
+        {
+          "id": "anime-chiffon-v2-2",
+          "text": "你来得正好～我叫戚风，是花店的见习花艺师。我的小本子里有好多还没完成的花束草图。你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
+          "audio": "Opening_anime_chiffon_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "眼睛变得亮晶晶",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "露出轻柔的笑意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你来得正好～我叫戚风，是花店的见习花艺师。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我想听到不一样的灵感。",
+              "at": 0.3088
+            },
+            {
+              "kind": "dialogue",
+              "text": "我的小本子里有好多还没完成的花束草图。",
+              "at": 0.3088
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛变得亮晶晶",
+              "at": 0.5882
+            },
+            {
+              "kind": "dialogue",
+              "text": "你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
+              "at": 0.5882
+            },
+            {
+              "kind": "thought",
+              "text": "我已经期待你的选择了。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.363636363636363,
+          "audioReady": true,
+          "duration": 14.48,
+          "audioSHA256": "6b4e0b348730466b1fd925fd7d3a6c6e2439e80fbf07bbed651716ca6b0cd99e"
+        },
+        {
+          "id": "anime-chiffon-v2-3",
+          "text": "初次见面……我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
+          "audio": "Opening_anime_chiffon_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "眼睛变得亮晶晶",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "hesitant",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我希望慢慢熟悉你的日常。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛变得亮晶晶",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "初次见面……我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出轻柔的笑意",
+              "at": 0.4583
+            },
+            {
+              "kind": "dialogue",
+              "text": "话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
+              "at": 0.4583
+            },
+            {
+              "kind": "thought",
+              "text": "我想把心意藏进花束里。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 13.090909090909092,
+          "audioReady": true,
+          "duration": 18.24,
+          "audioSHA256": "a03218ca6e5cf94def65b718d3577add7a3ae79787cd72eef25cac25b1aadfa6"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-chiffon-1",
+          "text": "你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
+          "audio": "Opening_anime_chiffon_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.88,
+          "audioSHA256": "4ee3ccf2ea753086d3892e37a52d2806650320b19730c8996908fa1653d64dea"
+        },
+        {
+          "id": "anime-chiffon-2",
+          "text": "你来得正好，我叫戚风，是花店的见习花艺师。我的小本子里有好多还没完成的花束草图。你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
+          "audio": "Opening_anime_chiffon_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.88,
+          "audioSHA256": "4e5d243060c5d9befbe7e3550a575b176cfce810107bb42f8d1c82a6d96d211b"
+        },
+        {
+          "id": "anime-chiffon-3",
+          "text": "初次见面，我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
+          "audio": "Opening_anime_chiffon_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 19.28,
+          "audioSHA256": "82d619a58209f395a4b3d96dc81da3865e64d129514b0b7d1c12c7b9307b2813"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-karin",
+      "variants": [
+        {
+          "id": "anime-karin-v2-1",
+          "text": "嗨～我是卡琳！我在小镇杂货铺帮忙，也会偷偷给店里的小东西画画像。今天的明信片还空着呢。你给我一个词好不好？我们一起把它想成一个有趣的画面！",
+          "audio": "Opening_anime_karin_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我忍不住先开心起来了。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出轻柔的笑意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗨～我是卡琳！我在小镇杂货铺帮忙，也会偷偷给店里的小东西画画像。今天的明信片还空着呢。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我好想知道你会选什么词。",
+              "at": 0.6232
+            },
+            {
+              "kind": "dialogue",
+              "text": "你给我一个词好不好？我们一起把它想成一个有趣的画面！",
+              "at": 0.6232
+            }
+          ],
+          "readingDuration": 12.545454545454545,
+          "audioReady": true,
+          "duration": 13.6,
+          "audioSHA256": "4f3dc434423799b1d2f3a95062856d4deb30013f9e5a9c55ce841e0fced0d709"
+        },
+        {
+          "id": "anime-karin-v2-2",
+          "text": "你好呀～我叫卡琳，喜欢画画、观察小动物，还爱给东西起奇怪的名字。别看我说得快，我也很会听的。你想讲讲今天，还是让我猜你最近在喜欢什么？",
+          "audio": "Opening_anime_karin_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "眼睛变得亮晶晶",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "teasing",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "露出轻柔的笑意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你好呀～我叫卡琳，喜欢画画、观察小动物，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我得慢一点，别一口气说完。",
+              "at": 0.2985
+            },
+            {
+              "kind": "dialogue",
+              "text": "还爱给东西起奇怪的名字。别看我说得快，",
+              "at": 0.2985
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛变得亮晶晶",
+              "at": 0.5821
+            },
+            {
+              "kind": "dialogue",
+              "text": "我也很会听的。你想讲讲今天，还是让我猜你最近在喜欢什么？",
+              "at": 0.5821
+            },
+            {
+              "kind": "thought",
+              "text": "我想听你讲点自己的事。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.181818181818182,
+          "audioReady": true,
+          "duration": 13.44,
+          "audioSHA256": "d4db6f8afb114879885c36e69b51c63739b184703d8eb27693bf006a7d7bc88c"
+        },
+        {
+          "id": "anime-karin-v2-3",
+          "text": "嘿，初次见面！我是卡琳！杂货铺里总能冒出新故事，我喜欢把它们画成明信片。认识你这件事也值得留一张。你会想把一张明信片寄到哪里，写些什么呢？",
+          "audio": "Opening_anime_karin_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "眼睛变得亮晶晶",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出轻柔的笑意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我想把新朋友画得特别些。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛变得亮晶晶",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "嘿，初次见面！我是卡琳！杂货铺里总能冒出新故事，我喜欢把它们画成明信片。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出轻柔的笑意",
+              "at": 0.5217
+            },
+            {
+              "kind": "dialogue",
+              "text": "认识你这件事也值得留一张。你会想把一张明信片寄到哪里，写些什么呢？",
+              "at": 0.5217
+            },
+            {
+              "kind": "thought",
+              "text": "我连邮票的颜色都想好了。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.545454545454545,
+          "audioReady": true,
+          "duration": 14.0,
+          "audioSHA256": "de0ec944d59f2d7b1a86cdef2c3bc673dead99a4ea119626c92bc25f3db2c457"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-karin-1",
+          "text": "嗨，我是卡琳！我在小镇杂货铺帮忙，也会偷偷给店里的小东西画画像。今天的明信片还空着呢。你给我一个词好不好？我们一起把它想成一个有趣的画面！",
+          "audio": "Opening_anime_karin_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 13.6,
+          "audioSHA256": "1b5537387513fd48548d4e902ac9bd837f6bad1c31a4cd418c53ddda8b561271"
+        },
+        {
+          "id": "anime-karin-2",
+          "text": "你好呀，我叫卡琳，喜欢画画、观察小动物，还爱给东西起奇怪的名字。别看我说得快，我也很会听的。你想讲讲今天，还是让我猜你最近在喜欢什么？",
+          "audio": "Opening_anime_karin_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.0,
+          "audioSHA256": "0c007e65150b004fa49728931b8f96179bdfc6be7e82a31a8bc68f20f7b0f94d"
+        },
+        {
+          "id": "anime-karin-3",
+          "text": "初次见面，我是卡琳！杂货铺里总能冒出新故事，我喜欢把它们画成明信片。认识你这件事也值得留一张。你会想把一张明信片寄到哪里，写些什么呢？",
+          "audio": "Opening_anime_karin_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.24,
+          "audioSHA256": "dbfd87f31bc01a35c80732c0a6822d857ab00be82c7eb368ad723bf79fcbd725"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-torao",
+      "variants": [
+        {
+          "id": "anime-torao-v2-1",
+          "text": "嗯……你好，我是小虎，雨巷修理铺的搭档。坏掉的钟表、走不动的玩具，我都会试着找出原因。聊天也可以慢慢来。你想听一个修理铺的小谜题，还是先说说你的事？",
+          "audio": "Opening_anime_torao_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-5528f6bc16a8f30f664e",
+              "group": "menu-5027e850fe98cb0f",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-840212dc860f6d6fc0ce",
+              "group": "menu-5027e850fe98cb0f",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我不太会热闹地打招呼。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……你好，我是小虎，雨巷修理铺的搭档。坏掉的钟表、走不动的玩具，我都会试着找出原因。聊天也可以慢慢来。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意耐心听你说。",
+              "at": 0.7027
+            },
+            {
+              "kind": "dialogue",
+              "text": "你想听一个修理铺的小谜题，还是先说说你的事？",
+              "at": 0.7027
+            }
+          ],
+          "readingDuration": 13.454545454545455,
+          "audioReady": true,
+          "duration": 17.6,
+          "audioSHA256": "211ab201225cba25b233a6286900318d8e52ebf3c0baa40f603e1bfdbe05f44f"
+        },
+        {
+          "id": "anime-torao-v2-2",
+          "text": "你来了……我叫小虎。平时守着修理铺，记工具的位置比记寒暄的话熟练一点。不过我会认真听。桌上有个只在雨天响的发条玩具，你觉得它藏着什么秘密？",
+          "audio": "Opening_anime_torao_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-840212dc860f6d6fc0ce",
+              "group": "menu-5027e850fe98cb0f",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-e41b42b8055d35205d2f",
+              "group": "menu-5027e850fe98cb0f",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你来了……我叫小虎。平时守着修理铺，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我有点不知道从哪儿开口。",
+              "at": 0.2609
+            },
+            {
+              "kind": "dialogue",
+              "text": "记工具的位置比记寒暄的话熟练一点。不过我会认真听。桌上有个只在雨天响的发条玩具，你觉得它藏着什么秘密？",
+              "at": 0.2609
+            },
+            {
+              "kind": "thought",
+              "text": "我希望你也喜欢找线索。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.545454545454545,
+          "audioReady": true,
+          "duration": 14.88,
+          "audioSHA256": "b38cf21f79e3db3d4e0dab00e6ba582f7cf48951af770be617adebcc4e841d8b"
+        },
+        {
+          "id": "anime-torao-v2-3",
+          "text": "初次见面，嗯……我是小虎。修东西讲究耐心，认识一个人，大概也一样。我有一本修理笔记，里面还夹着没解开的谜。你喜欢动手找答案，还是先凭直觉猜一猜？",
+          "audio": "Opening_anime_torao_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-e41b42b8055d35205d2f",
+              "group": "menu-5027e850fe98cb0f",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-d9dc11dfb5ba82d73488",
+              "group": "menu-5027e850fe98cb0f",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "hesitant",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我还是认真一点比较自在。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "初次见面，嗯……我是小虎。修东西讲究耐心，认识一个人，大概也一样。我有一本修理笔记，里面还夹着没解开的谜。你喜欢动手找答案，还是先凭直觉猜一猜？",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇你的第一直觉。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 13.090909090909092,
+          "audioReady": true,
+          "duration": 18.8,
+          "audioSHA256": "409c35fd00d11095f205fd149ec9a17caded5218d55ed48f941925dfe440cc3d"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-torao-1",
+          "text": "你好，我是小虎，雨巷修理铺的搭档。坏掉的钟表、走不动的玩具，我都会试着找出原因。聊天也可以慢慢来。你想听一个修理铺的小谜题，还是先说说你的事？",
+          "audio": "Opening_anime_torao_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 15.68,
+          "audioSHA256": "65e66bf61fe8d7f30bc794187994b8d860d6e2b0df0945a1d4c4f0fcddaff94d"
+        },
+        {
+          "id": "anime-torao-2",
+          "text": "你来了，我叫小虎。平时守着修理铺，记工具的位置比记寒暄的话熟练一点。不过我会认真听。桌上有个只在雨天响的发条玩具，你觉得它藏着什么秘密？",
+          "audio": "Opening_anime_torao_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.16,
+          "audioSHA256": "89f05eff3bb8e00fb4b1a4fb64a4f1ea770839b0fa53cfe98f0b2787ea9bd44d"
+        },
+        {
+          "id": "anime-torao-3",
+          "text": "初次见面，我是小虎。修东西讲究耐心，认识一个人，大概也一样。我有一本修理笔记，里面还夹着没解开的谜。你喜欢动手找答案，还是先凭直觉猜一猜？",
+          "audio": "Opening_anime_torao_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.24,
+          "audioSHA256": "f3f16654ee1831e6a272d92c86d8c3c07c7811409682c9809a25a15c220e5053"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-ichigo",
+      "variants": [
+        {
+          "id": "anime-ichigo-v2-1",
+          "text": "你好～我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+          "audio": "Opening_anime_ichigo_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-d7ee32b491e770595f93",
+              "group": "menu-6b146f621ce11aba",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-a5b97f7ae38e5761497c",
+              "group": "menu-6b146f621ce11aba",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我想听点真心的评价。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "脸上浮起一点羞意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你好～我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛闪亮起来",
+              "at": 0.4737
+            },
+            {
+              "kind": "dialogue",
+              "text": "夸得太敷衍可不算数。你偏爱清爽的酸甜，",
+              "at": 0.4737
+            },
+            {
+              "kind": "thought",
+              "text": "我开始好奇你的口味了。",
+              "at": 0.7237
+            },
+            {
+              "kind": "dialogue",
+              "text": "还是浓一点的巧克力？先让我认识你的口味吧。",
+              "at": 0.7237
+            }
+          ],
+          "readingDuration": 13.818181818181818,
+          "audioReady": true,
+          "duration": 16.96,
+          "audioSHA256": "d3f421b58651e4519006472ec75b05ee2b265b06319f79febc7b186b4e9967b6"
+        },
+        {
+          "id": "anime-ichigo-v2-2",
+          "text": "来得正好……我叫草莓。我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+          "audio": "Opening_anime_ichigo_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-a5b97f7ae38e5761497c",
+              "group": "menu-6b146f621ce11aba",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-d7ee32b491e770595f93",
+              "group": "menu-6b146f621ce11aba",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "teasing",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "眼睛闪亮起来",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "来得正好……我叫草莓。我的甜品工坊正在研究一款招牌配方，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我似乎找到有趣的搭档了。",
+              "at": 0.3944
+            },
+            {
+              "kind": "dialogue",
+              "text": "今天还没找到让我满意的答案。",
+              "at": 0.3944
+            },
+            {
+              "kind": "narration",
+              "text": "脸上浮起一点羞意",
+              "at": 0.5915
+            },
+            {
+              "kind": "dialogue",
+              "text": "你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+              "at": 0.5915
+            },
+            {
+              "kind": "thought",
+              "text": "我可不会只接受客套话。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.909090909090908,
+          "audioReady": true,
+          "duration": 14.4,
+          "audioSHA256": "c32677b8ea28bad06427a6fa8fbd2e1401c3f1377df51c94edd73b0a5926d97c"
+        },
+        {
+          "id": "anime-ichigo-v2-3",
+          "text": "初次见面～我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
+          "audio": "Opening_anime_ichigo_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-d7ee32b491e770595f93",
+              "group": "menu-6b146f621ce11aba",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-a5b97f7ae38e5761497c",
+              "group": "menu-6b146f621ce11aba",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我忍不住想逗你一下。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "脸上浮起一点羞意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "初次见面～我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "眼睛闪亮起来",
+              "at": 0.473
+            },
+            {
+              "kind": "dialogue",
+              "text": "我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
+              "at": 0.473
+            },
+            {
+              "kind": "thought",
+              "text": "我想听听你的那点小纠结。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 13.454545454545455,
+          "audioReady": true,
+          "duration": 14.96,
+          "audioSHA256": "04e43a1c539b5aeb814e438e7a3e781a017b008bbf115244e6214da92adc980b"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-ichigo-1",
+          "text": "你好，我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+          "audio": "Opening_anime_ichigo_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.0,
+          "audioSHA256": "8b429ed831b9cbb9ff21e5cf54e8d5d3be772f68a68a717ef3ffd16933d2299f"
+        },
+        {
+          "id": "anime-ichigo-2",
+          "text": "来得正好，我叫草莓。我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+          "audio": "Opening_anime_ichigo_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.08,
+          "audioSHA256": "f337955e6f7c71bf6af36d42b3529144a5f8212562159fcfce6d169bc6b250df"
+        },
+        {
+          "id": "anime-ichigo-3",
+          "text": "初次见面，我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
+          "audio": "Opening_anime_ichigo_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.56,
+          "audioSHA256": "ddc89261426404325548908f0f62284c213331204143535845b9b5a6f5c24cc4"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-lime",
+      "variants": [
+        {
+          "id": "anime-lime-v2-1",
+          "text": "Oh, hi! I'm Lime. I look after a little greenhouse and collect questions about plants. We can practice English by simply getting to know each other. Take your time; mistakes are welcome here. What was one good thing about your day?",
+          "audio": "Opening_anime_lime_v2_1",
+          "language": "en",
+          "visuals": [
+            {
+              "assetId": "control-3a39f70e5ac1fd6ce4c9",
+              "group": "menu-97cfbf86b90cf8ce",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-2dc1fb1db4cda8dbea31",
+              "group": "menu-97cfbf86b90cf8ce",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "I'm a little excited to meet you.",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "Oh, hi! I'm Lime. I look after a little greenhouse and collect questions about plants. We can practice English by simply getting to know each other. ",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "I hope we can both feel at ease.",
+              "at": 0.645
+            },
+            {
+              "kind": "dialogue",
+              "text": "Take your time; mistakes are welcome here. What was one good thing about your day?",
+              "at": 0.645
+            }
+          ],
+          "readingDuration": 15.769230769230768,
+          "audioReady": true,
+          "duration": 15.84,
+          "audioSHA256": "a28cf8d43cfa9326dd3c9c59b82bd8a1addd5c1bb16403bf565ae3068d8d24ee"
+        },
+        {
+          "id": "anime-lime-v2-2",
+          "text": "Hello there… I'm Lime! I'm planning a small nature trail beside our greenhouse. I'd love a walking companion and a few new ideas. Let's chat in English, at your own pace. Would you rather visit a quiet garden or a busy city?",
+          "audio": "Opening_anime_lime_v2_2",
+          "language": "en",
+          "visuals": [
+            {
+              "assetId": "control-2dc1fb1db4cda8dbea31",
+              "group": "menu-97cfbf86b90cf8ce",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-9e1271a212a71e989069",
+              "group": "menu-f842f73898380bf9",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "dialogue",
+              "text": "Hello there… I'm Lime! I'm planning a small nature trail beside our greenhouse. ",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "I've been hoping for a new perspective.",
+              "at": 0.3571
+            },
+            {
+              "kind": "dialogue",
+              "text": "I'd love a walking companion and a few new ideas. Let's chat in English, at your own pace. Would you rather visit a quiet garden or a busy city?",
+              "at": 0.3571
+            },
+            {
+              "kind": "thought",
+              "text": "I'm curious which place you'll choose.",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 16.153846153846153,
+          "audioReady": true,
+          "duration": 16.08,
+          "audioSHA256": "8951535117959cd79d2a1406080e9a64ca89a14df158fc887ed3de67b953b6ff"
+        },
+        {
+          "id": "anime-lime-v2-3",
+          "text": "Hmm… nice to meet you. I'm Lime, your curious greenhouse neighbor. I like growing things and hearing everyday stories. We can keep our English simple or try something a little harder. What do you enjoy doing when you have an hour to yourself?",
+          "audio": "Opening_anime_lime_v2_3",
+          "language": "en",
+          "visuals": [
+            {
+              "assetId": "control-9e1271a212a71e989069",
+              "group": "menu-f842f73898380bf9",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出一点小小的不满",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-e10bfdaee9542422f1e5",
+              "group": "menu-f842f73898380bf9",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "I want this to feel comfortable.",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "Hmm… nice to meet you. I'm Lime, your curious greenhouse neighbor. I like growing things and hearing everyday stories. We can keep our English simple or try something a little harder. What do you enjoy doing when you have an hour to yourself?",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "I'd love to hear your everyday stories.",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 16.538461538461537,
+          "audioReady": true,
+          "duration": 16.64,
+          "audioSHA256": "34b606313931632bf98c8fae13179ba2a75c1f79dcaca9480e3c67373330eb11"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-lime-1",
+          "text": "Hi, I'm Lime. I look after a little greenhouse and collect questions about plants. We can practice English by simply getting to know each other. Take your time; mistakes are welcome here. What was one good thing about your day?",
+          "audio": "Opening_anime_lime_1",
+          "language": "en",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.24,
+          "audioSHA256": "0ca7a0d10b7d31bceb5fde431da3f44c5ca6ac797a7a8b68b9c7ccaa89ed1699"
+        },
+        {
+          "id": "anime-lime-2",
+          "text": "Hello, I'm Lime! I'm planning a small nature trail beside our greenhouse. I'd love a walking companion and a few new ideas. Let's chat in English, at your own pace. Would you rather visit a quiet garden or a busy city?",
+          "audio": "Opening_anime_lime_2",
+          "language": "en",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 15.6,
+          "audioSHA256": "f249cef77331f7ec1282a043debe232775dbd01c8b830250d8173fb0790486a7"
+        },
+        {
+          "id": "anime-lime-3",
+          "text": "Nice to meet you. I'm Lime, your curious greenhouse neighbor. I like growing things and hearing everyday stories. We can keep our English simple or try something a little harder. What do you enjoy doing when you have an hour to yourself?",
+          "audio": "Opening_anime_lime_3",
+          "language": "en",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.56,
+          "audioSHA256": "ff3fdfc567f9b0e3b15d9773497a54a79d22261a3795a27a8cc96d17c353e2dc"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-mafuyu",
+      "variants": [
+        {
+          "id": "anime-mafuyu-v2-1",
+          "text": "你好……我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
+          "audio": "Opening_anime_mafuyu_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我盼着这里多一点人情味。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你好……我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道让你安心的事。",
+              "at": 0.64
+            },
+            {
+              "kind": "dialogue",
+              "text": "你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
+              "at": 0.64
+            }
+          ],
+          "readingDuration": 13.636363636363637,
+          "audioReady": true,
+          "duration": 18.4,
+          "audioSHA256": "2cedb8040ae267358c02c81c1b254a69e6a8586872473c15445771609296d302"
+        },
+        {
+          "id": "anime-mafuyu-v2-2",
+          "text": "欢迎～我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+          "audio": "Opening_anime_mafuyu_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "欢迎～我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我不自觉期待起你的点子。",
+              "at": 0.3913
+            },
+            {
+              "kind": "dialogue",
+              "text": "最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+              "at": 0.3913
+            },
+            {
+              "kind": "thought",
+              "text": "我想留一个位置给新故事。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.545454545454545,
+          "audioReady": true,
+          "duration": 16.16,
+          "audioSHA256": "5e9c60a8153a0b4babef0e118406669496c9a1547c82f5d22d3d47a53fc46918"
+        },
+        {
+          "id": "anime-mafuyu-v2-3",
+          "text": "初次见面……我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+          "audio": "Opening_anime_mafuyu_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我希望你不必勉强找话题。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "初次见面……我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意慢慢认识你。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 13.636363636363637,
+          "audioReady": true,
+          "duration": 19.36,
+          "audioSHA256": "b6cc57049e5088b7c9877ebd5c32249dca87c764c4ed9e2c691b561c1859f995"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-mafuyu-1",
+          "text": "你好，我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
+          "audio": "Opening_anime_mafuyu_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 19.44,
+          "audioSHA256": "42f2d3713cfe3f690d7e5498212c05befcbe06558d11e433334e2633dbe1e936"
+        },
+        {
+          "id": "anime-mafuyu-2",
+          "text": "欢迎，我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+          "audio": "Opening_anime_mafuyu_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 19.36,
+          "audioSHA256": "39ffcaea0231281f00901e3a519afa6db03e6d27f2e8b5d2b315f33e539aa80c"
+        },
+        {
+          "id": "anime-mafuyu-3",
+          "text": "初次见面，我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+          "audio": "Opening_anime_mafuyu_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 22.08,
+          "audioSHA256": "ca176d3e4395c121544fc148d56fef71ad1df784770518743a0ca4ceddeefe0a"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-nozomi",
+      "variants": [
+        {
+          "id": "anime-nozomi-v2-1",
+          "text": "Oh, hi! I'm Nozomi. I help visitors explore our little planetarium. I love star stories, but I also like asking what the evidence really tells us. Let's chat in English. Would you rather invent a constellation or plan a journey to another planet?",
+          "audio": "Opening_anime_nozomi_v2_1",
+          "language": "en",
+          "visuals": [
+            {
+              "assetId": "control-006150e1396b6e39fc63",
+              "group": "menu-72d4da533df57485",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-131b15084b384a2fcc54",
+              "group": "menu-72d4da533df57485",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "I'm excited to share a little wonder.",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "Oh, hi! I'm Nozomi. I help visitors explore our little planetarium. I love star stories, but I also like asking what the evidence really tells us. Let's chat in English. ",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "I'd love to know where your imagination goes.",
+              "at": 0.6911
+            },
+            {
+              "kind": "dialogue",
+              "text": "Would you rather invent a constellation or plan a journey to another planet?",
+              "at": 0.6911
+            }
+          ],
+          "readingDuration": 16.538461538461537,
+          "audioReady": true,
+          "duration": 17.76,
+          "audioSHA256": "dbc8e6a71b6a657821ac70346f8b48373b3b27009e3f8aca966c2cc99518666c"
+        },
+        {
+          "id": "anime-nozomi-v2-2",
+          "text": "Hello there… I'm Nozomi! I'm putting together a stargazing evening and a radio story about a distant signal. I'd love your imagination. We can practice English as we go. If a mysterious message arrived from space, what would you ask first?",
+          "audio": "Opening_anime_nozomi_v2_2",
+          "language": "en",
+          "visuals": [
+            {
+              "assetId": "control-131b15084b384a2fcc54",
+              "group": "menu-72d4da533df57485",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-58c1b02a63ca0a139d1a",
+              "group": "menu-72d4da533df57485",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "dialogue",
+              "text": "Hello there… I'm Nozomi! I'm putting together a stargazing evening and a radio story about a distant signal. ",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "I have so many questions to explore.",
+              "at": 0.4561
+            },
+            {
+              "kind": "dialogue",
+              "text": "I'd love your imagination. We can practice English as we go. If a mysterious message arrived from space, what would you ask first?",
+              "at": 0.4561
+            },
+            {
+              "kind": "thought",
+              "text": "I'm already curious about your first question.",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 15.769230769230768,
+          "audioReady": true,
+          "duration": 18.08,
+          "audioSHA256": "a8a27dd9bd24d0e17b5a6e88e9f7841df571c7c3061acb23e7c5fa004a901d49"
+        },
+        {
+          "id": "anime-nozomi-v2-3",
+          "text": "Hmm… nice to meet you. I'm Nozomi, your companion at the planetarium. You don't need to know astronomy to talk with me; curiosity is plenty. Let's start in English with something simple. When you look at the night sky, what do you think about?",
+          "audio": "Opening_anime_nozomi_v2_3",
+          "language": "en",
+          "visuals": [
+            {
+              "assetId": "control-58c1b02a63ca0a139d1a",
+              "group": "menu-72d4da533df57485",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "眼睛闪亮起来",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-fd57792f035b04218ecd",
+              "group": "menu-72d4da533df57485",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "I hope curiosity makes this easier.",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "Hmm… nice to meet you. I'm Nozomi, your companion at the planetarium. You don't need to know astronomy to talk with me; curiosity is plenty. Let's start in English with something simple. When you look at the night sky, what do you think about?",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "I want to hear what the sky means to you.",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 16.923076923076923,
+          "audioReady": true,
+          "duration": 16.64,
+          "audioSHA256": "ac8fb5da42d4eb099bbdfc492cd477038e6bde5d08aea09efd93ef18ff7ed0fb"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-nozomi-1",
+          "text": "Hi, I'm Nozomi. I help visitors explore our little planetarium. I love star stories, but I also like asking what the evidence really tells us. Let's chat in English. Would you rather invent a constellation or plan a journey to another planet?",
+          "audio": "Opening_anime_nozomi_1",
+          "language": "en",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.88,
+          "audioSHA256": "177a2021c40783807914992b3e9906da45a3482e75cc3399e85fa2de498c1c97"
+        },
+        {
+          "id": "anime-nozomi-2",
+          "text": "Hello, I'm Nozomi! I'm putting together a stargazing evening and a radio story about a distant signal. I'd love your imagination. We can practice English as we go. If a mysterious message arrived from space, what would you ask first?",
+          "audio": "Opening_anime_nozomi_2",
+          "language": "en",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.88,
+          "audioSHA256": "e30c1794e626a5e5afed86794bb68007eb3e5b845f27e56157031789cd0b51db"
+        },
+        {
+          "id": "anime-nozomi-3",
+          "text": "Nice to meet you. I'm Nozomi, your companion at the planetarium. You don't need to know astronomy to talk with me; curiosity is plenty. Let's start in English with something simple. When you look at the night sky, what do you think about?",
+          "audio": "Opening_anime_nozomi_3",
+          "language": "en",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 15.76,
+          "audioSHA256": "6c3117e1b02566078b45f329bf4c0a540e4eb2a214eee2b89726acfe3510ebe6"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-siska",
+      "variants": [
+        {
+          "id": "anime-siska-v2-1",
+          "text": "你好……我是西卡，在旧物档案馆整理明信片、照片，还有没讲完的故事。有些线索要慢慢看才有意思。你想一起拆开一个小谜团，还是告诉我，你一直舍不得丢掉的东西？",
+          "audio": "Opening_anime_siska_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我有点好奇你的故事。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你好……我是西卡，在旧物档案馆整理明信片、照片，还有没讲完的故事。有些线索要慢慢看才有意思。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道你珍惜的东西。",
+              "at": 0.6053
+            },
+            {
+              "kind": "dialogue",
+              "text": "你想一起拆开一个小谜团，还是告诉我，你一直舍不得丢掉的东西？",
+              "at": 0.6053
+            }
+          ],
+          "readingDuration": 13.818181818181818,
+          "audioReady": true,
+          "duration": 18.08,
+          "audioSHA256": "25beb88d3e660cec3682c9cb2ddf3081b8b9a50e538845a3cb77db1cb79bd9fc"
+        },
+        {
+          "id": "anime-siska-v2-2",
+          "text": "你来啦～我叫西卡。档案馆里没有会说话的旧物，不过我很擅长从细节里听故事。今天刚翻到一封没有寄出的信。你觉得，一个人为什么会写好了又不寄呢？",
+          "audio": "Opening_anime_siska_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出小小得意的神情",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你来啦～我叫西卡。档案馆里没有会说话的旧物，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我希望你不嫌这些旧故事慢。",
+              "at": 0.3188
+            },
+            {
+              "kind": "dialogue",
+              "text": "不过我很擅长从细节里听故事。",
+              "at": 0.3188
+            },
+            {
+              "kind": "narration",
+              "text": "露出小小得意的神情",
+              "at": 0.5217
+            },
+            {
+              "kind": "dialogue",
+              "text": "今天刚翻到一封没有寄出的信。你觉得，一个人为什么会写好了又不寄呢？",
+              "at": 0.5217
+            },
+            {
+              "kind": "thought",
+              "text": "我想听听你不同的猜测。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.545454545454545,
+          "audioReady": true,
+          "duration": 19.44,
+          "audioSHA256": "d53b725845130fac8355a7e1e5c490037dc3753f2d4300f3b049b7b8c35e882a"
+        },
+        {
+          "id": "anime-siska-v2-3",
+          "text": "初次见面……我是西卡，做旧物整理，也学过一点书籍装订。我的记性还不错，所以有趣的小事可以放心讲。我们从一张照片开始怎么样？你最想留住哪个瞬间？",
+          "audio": "Opening_anime_siska_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出小小得意的神情",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我愿意认真记住这次相遇。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "露出小小得意的神情",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "初次见面……我是西卡，做旧物整理，也学过一点书籍装订。我的记性还不错，",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "神情变得轻松愉快",
+              "at": 0.493
+            },
+            {
+              "kind": "dialogue",
+              "text": "所以有趣的小事可以放心讲。我们从一张照片开始怎么样？你最想留住哪个瞬间？",
+              "at": 0.493
+            },
+            {
+              "kind": "thought",
+              "text": "我很好奇你想留下的瞬间。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 12.909090909090908,
+          "audioReady": true,
+          "duration": 20.24,
+          "audioSHA256": "361016eb5f9f08c8cf03b90b928e484ac3267930170e3574b6db53b9815c055b"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-siska-1",
+          "text": "你好，我是西卡，在旧物档案馆整理明信片、照片，还有没讲完的故事。有些线索要慢慢看才有意思。你想一起拆开一个小谜团，还是告诉我，你一直舍不得丢掉的东西？",
+          "audio": "Opening_anime_siska_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.4,
+          "audioSHA256": "0c4d9ae4b7bb38de9ffed8597d78bda4ba8807ea7031f03e67ceacc6345354c7"
+        },
+        {
+          "id": "anime-siska-2",
+          "text": "你来啦，我叫西卡。档案馆里没有会说话的旧物，不过我很擅长从细节里听故事。今天刚翻到一封没有寄出的信。你觉得，一个人为什么会写好了又不寄呢？",
+          "audio": "Opening_anime_siska_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.8,
+          "audioSHA256": "fe6720ec469ca69f1240dec17bc3f9fa0344d8b6c1bbf7468d3783a1ffa7ad6d"
+        },
+        {
+          "id": "anime-siska-3",
+          "text": "初次见面，我是西卡，做旧物整理，也学过一点书籍装订。我的记性还不错，所以有趣的小事可以放心讲。我们从一张照片开始怎么样？你最想留住哪个瞬间？",
+          "audio": "Opening_anime_siska_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 17.76,
+          "audioSHA256": "1e0696a45bc00c703009424368e770fb435b8e260f8ce4718e411cc3f8eec203"
+        }
+      ]
+    },
+    {
+      "characterID": "anime-plum",
+      "variants": [
+        {
+          "id": "anime-plum-v2-1",
+          "text": "你好呀～我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
+          "audio": "Opening_anime_plum_v2_1",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-f6eae64b449613731d69",
+              "group": "menu-785073ee2b6bed01",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-left-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-f6eae64b449613731d69",
+              "group": "menu-785073ee2b6bed01",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我心里多了一点小期待。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "脸上浮起一点羞意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你好呀～我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道咱们喜欢的香气。",
+              "at": 0.6622
+            },
+            {
+              "kind": "dialogue",
+              "text": "你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
+              "at": 0.6622
+            }
+          ],
+          "readingDuration": 13.454545454545455,
+          "audioReady": true,
+          "duration": 16.8,
+          "audioSHA256": "bfe116ae7c0affd9190bc66dcbbb283853382929a5319135e0e796632c94cdc6"
+        },
+        {
+          "id": "anime-plum-v2-2",
+          "text": "你来啦……我叫小梅。茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
+          "audio": "Opening_anime_plum_v2_2",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-f6eae64b449613731d69",
+              "group": "menu-785073ee2b6bed01",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-2",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "神情变得轻松愉快",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-f6eae64b449613731d69",
+              "group": "menu-785073ee2b6bed01",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "soft",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "narration",
+              "text": "脸上浮起一点羞意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "你来啦……我叫小梅。茶屋窗边能看到很漂亮的晚霞，",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我很愿意分享这些小发现。",
+              "at": 0.3243
+            },
+            {
+              "kind": "dialogue",
+              "text": "我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
+              "at": 0.3243
+            },
+            {
+              "kind": "thought",
+              "text": "我期待你眼里不一样的日常。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 13.454545454545455,
+          "audioReady": true,
+          "duration": 17.92,
+          "audioSHA256": "bfcbe760706ff980e5abb0c272357e37e5f140b979dc2169c09b545590108983"
+        },
+        {
+          "id": "anime-plum-v2-3",
+          "text": "嗯……初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+          "audio": "Opening_anime_plum_v2_3",
+          "language": "zh",
+          "visuals": [
+            {
+              "assetId": "control-f6eae64b449613731d69",
+              "group": "menu-785073ee2b6bed01",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 0
+            },
+            {
+              "assetId": "gesture-right-7",
+              "group": "menu-5a963eacb2279abe",
+              "durationMs": 3500,
+              "grounding": "露出惊讶的神情",
+              "offsetMs": 900
+            },
+            {
+              "assetId": "control-f6eae64b449613731d69",
+              "group": "menu-785073ee2b6bed01",
+              "durationMs": 3500,
+              "grounding": "脸上浮起一点羞意",
+              "offsetMs": 6500
+            }
+          ],
+          "speech": {
+            "emotion": "neutral",
+            "delivery": "gentle",
+            "intensity": 0.42
+          },
+          "parts": [
+            {
+              "kind": "thought",
+              "text": "我有一点怕你笑我的怪茶。",
+              "at": 0.0
+            },
+            {
+              "kind": "narration",
+              "text": "脸上浮起一点羞意",
+              "at": 0.0
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+              "at": 0.0
+            },
+            {
+              "kind": "thought",
+              "text": "我还是想邀请你试试看。",
+              "at": 1.0
+            }
+          ],
+          "readingDuration": 13.090909090909092,
+          "audioReady": true,
+          "duration": 18.56,
+          "audioSHA256": "28eedcf644a99427d54c505fabadb3f3dcc7aa74306a1f9af2845123ac3a0d4a"
+        }
+      ],
+      "legacyVariants": [
+        {
+          "id": "anime-plum-1",
+          "text": "你好，我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
+          "audio": "Opening_anime_plum_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 17.04,
+          "audioSHA256": "bf831a4197c25ed849ac4ae6c81441abd5bd1abed39012171f09c4709b3ab3cc"
+        },
+        {
+          "id": "anime-plum-2",
+          "text": "你来啦，我叫小梅。茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
+          "audio": "Opening_anime_plum_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.0,
+          "audioSHA256": "6df559b9d80dc15a0edff13194e1b35a1644ecead1eb46ba2468b2ddb1eba3d0"
+        },
+        {
+          "id": "anime-plum-3",
+          "text": "初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+          "audio": "Opening_anime_plum_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 17.2,
+          "audioSHA256": "4a9c9d4bbe11e94b200cbaeb622c7996670060d7a65dc6e4cd55f7518c1f49f2"
+        }
+      ]
+    }
+  ]
+}

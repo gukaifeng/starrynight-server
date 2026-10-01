@@ -1,0 +1,38 @@
+# Prepared for cutover. Do not install before the user authorizes switching.
+{
+	admin 127.0.0.1:2019
+	auto_https off
+	default_sni 39.105.116.74
+	servers {
+		protocols h1 h2
+	}
+}
+
+:80 {
+	@challenge path /.well-known/acme-challenge/*
+	handle @challenge {
+		root * /home/starrynight/app/acme-webroot
+		file_server
+	}
+	handle {
+		respond 404
+	}
+}
+
+https://39.105.116.74:8443 {
+	tls /home/starrynight/app/config/certbot/live/starrynight-ip/fullchain.pem /home/starrynight/app/config/certbot/live/starrynight-ip/privkey.pem
+	header -Server
+	handle /health/ai {
+		rewrite * /health
+		reverse_proxy 127.0.0.1:8766
+	}
+	@private path /metrics /v1/ai/testing/* /v1/ai/admin/*
+	handle @private {
+		respond 404
+	}
+	handle {
+		reverse_proxy 127.0.0.1:8090 {
+			flush_interval -1
+		}
+	}
+}

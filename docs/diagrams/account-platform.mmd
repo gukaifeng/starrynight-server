@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph Device["📱 iPhone"]
+        UI["SwiftUI / UIKit"]
+        Cache["本机账户缓存与待同步改动"]
+        Unity["Unity 角色运行时"]
+        UI --> Cache
+        UI --> Unity
+    end
+    UI -->|"HTTPS /v1 + 会话令牌"| API["⚙️ Go API 实例 1..N"]
+    API --> PG[("💾 PostgreSQL 17")]
+    API --> Redis[("🔐 Redis 会话与限流")]
+    API -->|"私有凭证 + 服务端账户身份"| AI["独立 Python AI worker"]
+    AI -->|"仅服务端保存 Key"| Provider["百炼模型、ASR / TTS"]
+    AI --> Legacy[("当前 worker 状态与音频缓存")]
+    classDef app fill:#182434,stroke:#91C6DC,color:#F1F5FA
+    classDef data fill:#21372F,stroke:#9BCCAD,color:#F1F5FA
+    class UI,Cache,Unity,API,AI,Provider app
+    class PG,Redis,Legacy data
