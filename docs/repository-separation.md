@@ -44,3 +44,19 @@ AI pytest 229 项通过、3 项模型用例起初跳过；显式指定已安装�
 源码比对：除 Go module/import 前缀外，所有 Go 业务代码与原 backend 一致；AI 运行代码、catalog 与锁定依赖保持字节一致。变化限于仓库组织、运维/作者工具路径、独立开发配置和显式测试输入。
 
 独立项目重新取得只读在线快照：2026-10-01 **21:51:04 +08:00**，457 个文件，441 条消息、434 条请求、4,813 条使用记录；这仍是在线快照，正式切换前须最终同步。云端应用此快照与独立版本的结果另行记录。
+
+## 云端完成验证：2026-10-01 22:02 +08:00
+
+**独立仓库构建的服务已在 Linux 启动，数据已同步到 21:51:04 快照，公网仍处于 standby；等待用户明确通知再切换。**
+
+- 实际运行版本 `20261001T135801Z-c8070f335d5f`，源码提交 `c8070f335d5fe8f7aa94e7d510ce3ace362eff4b`。API 与 AI 的 systemd WorkingDirectory 均为 `/home/starrynight/starrynight-server/current`，Go ExecStart 使用该版本的二进制。133 个发布文件的长度与 SHA-256 在目标核对通过。
+- PG、Redis、AI、API、HTTPS 入口五个服务全部 active / enabled；证书续期 timer enabled。没有重启整台云主机，也没有操作原 Mac 进程。独立项目本机新建的测试 PG/Redis/API 已停止，测试数据保留。
+- 新快照的 457 个文件校验通过，恢复后 452 个音频/音色/模型文件哈希一致。SQLite 18 张表完整性、行数以及逐行全内容排序哈希均与快照相同，包含 441 条消息、434 条请求、4,813 条使用记录。不是只比较文件名或消息条数。
+- PG 15 张表按 UTC 归一比较数据；只允许已记录的兼容 migration 6。11 个角色、1 个官方作者、0 个正式用户。创建两个随机验证账户检查认证、隔离、409 冲突、AI 状态和管理/测试接口屏蔽后，两个账户均清理，用户数回到 0。11 个角色现有音色全部 approved，没有重新设计或合成。
+- 新备份恢复先在独立 PG 候选库执行，再替换云端 standby；旧 PG 库 `starry_previous_20261001140037`、旧 AI/Redis 目录和配置位于 `~/app/backups/before-refresh-20261001140037`，原版本和升级前 PG 备份同时保留。业务入口全程没有开放。
+- 公网 HTTPS `/health/ready` 与 `/health/ai` 均返回 200，curl TLS 验证为 0；业务 `/v1/capabilities` 按 standby 配置返回 503。80 可达，普通路径 404，仅用于证书 challenge。原 Mac 的 8090/8766 健康检查仍为 200，原 launchd AI 状态 running。
+- 首次独立发布在备份预检阶段发现 `PGDATABASE` 环境变量不能直接承载完整连接 URI，尚未修改 cloud unit / current。已改为单独的 libpq 环境字段，保留 TLS 验证且不把密码放入命令行；Mac 专用测试 PG 和 Linux 实例均验证通过，随后完成发布。数据对比时 pg_dump 的循环外键提示只涉及 data-only 校验输出；实际备份和恢复使用完整 dump，恢复成功。
+
+原始验证证据保存在本仓库 `.local/migration/`：`go-validation.log`、`python-tests.log`、`semantic-tests.log`、`activate-linux-final.log`、`refresh-linux.log`、`final-linux-verification.json`。云端也保留快照清单和恢复验证结果；不向公开 Git 提交私有日志或数据。
+
+本轮没有调用付费模型、ASR、TTS 或生图，也未做切换后的 iPhone 真机端到端验收。原 Mac 仍可能接收新消息；21:51:04 之后的数据将在用户通知切换后，按暂停写入、等待在途请求、最终快照和验证的顺序补齐。保留旧数据不等于双向持续复制。

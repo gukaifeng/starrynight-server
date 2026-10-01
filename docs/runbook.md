@@ -41,7 +41,7 @@ readlink ~/starrynight-server/current
 
 用户级 systemd 和 linger 管理启动/异常重启。版本切换修改 API/AI 的代码位置，数据与配置保留在 `~/app`，旧版本和升级前备份保留。`activate_standby_release.py` 验证清单、备份 PG、运行兼容迁移、重启云端 API/AI、检查健康；失败时恢复旧 unit 和代码链接。该脚本拒绝对非 standby 入口操作，不接管正式流量。
 
-初次全新主机仍可用 `bootstrap_linux_user.sh` 与 `provision_linux.py`；后者仅允许空数据目录，严禁为了刷新数据删掉保护标记。现有服务器刷新要先备份目标，保持 standby，恢复经过验证的在线快照。
+初次全新主机仍可用 `bootstrap_linux_user.sh` 与 `provision_linux.py`；后者仅允许空数据目录，严禁为了刷新数据删掉保护标记。现有服务器使用 `python3 ~/starrynight-server/current/scripts/deploy/refresh_standby.py --snapshot ~/app/backups/<快照>` 刷新；该脚本要求 standby，验证哈希、先恢复独立 PG 候选库，保留旧数据库及 AI/Redis 目录和配置，再替换目标数据并做功能验证。失败时回滚，绝不联系或停止源 Mac。
 
 ```sh
 # 在 Mac 只读备份：源目录必须显式指定，不停止源服务
