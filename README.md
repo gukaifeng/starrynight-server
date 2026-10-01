@@ -52,4 +52,4 @@ python3 ~/starrynight-server/releases/<版本>/scripts/deploy/activate_standby_r
   --release ~/starrynight-server/releases/<版本>
 ```
 
-参见 [独立运行说明](docs/runbook.md)、[拆分与兼容边界](docs/repository-separation.md)、[迁移准备记录](docs/server-migration-2026-10-01.md)。旧 Mac 仍是写入源；必须收到用户明确的切换通知，再做最后一次数据同步、客户端切换和旧服务停用。
+参见 [独立运行说明](docs/runbook.md)、[拆分与兼容边界](docs/repository-separation.md)、[迁移准备记录](docs/server-migration-2026-10-01.md)。旧 Mac 暂时继续服务；收到用户明确切换通知后，按最新决定直接使用云端现有数据切换客户端与业务入口并停用旧服务，不再补同步期间数据，也不等待在途请求结束。

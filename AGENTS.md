@@ -8,6 +8,11 @@ the uncommitted Gin replacement was discarded at the user's explicit request.
 - Never stop/restart the existing Mac deployment or switch clients until the
   user explicitly authorizes cutover. Preparation only operates on the cloud
   standby and this repository's separately named development instances.
+- Latest user decision (2026-10-01): once explicitly told to cut over, switch
+  directly using the cloud's existing data (snapshot 21:51:04 +08:00). Skip
+  final/incremental Mac data synchronization and do not wait for in-flight
+  requests. The user accepts losing intervening/unfinished data. This is a
+  future cutover policy, not authorization to switch now; retain old backups.
 - Keep this repository independent: no runtime imports, symlinks or implicit
   paths into the client checkout. Authoring uses explicit JSON input/output.
 - Commit validated source and documentation to `origin/main` at
