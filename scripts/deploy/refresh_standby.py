@@ -12,9 +12,9 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
-from urllib.parse import parse_qs, unquote, urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit
 
-from activate_standby_release import environment, run, standby, wait_ready
+from activate_standby_release import environment, pg_environment, run, standby, wait_ready
 
 
 def main():
@@ -43,12 +43,7 @@ def main():
     def connection(name):
         return urlunsplit(uri._replace(path='/' + name))
     def pg_env(name):
-        query = parse_qs(uri.query)
-        return env | {
-            'PGDATABASE': connection(name), 'PGHOST': uri.hostname,
-            'PGPORT': str(uri.port or 5432), 'PGUSER': unquote(uri.username),
-            'PGPASSWORD': unquote(uri.password), 'PGSSLMODE': 'verify-full',
-            'PGSSLROOTCERT': query.get('sslrootcert', [str(root / 'tls/ca.crt')])[0]}
+        return pg_environment(env, database=name)
     def rename(old, new):
         run(root / 'postgres/bin/psql', '-X', '-v', 'ON_ERROR_STOP=1', '-c', f'ALTER DATABASE {old} RENAME TO {new}', env=pg_env('postgres'), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     # Restore and migrate a separate candidate while existing standby is up.

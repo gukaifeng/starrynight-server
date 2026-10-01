@@ -15,6 +15,7 @@ import subprocess
 import time
 import urllib.error
 import urllib.request
+from urllib.parse import parse_qs, unquote, urlsplit
 
 
 def run(*args, **kwargs):
@@ -29,6 +30,22 @@ def environment(path):
             key, value = words[0].split('=', 1)
             env[key] = value
     return env
+
+
+def pg_environment(env, database=None):
+    # pg_dump/psql do not expand a URI supplied through PGDATABASE. Pass its
+    # individual libpq settings in the environment, keeping secrets off argv.
+    uri = urlsplit(env['DATABASE_URL'])
+    query = parse_qs(uri.query)
+    result = env | {
+        'PGDATABASE': database or unquote(uri.path.lstrip('/')),
+        'PGHOST': uri.hostname, 'PGPORT': str(uri.port or 5432),
+        'PGUSER': unquote(uri.username), 'PGPASSWORD': unquote(uri.password),
+        'PGSSLMODE': query.get('sslmode', ['verify-full'])[0]}
+    cert = query.get('sslrootcert', [env.get('SSL_CERT_FILE', '')])[0]
+    if cert:
+        result['PGSSLROOTCERT'] = cert
+    return result
 
 
 def standby(root):
@@ -87,7 +104,7 @@ def main():
     for name, contents in old.items():
         (backup / ('starry-' + name + '.service')).write_text(contents)
     env = environment(root / 'config/platform.env')
-    run(root / 'postgres/bin/pg_dump', '-Fc', '--file', backup / 'platform.dump', env=env | {'PGDATABASE': env['DATABASE_URL']}, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    run(root / 'postgres/bin/pg_dump', '-Fc', '--file', backup / 'platform.dump', env=pg_environment(env), stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     # Migrations are additive; never run Goose down during rollback.
     run(release / 'bin/starry-migrate', env=env)
     current = project / 'current'
