@@ -5,14 +5,15 @@ sibling `starrynight` repository owns the clients. The 2026-10-01 migration
 preserves the existing chi/Huma + PostgreSQL + Redis + Python architecture;
 the uncommitted Gin replacement was discarded at the user's explicit request.
 
-- Never stop/restart the existing Mac deployment or switch clients until the
-  user explicitly authorizes cutover. Preparation only operates on the cloud
-  standby and this repository's separately named development instances.
-- Latest user decision (2026-10-01): once explicitly told to cut over, switch
-  directly using the cloud's existing data (snapshot 21:51:04 +08:00). Skip
-  final/incremental Mac data synchronization and do not wait for in-flight
-  requests. The user accepts losing intervening/unfinished data. This is a
-  future cutover policy, not authorization to switch now; retain old backups.
+- The user explicitly authorized cutover on 2026-10-01. Production is now
+  active at https://39.105.116.74:8443; the old Mac API, AI, PostgreSQL and
+  Redis are stopped, and the old AI launchd job is disabled. The user later
+  authorized removal of the old Mac runtime and migration snapshots, completed
+  on 2026-10-02. See docs/server-cutover-2026-10-01.md.
+- Cutover used the existing cloud snapshot (21:51:04 +08:00), with no final
+  Mac synchronization or wait for in-flight requests, as explicitly requested.
+  The cloud is now authoritative. Do not run standby refresh/activation on
+  production or alter its active marker to bypass those scripts' guards.
 - Keep this repository independent: no runtime imports, symlinks or implicit
   paths into the client checkout. Authoring uses explicit JSON input/output.
 - Commit validated source and documentation to `origin/main` at

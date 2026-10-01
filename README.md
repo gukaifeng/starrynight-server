@@ -42,7 +42,9 @@ make dev-down
 
 Linux 入口为 `https://39.105.116.74:8443`。80 仅用于 IP 证书验证与续期；数据库、Redis、AI worker 和 metrics 均不对公网开放。
 
-代码在 `~/starrynight-server/releases/<版本>/`，`current` 指向当前版本。私有配置、证书、数据、Python 环境和备份保持在 `~/app/`。发布脚本只操作已有 Linux **standby**，保留业务请求 503；不会切换客户端或操作 Mac 服务。
+**2026-10-01 已按用户明确通知完成正式切换。** 云端为 active，iPhone 17 已安装 0.84.0 / 114 并验证 HTTPS、注册、登录与 AI 认证代理；旧 Mac 服务与 AI 自动启动项已停止。云端使用 21:51:04 +08:00 快照，没有最终同步。见[正式切换记录](docs/server-cutover-2026-10-01.md)。
+
+代码在 `~/starrynight-server/releases/<版本>/`，`current` 指向当前版本。私有配置、证书、数据、Python 环境和备份保持在 `~/app/`。以下版本部署脚本仅适用于 **standby**，当前 active 生产环境会拒绝执行；不要修改标记绕过保护。`activate.py` 是首次开放业务入口的工具，不是常规版本更新工具，不操作 Mac。
 
 ```sh
 # 验证并提交源代码后创建带完整哈希清单的版本包
@@ -52,4 +54,4 @@ python3 ~/starrynight-server/releases/<版本>/scripts/deploy/activate_standby_r
   --release ~/starrynight-server/releases/<版本>
 ```
 
-参见 [独立运行说明](docs/runbook.md)、[拆分与兼容边界](docs/repository-separation.md)、[迁移准备记录](docs/server-migration-2026-10-01.md)。旧 Mac 暂时继续服务；收到用户明确切换通知后，按最新决定直接使用云端现有数据切换客户端与业务入口并停用旧服务，不再补同步期间数据，也不等待在途请求结束。
+参见 [独立运行说明](docs/runbook.md)、[拆分与兼容边界](docs/repository-separation.md)、[迁移准备记录](docs/server-migration-2026-10-01.md)。准备期记录中的 standby / Mac 继续服务状态已由正式切换记录取代；云端私有备份继续保留；旧 Mac 服务和本地数据已按用户授权清理。

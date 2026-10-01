@@ -44,6 +44,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=Path.home() / 'app')
     parser.add_argument('--snapshot', type=Path, required=True)
+    parser.add_argument('--api-origin', default='http://127.0.0.1:8090',
+                        help='Use the public HTTPS origin to verify the gateway at cutover')
     args = parser.parse_args()
     root, snapshot = args.root, args.snapshot
     manifest = json.loads((snapshot / 'manifest.json').read_text())
@@ -91,7 +93,7 @@ def main():
         headers = {'Content-Type': 'application/json'}
         if token:
             headers['Authorization'] = 'Bearer ' + token
-        req = urllib.request.Request('http://127.0.0.1:8090' + path, data=None if body is None else json.dumps(body).encode(), headers=headers, method=method)
+        req = urllib.request.Request(args.api_origin.rstrip('/') + path, data=None if body is None else json.dumps(body).encode(), headers=headers, method=method)
         try:
             response = client.open(req, timeout=30)
         except urllib.error.HTTPError as error:
@@ -106,6 +108,7 @@ def main():
 
     assert request('GET', '/health/ready')['status'] == 'ready'
     request('GET', '/v1/me', expected_status=401)
+    request('GET', '/v1/ai/status', expected_status=401)
     request('POST', '/v1/auth/guest', expected_status=404)
     assert request('GET', '/v1/capabilities')['test_guest'] is False
     accounts = []
@@ -126,7 +129,8 @@ def main():
         report['approved_character_voices'] = len(status['voices'])
         request('POST', '/v1/ai/testing/characters/anime-kipfel/inspector', {}, first, expected_status=404)
         request('GET', '/v1/ai/admin/usage', token=first, expected_status=404)
-        report['api_checks'] = ['readiness', 'authentication', 'guest_disabled', 'registration', 'account_isolation', 'optimistic_conflict', 'private_ai_proxy', 'inspector_blocked', 'admin_blocked']
+        report['api_origin'] = args.api_origin
+        report['api_checks'] = ['readiness', 'authentication', 'ai_authentication', 'guest_disabled', 'registration', 'account_isolation', 'optimistic_conflict', 'private_ai_proxy', 'inspector_blocked', 'admin_blocked']
     finally:
         for token, password in accounts:
             request('DELETE', '/v1/me', {'password': password, 'confirmation': 'DELETE'}, token)
