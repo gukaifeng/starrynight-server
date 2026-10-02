@@ -77,3 +77,8 @@ Go API及管理台全部数据库集成套件在云端独立临时`*_test` Postg
 Redis DB15执行通过，测试完成已删除临时数据库。使用当前源码交叉编译的Linux测试
 程序（云端没有Go编译器），此轮集成未启用race；本机 `make test` 的race检查通过，
 `make build` 通过。没有重新启动Mac旧部署或在业务数据库运行集成测试。
+
+最终活动发布为 `20261002T192354Z-0ef1001faeb8`。此次仅Go代码变化，不重启已验证
+AI worker；升级前PG备份在同名before-api目录。新账号注册后默认设置及订阅Chiffon
+通过；公网授权的Perula会话完整SSE返回13块PCM及completed，首PCM1345.6ms，包含
+验收Mac到公网的网络，仍不含手机播放启动。此前16角色全量公网只读检查也通过。
