@@ -257,7 +257,8 @@ class ReactionPool:
         script['goal_state']=goals.effective(self.store,owner,request) if defer_goals else await goals.commit(self.settings,request,Plan.model_validate(plan))
         goals.committed(self.store,owner,request,script['goal_state'])
         self.store.publish_reply(owner,char,str(request.request_id),request.text,script,prepared_id=claim['id'],allow_preparing='job' in claim)
-        self.engine.commit_context(owner,request,context,script,Plan.model_validate(plan))
+        if defer_goals:self.store.complete(owner,char,str(request.request_id),script)
+        else:self.engine.commit_context(owner,request,context,script,Plan.model_validate(plan))
         self.store.put('vocals',owner,char,[v['event'] for b in script['beats'] for v in b['vocal_events']])
         from .profiles import assets
         catalogue={a['asset_id']:a for a in assets(char)};selected={v['asset_id'] for b in script['beats'] for v in b['visuals']}
@@ -265,7 +266,7 @@ class ReactionPool:
             for asset in selected & catalogue.keys():self.store.db.execute('INSERT INTO asset_usage(owner,character,asset,kind,created) VALUES(?,?,?,?,?)',(owner,char,asset,catalogue[asset]['kind'],time.time()))
         self.store.put('reaction_pool_review',owner,char,dict(status='inflight' if 'job' in claim else 'hit',kind=claim['kind'],message_id=script['message_id']))
         if claim['kind'].startswith('quick:'):self.quick.discard(owner,char,keep=claim['id'])
-        elif self.active.get(owner)==char:self.prepare(owner,request,renew_lease=False)
+        elif not defer_goals and self.active.get(owner)==char:self.prepare(owner,request,renew_lease=False)
         return script
 
     async def deliver(self,owner,request,context,claim):
@@ -294,7 +295,9 @@ class ReactionPool:
                         if item.get('core_complete'):
                             state=await goals.commit(self.settings,request,Plan.model_validate(job.plan))
                             goals.committed(self.store,owner,request,state)
+                            item={**item,'script':{**item['script'],'goal_state':state}}
                             self.engine.commit_context(owner,request,context,item['script'],Plan.model_validate(job.plan))
+                            if self.active.get(owner)==request.character_id:self.prepare(owner,request,renew_lease=False)
                         from .aside_quality import review_script, recent
                         script=review_script({**item['script'],'trigger':request.trigger,'goal_state':goals.effective(self.store,owner,request)},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))
                         self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}

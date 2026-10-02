@@ -70,11 +70,11 @@ async def test_ready_clip_prefetch_is_private_context_bound_and_non_consuming(tm
 @pytest.mark.asyncio
 async def test_inflight_stream_commits_final_goal_feedback_once_after_early_audio(tmp_path,monkeypatch):
     from services.character_ai import goals
-    store,provider,engine,pool,request=setup(tmp_path);tail=asyncio.Event();first=asyncio.Event();commits=[]
+    store,provider,engine,pool,request=setup(tmp_path);tail=asyncio.Event();first=asyncio.Event();commits=[];initial=store.state('u',request.character_id)['happiness']
     async def source(*args):
         yield dict(say='要不要和我一起找一颗属于今晚的星星？')
         first.set();await tail.wait()
-        yield dict(goal_feedback=dict(evidence='星星',affection=.02),focus='choose a star')
+        yield dict(goal_feedback=dict(evidence='星星',affection=.02),focus='choose a star',state={'happiness':.04})
     async def commit(settings,req,plan):
         commits.append((plan.goal_feedback.affection,plan.response_focus));return {'version':1,'progress_version':1}
     monkeypatch.setattr(goals,'commit',commit);provider.stream_beats=source
@@ -91,4 +91,5 @@ async def test_inflight_stream_commits_final_goal_feedback_once_after_early_audi
     assert types.index('reply.narration.ready')<types.index('segment.audio.started')
     assert commits==[(0.0,'choose a star')] # Event drafts cannot invent user progress.
     assert next(e for e in events if e.get('core_complete'))['script']['goal_state']['progress_version']==1
+    assert store.state('u',request.character_id)['happiness']==pytest.approx(initial+.04,abs=1e-4)
     await pool.close();store.db.close()
