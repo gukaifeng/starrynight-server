@@ -4,15 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/jackc/pgx/v5"
+	"strings"
 )
 
 func scanUser(row pgx.Row) (User, error) {
 	var u User
-	e := row.Scan(&u.ID, &u.Username, &u.Guest, &u.Version, &u.Profile, &u.Epoch)
+	e := row.Scan(&u.ID, &u.StarryID, &u.Username, &u.Guest, &u.Version, &u.Profile, &u.Epoch)
 	return u, classify(e)
 }
 
-const userColumns = `id::text,COALESCE(username,''),guest,version,profile,session_epoch`
+const userColumns = `id::text,starry_id,COALESCE(username,''),guest,version,profile,session_epoch`
 
 func (s *Store) User(ctx context.Context, id string) (User, error) {
 	return scanUser(s.Pool.QueryRow(ctx, "SELECT "+userColumns+" FROM users WHERE id=$1", id))
@@ -20,7 +21,7 @@ func (s *Store) User(ctx context.Context, id string) (User, error) {
 func (s *Store) Credential(ctx context.Context, username string) (User, string, error) {
 	var u User
 	var hash string
-	e := s.Pool.QueryRow(ctx, "SELECT "+userColumns+",password_hash FROM users WHERE username=$1 AND NOT guest", username).Scan(&u.ID, &u.Username, &u.Guest, &u.Version, &u.Profile, &u.Epoch, &hash)
+	e := s.Pool.QueryRow(ctx, "SELECT "+userColumns+",password_hash FROM users WHERE username=$1 AND NOT guest", username).Scan(&u.ID, &u.StarryID, &u.Username, &u.Guest, &u.Version, &u.Profile, &u.Epoch, &hash)
 	return u, hash, classify(e)
 }
 func (s *Store) CreateUser(ctx context.Context, username, hash, name string, guest bool) (User, error) {
@@ -36,7 +37,7 @@ func (s *Store) CreateUser(ctx context.Context, username, hash, name string, gue
 		nameArg = nil
 		hashArg = nil
 	}
-	u, e = scanUser(tx.QueryRow(ctx, `INSERT INTO users(id,username,password_hash,guest,profile) VALUES($1,$2,$3,$4,$5) RETURNING `+userColumns, id, nameArg, hashArg, guest, map[string]any{"display_name": name, "avatar": "moon"}))
+	u, e = scanUser(tx.QueryRow(ctx, `INSERT INTO users(id,username,password_hash,guest,profile) VALUES($1,$2,$3,$4,$5) RETURNING `+userColumns, id, nameArg, hashArg, guest, map[string]any{"display_name": name, "avatar": "starry-cat-v1"}))
 	if e != nil {
 		return u, e
 	}
@@ -119,7 +120,7 @@ func (s *Store) DeleteUser(ctx context.Context, id string) error {
 	})
 }
 func (s *Store) Profile(ctx context.Context, id string, expected int64, patch map[string]any) (Document, error) {
-	for _, key := range []string{"id", "user_id", "username", "guest", "version", "session_epoch"} {
+	for _, key := range []string{"id", "user_id", "starry_id", "username", "guest", "version", "session_epoch"} {
 		if _, exists := patch[key]; exists {
 			return Document{}, invalid("account identity fields are not profile fields")
 		}
@@ -140,6 +141,15 @@ func (s *Store) Profile(ctx context.Context, id string, expected int64, patch ma
 		}
 		if e = validateProfile(next, false); e != nil {
 			return e
+		}
+		if avatar, ok := next["avatar"].(string); ok && strings.HasPrefix(avatar, "upload:") {
+			var owned bool
+			if e = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM account_avatars WHERE user_id=$1 AND sha256=$2)", id, strings.TrimPrefix(avatar, "upload:")).Scan(&owned); e != nil {
+				return e
+			}
+			if !owned {
+				return invalid("avatar must belong to this account")
+			}
 		}
 		out = Document{1, version + 1, next}
 		if _, e = tx.Exec(ctx, "UPDATE users SET profile=$2,version=version+1 WHERE id=$1", id, next); e != nil {

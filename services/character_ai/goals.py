@@ -20,7 +20,24 @@ def attach(body,headers,store,owner):
     value=json.loads(base64.urlsafe_b64decode(raw+'='*((-len(raw))%4)))
     if value.get('schema_version')!=1:raise ValueError('UNSUPPORTED_GOAL_SCHEMA')
     body._goal_snapshot=value;body._goal_account=headers.get('x-starry-account','')
-    store.put('goal_snapshot',owner,body.character_id,value)
+    remember(store,owner,body,value)
+    body._goal_snapshot=effective(store,owner,body)
+
+def stamp(value):
+    return (value.get('version',0),value.get('progress_version',0))
+
+def remember(store,owner,request,value):
+    previous=store.get('goal_snapshot',owner,request.character_id,{})
+    if stamp(value)>=stamp(previous):store.put('goal_snapshot',owner,request.character_id,value)
+
+def effective(store,owner,request):
+    latest=store.get('goal_snapshot',owner,request.character_id,{})
+    return latest if stamp(latest)>stamp(request._goal_snapshot) else request._goal_snapshot
+
+def committed(store,owner,request,value):
+    if value:
+        request._goal_snapshot=value
+        remember(store,owner,request,value)
 
 def branch(config):
     mode=config.get('mode','sandbox')

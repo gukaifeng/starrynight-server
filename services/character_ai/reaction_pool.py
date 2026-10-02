@@ -8,6 +8,7 @@ from .storage import dump
 from .greetings import ENTRY_TRIGGERS
 from .prepared_draft import PreparedDraft
 from . import idle_presence,reply_flow
+from .preparation_gate import PreparationGate
 
 REACTIONS={'shake':'model_shaken','pinch_in':'model_pinched','pinch_out':'model_pinched'}
 SCENARIOS={**REACTIONS,'idle':'idle','first_meeting':'firstMeeting','app_launch':'appLaunch','return':'characterSwitch'}
@@ -25,7 +26,7 @@ class ReactionPool:
     def __init__(self,engine):
         self.engine=engine;self.store=engine.store;self.settings=engine.settings
         self.tasks={};self.jobs={};self.active={};self.leases={};self.backoff={}
-        self.slots=asyncio.Semaphore(4)
+        self.slots=PreparationGate(4)
         from .quick_replies import QuickReplies
         self.quick=QuickReplies(self)
         with self.store.db:self.store.db.execute("UPDATE reaction_drafts SET status='expired' WHERE status='preparing'")
@@ -66,7 +67,7 @@ class ReactionPool:
         from .profiles import PROFILES
         # v4 adds conversational pauses/delivery and corresponding expression
         # selection. Retire only unspoken drafts; archive/audio remain intact.
-        value=[goals.REVISION,request._goal_snapshot,self.store.get('goal_snapshot',owner,request.character_id,{}),4,reply_flow.REVISION,idle_presence.REVISION,request.character_id,self.has_met(owner,request),PROFILES[request.character_id],voice.get('voice_id'),request.preferences,
+        value=[goals.REVISION,goals.effective(self.store,owner,request),5,reply_flow.REVISION,idle_presence.REVISION,request.character_id,self.has_met(owner,request),PROFILES[request.character_id],voice.get('voice_id'),request.preferences,
                [m.model_dump() for m in request.memories],sorted(request.available_assets),{k:v for k,v in request.scene.items() if k!='time'},history]
         return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
 
@@ -99,9 +100,11 @@ class ReactionPool:
     def prepare(self,owner,request,*,renew_lease=True):
         char=request.character_id;scope=(owner,char);key=self.context_key(owner,request)
         if renew_lease:self.leases[scope]=str(request.request_id)
-        self.active[owner]=char
+        entry_only=getattr(request,'preparation_scope','active')=='entry'
+        if not entry_only:self.active[owner]=char
         for j in list(self.jobs.values()):
-            if j.owner==owner and not j.claimed and (j.request.character_id!=char or j.key!=key):j.task.cancel()
+            # A likely next entry must not cancel the current role's replies.
+            if j.owner==owner and not j.claimed and j.request.character_id==char and j.key!=key:j.task.cancel()
         with self.store.db:
             self.store.db.execute("UPDATE reaction_drafts SET status='expired' WHERE owner=? AND character=? AND status='ready' AND (context_key!=? OR expires<=?)",(owner,char,key,time.time()))
             for kind in SCENARIOS:
@@ -145,7 +148,8 @@ class ReactionPool:
     async def run(self,job):
         owner=job.owner;request=job.request;char=request.character_id;voice=self.store.get('voice','system',char,{})
         try:
-            async with self.slots:
+            priority=0 if job.kind.startswith('quick:') else 1 if job.kind in ('first_meeting','app_launch','return') else 2 if job.kind in REACTIONS else 3
+            async with self.slots.acquire(priority):
                 if not voice.get('approved') or not self.current(job):raise ValueError('DRAFT_NOT_APPLICABLE')
                 context=self.engine.context(owner,request,persist=False)
                 if job.kind in SCENARIOS:
@@ -178,7 +182,8 @@ class ReactionPool:
             with self.store.db:self.store.db.execute("UPDATE reaction_drafts SET status='expired' WHERE id=? AND status!='used'",(job.id,))
             if not isinstance(error,asyncio.CancelledError):
                 self.backoff[(owner,char,job.key,job.kind)]=time.monotonic()+30
-                self.store.put('reaction_pool_review',owner,char,dict(status='preparation_failed',kind=job.kind,reason=type(error).__name__))
+                detail=str(error) if isinstance(error,ValueError) and str(error) in ('DRAFT_NOT_APPLICABLE','DRAFT_CONTEXT_CHANGED','EMPTY_DRAFT','REPLY_REPEATED','DRAFT_AUDIO_FAILED','REPLY_UNAVAILABLE') else getattr(error,'code',None)
+                self.store.put('reaction_pool_review',owner,char,dict(status='preparation_failed',kind=job.kind,reason=type(error).__name__,code=detail))
         finally:job.done=True;job.changed.set()
 
     def claim(self,owner,request):
@@ -199,6 +204,7 @@ class ReactionPool:
     async def publish(self,owner,request,context,claim,script,plan):
         char=request.character_id;script={**script,'trigger':request.trigger}
         script['goal_state']=await goals.commit(self.settings,request,Plan.model_validate(plan))
+        goals.committed(self.store,owner,request,script['goal_state'])
         self.store.publish_reply(owner,char,str(request.request_id),request.text,script,prepared_id=claim['id'],allow_preparing='job' in claim)
         self.engine.commit_context(owner,request,context,script,Plan.model_validate(plan))
         self.store.put('vocals',owner,char,[v['event'] for b in script['beats'] for v in b['vocal_events']])

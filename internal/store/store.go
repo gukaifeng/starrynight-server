@@ -25,6 +25,7 @@ type Document struct {
 }
 type User struct {
 	ID       string         `json:"id"`
+	StarryID string         `json:"starry_id"`
 	Username string         `json:"username"`
 	Guest    bool           `json:"guest"`
 	Version  int64          `json:"version"`

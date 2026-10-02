@@ -231,6 +231,9 @@ func (s *Server) required(ctx huma.Context, next func(huma.Context)) {
 }
 func register[I, O any](s *Server, method, path, id string, private bool, handler func(context.Context, *I) (*O, error)) {
 	op := huma.Operation{OperationID: id, Method: method, Path: path, MaxBodyBytes: 256 * 1024}
+	if id == "replace-own-avatar" {
+		op.MaxBodyBytes = 720 * 1024
+	}
 	if private {
 		op.Security = []map[string][]string{{"session": {}}}
 		op.Middlewares = huma.Middlewares{s.required}

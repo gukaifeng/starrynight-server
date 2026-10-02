@@ -318,6 +318,7 @@ class Orchestrator:
             yield event('reaction.draft',plan=plan.model_dump())
         else:
             script['goal_state']=await goals.commit(self.settings,request,plan)
+            goals.committed(self.store,owner,request,script['goal_state'])
             self.store.publish_reply(owner,char,rid,request.text,script)
             self.commit_context(owner,request,context,script,plan)
         yield event('reply.narration.ready',script=script,cached=False)

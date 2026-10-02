@@ -100,6 +100,20 @@ func (s *Server) limitLogin(ctx context.Context, name string) error {
 	return nil
 }
 func (s *Server) accountRoutes() {
+	register(s, "GET", "/v1/me/avatar", "get-own-avatar", true, func(ctx context.Context, _ *Empty) (*Output[store.AccountAvatar], error) {
+		avatar, e := s.Store.Avatar(ctx, principal(ctx).ID)
+		return output(avatar, e)
+	})
+	type AvatarInput struct {
+		Body struct {
+			ExpectedVersion int64  `json:"expected_version" minimum:"1"`
+			Image           []byte `json:"image"`
+		}
+	}
+	register(s, "PUT", "/v1/me/avatar", "replace-own-avatar", true, func(ctx context.Context, in *AvatarInput) (*Output[store.Document], error) {
+		profile, e := s.Store.ReplaceAvatar(ctx, principal(ctx).ID, in.Body.ExpectedVersion, in.Body.Image)
+		return output(profile, e)
+	})
 	type RenameInput struct {
 		Body struct {
 			Username        string `json:"username" minLength:"3" maxLength:"32" pattern:"^[a-zA-Z0-9_]+$"`

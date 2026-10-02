@@ -1,6 +1,36 @@
 {
   "components": {
     "schemas": {
+      "AccountAvatar": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AccountAvatar.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "image": {
+            "contentEncoding": "base64",
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sha256",
+          "content_type",
+          "image"
+        ],
+        "type": "object"
+      },
       "Author": {
         "additionalProperties": false,
         "properties": {
@@ -34,6 +64,34 @@
           "version",
           "data",
           "followers"
+        ],
+        "type": "object"
+      },
+      "AvatarInputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/AvatarInputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expected_version": {
+            "format": "int64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "image": {
+            "contentEncoding": "base64",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_version",
+          "image"
         ],
         "type": "object"
       },
@@ -1494,6 +1552,9 @@
             "additionalProperties": {},
             "type": "object"
           },
+          "starry_id": {
+            "type": "string"
+          },
           "username": {
             "type": "string"
           },
@@ -1504,6 +1565,7 @@
         },
         "required": [
           "id",
+          "starry_id",
           "username",
           "guest",
           "version",
@@ -3759,6 +3821,78 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Author"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/v1/me/avatar": {
+      "get": {
+        "operationId": "get-own-avatar",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountAvatar"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "replace-own-avatar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvatarInputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
                 }
               }
             },

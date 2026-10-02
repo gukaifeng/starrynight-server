@@ -191,6 +191,9 @@ async def test_first_meeting_then_return_and_launch_are_distinct_and_used_only_a
     assert events[0]['prepared'] and events[0]['script']['trigger']=='firstLaunch'
     assert store.db.execute('SELECT min(created) FROM messages').fetchone()[0]>=before
     assert len(store.get('greetings','u',entry.character_id))==1
+    # Entry prediction does not become the active role; the client activates
+    # preparation after the actual greeting is delivered.
+    pool.prepare('u',request)
     await pool.tasks[('u',entry.character_id)]
     status=pool.status('u',request)['ready']
     assert status['first_meeting']==0 and status['app_launch']==status['return']==1
