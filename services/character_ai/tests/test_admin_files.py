@@ -1,4 +1,4 @@
-import io, wave
+import io, wave, json
 import httpx, pytest
 from services.character_ai.app import create_app
 from services.character_ai.config import Settings
@@ -13,7 +13,12 @@ async def test_existing_audio_and_nested_models_can_be_inspected_and_recovered(
     )
     headers = {"Authorization": "Bearer private-fixture"}
     (tmp_path / "audio").mkdir(exist_ok=True)
-    (tmp_path / "audio/a.pcm").write_bytes(bytes(4800))
+    from services.character_ai.speech_text import audio_key
+    fixture_key=audio_key("fixture-owner","fixture-role","","fixture-message","beat1",revision="spoken-v2")
+    audio=tmp_path/"audio"/(fixture_key+".pcm");audio.write_bytes(bytes(4800))
+    app.state.store.put("voice","system","fixture-role",{"voice_id":None})
+    script={"message_id":"fixture-message","beats":[{"beat_id":"beat1","dialogue":{"text":"fixture structured speech"}},{"beat_id":"beat2","dialogue":None},{"beat_id":"beat3","dialogue":"legacy speech"}]}
+    with app.state.store.db:app.state.store.db.execute("INSERT INTO messages VALUES(?,?,?,?,?,?,?)",("fixture-message","fixture-owner","fixture-role","request","assistant",json.dumps(script),1))
     (tmp_path / "models/nested").mkdir(parents=True, exist_ok=True)
     (tmp_path / "models/nested/weights.onnx").write_bytes(b"fixture")
     (tmp_path / "audio/link.pcm").symlink_to(tmp_path / "state.sqlite3")
@@ -26,6 +31,7 @@ async def test_existing_audio_and_nested_models_can_be_inspected_and_recovered(
             listing = (await client.get(root, headers=headers)).json()
             assert len(listing["items"]) == 1
             row = listing["items"][0]
+            assert row["reference"]["text"]=="fixture structured speech"
             result = await client.get(
                 root + "/download", params={"id": row["id"]}, headers=headers
             )
@@ -91,7 +97,7 @@ async def test_existing_audio_and_nested_models_can_be_inspected_and_recovered(
                 headers=headers,
             )
             assert response.status_code == 200
-            assert (tmp_path / "audio/a.pcm").exists()
+            assert audio.exists()
             assert (
                 await client.get(root, params={"group": "trash"}, headers=headers)
             ).json()["items"] == []

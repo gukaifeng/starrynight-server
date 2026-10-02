@@ -13,7 +13,7 @@ try {
  await page.goto(base);await page.getByLabel('账号',{exact:true}).fill(process.env.ADMIN_TEST_USERNAME??'owner');await page.getByLabel('密码',{exact:true}).fill((await fs.readFile(process.env.ADMIN_TEST_PASSWORD_FILE,'utf8')).trim());await page.getByRole('button',{name:'进入控制室'}).click();await expect(page.getByRole('heading',{name:'照看每一次相遇'})).toBeVisible();
  const checked=[];
  for(const name of ['资源与模型','声音文件','会话与缓存','备份与恢复','运行配置','版本与证书','服务器文件','维护任务']){
-  await nav(name).click();await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();await expect(page.locator('.management-workspace .error-note')).toHaveCount(0);checked.push(name);
+  const endpoint={'资源与模型':'/runtime/library','声音文件':'/files/ai','会话与缓存':'/cache','备份与恢复':'/runtime/backups','运行配置':'/runtime/config','版本与证书':'/runtime/releases','服务器文件':'/runtime/files','维护任务':'/runtime/jobs'}[name];const [response]=await Promise.all([page.waitForResponse(r=>r.url().includes('/admin-api/v1'+endpoint)&&r.request().method()==='GET'),nav(name).click()]);expect(response.status()).toBe(200);await response.json();await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();await expect(page.locator('.management-workspace .error-note')).toHaveCount(0);checked.push(name);
   if(['运行配置','声音文件','备份与恢复'].includes(name))await page.screenshot({path:path.join(output,name+'-desktop.png'),fullPage:true,animations:'disabled'});
  }
  await nav('声音文件').click();await expect(page.locator('.management-list tbody tr').first()).toBeVisible();await page.locator('.management-list tbody tr').first().click();await expect(page.locator('audio')).toBeVisible();

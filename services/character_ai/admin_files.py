@@ -84,16 +84,20 @@ def mount_files(app, settings, store, engine, admin):
                 "SELECT owner,character,id,data FROM messages WHERE role='assistant' ORDER BY created DESC LIMIT 5000"
             ):
                 script = json.loads(row["data"])
-                voice = store.get("voice", "system", row["character"], {})
-                for beat in script.get("beats", []):
+                if not isinstance(script,dict):continue
+                voice = store.get("voice", "system", row["character"], {}) or {}
+                for beat in script.get("beats", []) or []:
+                    if not isinstance(beat,dict):continue
+                    dialogue=beat.get("dialogue")
+                    text=dialogue.get("text","") if isinstance(dialogue,dict) else (dialogue or "")
                     for revision in ("", "spoken-v2"):
                         name = (
                             audio_key(
                                 row["owner"],
                                 row["character"],
-                                voice.get("voice_id", ""),
-                                script.get("message_id", row["id"]),
-                                beat.get("beat_id", ""),
+                                str(voice.get("voice_id") or ""),
+                                script.get("message_id") or row["id"],
+                                beat.get("beat_id") or "",
                                 revision=revision,
                             )
                             + ".pcm"
@@ -102,7 +106,7 @@ def mount_files(app, settings, store, engine, admin):
                             owner=row["owner"],
                             character=row["character"],
                             message_id=row["id"],
-                            text=beat.get("dialogue", "")[:160],
+                            text=str(text)[:160],
                         )
         items = []
         for p in files[:50]:
