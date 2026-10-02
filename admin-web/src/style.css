@@ -291,7 +291,7 @@
     color: var(--color-slate);
   }
   .login-world h1 {
-    font: 500 clamp(30px, 3vw, 46px)/1.6 var(--font-display);
+    font: 500 clamp(30px, 3vw, 46px) / 1.6 var(--font-display);
     margin: 20px 0;
   }
   .login-world p {
@@ -1468,4 +1468,372 @@
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* File and maintenance workspaces inherit the control room's moonlit palette. */
+.management-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.management-tabs button {
+  border: 1px solid rgba(20, 44, 63, 0.13);
+  padding: 9px 17px;
+  border-radius: 999px;
+  color: var(--color-tide);
+  background: transparent;
+}
+.management-tabs button.active {
+  background: rgba(157, 216, 219, 0.13);
+  color: var(--color-orbit);
+}
+.management-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  flex-wrap: wrap;
+}
+.management-toolbar > input {
+  flex: 1;
+  min-width: 200px;
+}
+.management-toolbar .panel-note {
+  flex: 1;
+  margin: 0;
+}
+.management-split {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+.management-split.has-detail {
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 1fr);
+}
+.management-list,
+.management-detail {
+  min-width: 0;
+}
+.management-detail {
+  padding: 24px;
+}
+.management-detail h2 {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.management-detail label {
+  display: block;
+  margin: 15px 0;
+}
+.management-detail input:not([type="range"]):not([type="checkbox"]),
+.management-detail textarea,
+.configuration-fields input,
+.configuration-fields select {
+  width: 100%;
+  margin-top: 7px;
+}
+.management-table td {
+  max-width: 280px;
+  overflow-wrap: anywhere;
+}
+.management-table tr[tabindex] {
+  cursor: pointer;
+}
+.management-table tr.selected {
+  background: rgba(153, 204, 215, 0.1);
+}
+.management-table .empty {
+  padding: 25px;
+}
+.management-json {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 460px;
+  overflow: auto;
+  font:
+    12px/1.8 ui-monospace,
+    monospace;
+  background: #edf2f3;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 14px 0;
+  color: var(--color-orbit);
+}
+.detail-actions,
+.service-actions,
+.backup-downloads {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.danger-button {
+  color: #a44343;
+  border: 1px solid rgba(233, 137, 137, 0.24);
+  background: rgba(206, 100, 100, 0.08);
+  padding: 10px 15px;
+  border-radius: 9px;
+}
+.upload-control {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.upload-control input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.upload-options {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: end;
+  margin-bottom: 18px;
+}
+.upload-options label {
+  flex: 1;
+  min-width: 220px;
+}
+.upload-options input {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+}
+.upload-options p {
+  width: 100%;
+}
+.resource-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.sound-preview {
+  padding: 30px 0;
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+}
+.sound-preview audio {
+  width: 100%;
+}
+.sound-preview p {
+  font-size: 12px;
+  color: var(--color-tide);
+}
+.sound-orbit {
+  height: 70px;
+  width: 70px;
+  border: 1px solid #adc9d1;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 10px rgba(138, 198, 204, 0.05),
+    0 0 0 20px rgba(138, 198, 204, 0.025);
+}
+.configuration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.configuration-grid > .panel {
+  padding: 25px;
+}
+.configuration-fields {
+  display: grid;
+  gap: 17px;
+}
+.configuration-fields label {
+  font-size: 13px;
+}
+.configuration-fields small {
+  display: block;
+  font-size: 11px;
+  color: var(--color-tide);
+  margin: 5px 0;
+  overflow-wrap: anywhere;
+}
+.maintenance-banner,
+.management-notice {
+  border: 1px solid rgba(136, 196, 202, 0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  background: rgba(136, 196, 202, 0.06);
+  margin: 15px 0;
+}
+.maintenance-banner p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+.maintenance-banner small {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--color-tide);
+}
+.model-canvas {
+  width: 100%;
+  height: 340px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.model-canvas canvas {
+  display: block;
+}
+.preview-stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  margin: 14px 0;
+  color: var(--color-tide);
+}
+.shape-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-height: 270px;
+  overflow: auto;
+}
+.shape-list label {
+  font-size: 11px;
+  margin: 0;
+}
+.shape-list input {
+  width: 100%;
+}
+.inline-choice {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+.file-size {
+  font-size: 12px;
+  color: var(--color-tide);
+}
+.management-detail details {
+  margin: 18px 0;
+}
+.management-detail summary {
+  cursor: pointer;
+}
+.storage-empty {
+  padding: 25px;
+}
+.management-workspace > details {
+  padding: 20px;
+}
+.management-workspace .panel-note {
+  line-height: 1.8;
+}
+.management-workspace input,
+.management-workspace select,
+.management-workspace textarea {
+  min-width: 0;
+}
+.management-workspace textarea {
+  min-height: 90px;
+}
+.management-workspace button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+@media (max-width: 1150px) {
+  .management-split.has-detail {
+    grid-template-columns: 1fr;
+  }
+  .configuration-grid {
+    grid-template-columns: 1fr;
+  }
+  .management-detail {
+    padding: 20px;
+  }
+  .maintenance-banner p {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 640px) {
+  .management-toolbar > input {
+    width: 100%;
+    flex-basis: 100%;
+  }
+  .management-detail {
+    padding: 16px;
+  }
+  .configuration-grid > .panel {
+    padding: 18px;
+  }
+  .model-canvas {
+    height: 300px;
+  }
+  .management-tabs {
+    gap: 6px;
+  }
+  .management-tabs button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .maintenance-banner small {
+    width: 100%;
+    margin-left: 18px;
+  }
+  .shape-list {
+    grid-template-columns: 1fr;
+  }
+  .management-table td {
+    max-width: 180px;
+  }
+  .service-actions button {
+    font-size: 12px;
+  }
+  .upload-options label {
+    min-width: 100%;
+  }
+}
+.management-table table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+.management-table th {
+  position: sticky;
+  top: 0;
+  background: #edf2f3;
+  color: var(--color-tide);
+  font-size: 11px;
+  font-weight: 400;
+  padding: 13px 16px;
+}
+.management-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(20, 44, 63, 0.07);
+  vertical-align: top;
+}
+.management-table tr[tabindex]:hover {
+  background: rgba(153, 204, 215, 0.08);
+}
+.management-workspace select {
+  display: block;
+  width: 100%;
+  border: 1px solid rgba(20, 44, 63, 0.14);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--color-moon);
+  color: var(--color-orbit);
+}
+.management-toolbar > select {
+  width: auto;
+  min-width: 160px;
+}
+.management-workspace .inline-choice input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  flex: none;
 }

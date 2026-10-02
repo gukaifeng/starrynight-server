@@ -65,6 +65,11 @@ func (s *Server) publish(c *gin.Context, v map[string]any) (any, error) {
 	if s.Config.Signer == nil {
 		return nil, bad("尚未配置私有 OSS；请先准备存储与上传资源")
 	}
+	unlock, e := assets.LockPublication(c.Request.Context(), s.DB.Pool)
+	if e != nil {
+		return nil, e
+	}
+	defer unlock()
 	for _, f := range m.Files {
 		head, e := s.Config.Signer.Client.HeadObject(c.Request.Context(), &oss.HeadObjectRequest{Bucket: oss.Ptr(s.Config.Signer.Bucket), Key: oss.Ptr(f.ObjectKey)})
 		if e != nil {

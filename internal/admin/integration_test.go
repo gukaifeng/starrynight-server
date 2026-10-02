@@ -83,7 +83,7 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 		db.Pool.Exec(ctx, "DELETE FROM admin_audit WHERE actor_id IN ($1,$2)", owner, viewer)
 		db.Pool.Exec(ctx, "DELETE FROM admin_users WHERE id IN ($1,$2)", owner, viewer)
 	}()
-	app, e := New(Config{Origin: "http://127.0.0.1:18100", WebRoot: t.TempDir()}, db, cache, prefix)
+	app, e := New(Config{AIToken: "private-cache-fixture", Origin: "http://127.0.0.1:18100", WebRoot: t.TempDir()}, db, cache, prefix)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -132,6 +132,51 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	}
 	json.Unmarshal(data, &session)
 	csrf = session.CSRF
+
+	// Inspector handles never expose a bearer key or JSON credentials.
+	cacheKey := prefix + "config:fixture"
+	cache.Set(ctx, cacheKey, `{"count":3,"api_key":"PRIVATE_CACHE_SECRET"}`, 0)
+	code, data = request(srv.URL, "GET", "/cache?cursor=0", nil, "", "")
+	assert(code, 200, data)
+	var listing struct {
+		Items []map[string]any `json:"items"`
+	}
+	json.Unmarshal(data, &listing)
+	var handle string
+	for _, r := range listing.Items {
+		if r["key"] == cacheKey {
+			handle = r["id"].(string)
+			if r["ttl_seconds"] != float64(-1) {
+				t.Fatal("persistent TTL lost")
+			}
+		}
+	}
+	if handle == "" || strings.Contains(handle, cacheKey) {
+		t.Fatal("opaque cache handle missing")
+	}
+	code, data = request(srv.URL, "GET", "/cache/detail?id="+url.QueryEscape(handle), nil, "", "")
+	assert(code, 200, data)
+	if strings.Contains(string(data), "PRIVATE_CACHE_SECRET") {
+		t.Fatal("JSON credential exposed")
+	}
+	var detail map[string]any
+	json.Unmarshal(data, &detail)
+	clear := map[string]any{"id": handle, "version": detail["version"], "confirmed": true}
+	cache.Set(ctx, cacheKey, "changed", 0)
+	code, data = request(srv.URL, "POST", "/cache/clear", clear, app.Config.Origin, csrf)
+	assert(code, 400, data)
+	code, data = request(srv.URL, "GET", "/cache/detail?id="+url.QueryEscape(handle), nil, "", "")
+	assert(code, 200, data)
+	json.Unmarshal(data, &detail)
+	clear["version"] = detail["version"]
+	code, data = request(srv.URL, "POST", "/cache/clear", clear, app.Config.Origin, csrf)
+	assert(code, 200, data)
+	if cache.Exists(ctx, cacheKey).Val() != 0 {
+		t.Fatal("targeted cache clear failed")
+	}
+	code, data = request(srv.URL, "GET", "/cache/detail?id=forged", nil, "", "")
+	assert(code, 400, data)
+
 	code, data = request(replica.URL, "GET", "/session", nil, "", "")
 	assert(code, 200, data)
 	for _, r := range Resources {
@@ -215,6 +260,10 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	json.Unmarshal(data, &session)
 	csrf = session.CSRF
 	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, csrf)
+	assert(code, 403, data)
+	code, data = request(srv.URL, "GET", "/cache", nil, "", "")
+	assert(code, 403, data)
+	code, data = request(srv.URL, "GET", "/runtime/config", nil, "", "")
 	assert(code, 403, data)
 	if _, e = db.Pool.Exec(ctx, "UPDATE admin_users SET session_epoch=session_epoch+1 WHERE id=$1", viewer); e != nil {
 		t.Fatal(e)

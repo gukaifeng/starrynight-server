@@ -35,6 +35,7 @@ func main() {
 func run() error {
 	bootstrap := flag.Bool("bootstrap", false, "create first owner; password from stdin")
 	username := flag.String("username", "owner", "first owner username")
+	validate := flag.Bool("validate-config", false, "validate platform config and connection readiness")
 	flag.Parse()
 	cfg, e := config.Load()
 	if e != nil {
@@ -47,6 +48,20 @@ func run() error {
 		return errors.New("admin PostgreSQL unavailable")
 	}
 	defer db.Pool.Close()
+	if *validate {
+		options, err := redis.ParseURL(cfg.RedisURL)
+		if err != nil {
+			return errors.New("invalid Redis URL")
+		}
+		client := redis.NewClient(options)
+		defer client.Close()
+		check, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+		if db.Pool.Ping(check) != nil || client.Ping(check).Err() != nil {
+			return errors.New("database or session storage not ready")
+		}
+		return nil
+	}
 	if *bootstrap {
 		data, e := io.ReadAll(io.LimitReader(os.Stdin, 130))
 		if e != nil {
@@ -129,7 +144,7 @@ func run() error {
 	if e != nil {
 		return e
 	}
-	app, e := admin.New(admin.Config{Origin: origin, Secure: strings.HasPrefix(origin, "https://"), WebRoot: root, AIURL: cfg.AIUpstream, AIToken: token, AIClientToken: cfg.AIServiceToken, Signer: signer, Operations: os.Getenv("ADMIN_SYSTEMD") == "true"}, db, cache, cfg.RedisPrefix)
+	app, e := admin.New(admin.Config{Origin: origin, Secure: strings.HasPrefix(origin, "https://"), WebRoot: root, AIURL: cfg.AIUpstream, AIToken: token, AIClientToken: cfg.AIServiceToken, Signer: signer, Operations: os.Getenv("ADMIN_SYSTEMD") == "true", RuntimeRoot: os.Getenv("ADMIN_RUNTIME_ROOT"), ReleaseRoot: os.Getenv("ADMIN_RELEASE_ROOT")}, db, cache, cfg.RedisPrefix)
 	if e != nil {
 		return e
 	}

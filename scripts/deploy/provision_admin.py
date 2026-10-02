@@ -60,7 +60,7 @@ https://39.105.116.74:8444 {
     run(root/'bin/caddy','validate','--config',candidate,'--adapter','caddyfile',stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
     try:
         unit.parent.mkdir(parents=True,exist_ok=True);unit.write_bytes((current/'scripts/deploy/starry-admin.service').read_bytes())
-        adminenv.write_text('ADMIN_LISTEN=127.0.0.1:8100\nADMIN_ORIGIN=https://39.105.116.74:8444\nADMIN_WEB_ROOT=/home/starrynight/starrynight-server/current/admin-web/dist\nADMIN_SYSTEMD=true\nSTARRY_AI_CONFIG=/home/starrynight/app/config/ai-settings.json\n')
+        adminenv.write_text('ADMIN_LISTEN=127.0.0.1:8100\nADMIN_ORIGIN=https://39.105.116.74:8444\nADMIN_WEB_ROOT=/home/starrynight/starrynight-server/current/admin-web/dist\nADMIN_SYSTEMD=true\nADMIN_RUNTIME_ROOT=/home/starrynight/app\nADMIN_RELEASE_ROOT=/home/starrynight/starrynight-server/current\nSTARRY_AI_CONFIG=/home/starrynight/app/config/ai-settings.json\n')
         run('systemctl','--user','daemon-reload');run('systemctl','--user','enable','--now','starry-admin');run('systemctl','--user','restart','starry-admin')
         ready('http://127.0.0.1:8100/health/ready');edge.write_bytes(candidate.read_bytes());run('systemctl','--user','reload','starry-edge')
         ready('https://39.105.116.74:8444/health/ready');ready('http://127.0.0.1:8090/health/ready')

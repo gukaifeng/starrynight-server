@@ -49,6 +49,8 @@ import {
   type Row,
 } from "./api";
 
+import { Management, tools as managementTools } from "./Management";
+
 const labels: Record<string, string> = {
   appearance_facts: "外观事实",
   identity: "身份说明",
@@ -461,6 +463,27 @@ export default function App() {
               )
             );
           })}
+          {user.role === "owner" && (
+            <div className="nav-group">
+              <div className="nav-caption">
+                <Database size={13} />
+                服务器管理
+              </div>
+              {managementTools.map((t) => (
+                <button
+                  key={t.id}
+                  aria-label={t.name}
+                  className={
+                    "nav-resource " +
+                    (view === "manage:" + t.id ? "active" : "")
+                  }
+                  onClick={() => choose("manage:" + t.id)}
+                >
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          )}
           <button
             className={"nav-item " + (view === "operations" ? "active" : "")}
             onClick={() => choose("operations")}
@@ -518,7 +541,9 @@ export default function App() {
           <span>{current?.group ?? "星夜服务"}</span>
           <ChevronRight size={12} />
           <span>
-            {current?.name ?? (view === "operations" ? "运行状态" : "控制室")}
+            {current?.name ??
+              managementTools.find((t) => "manage:" + t.id === view)?.name ??
+              (view === "operations" ? "运行状态" : "控制室")}
           </span>
           <div className="topline-right">
             <span className="live-dot" />
@@ -545,6 +570,13 @@ export default function App() {
             />
           ) : view === "operations" ? (
             <Operations user={user} refresh={refresh} ask={ask} />
+          ) : view.startsWith("manage:") && user.role === "owner" ? (
+            <Management
+              key={view}
+              view={view.slice(7)}
+              refresh={refresh}
+              ask={ask}
+            />
           ) : current ? (
             <ResourceWorkspace
               key={view}
@@ -832,7 +864,8 @@ function ResourceWorkspace({
   const canEdit =
     user.role !== "viewer" &&
     (!r.ai || user.role === "owner") &&
-    (!["admin_users","character_releases"].includes(r.id) || user.role === "owner");
+    (!["admin_users", "character_releases"].includes(r.id) ||
+      user.role === "owner");
   const canCreate =
     user.role === "owner" &&
     !r.ai &&

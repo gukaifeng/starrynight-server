@@ -30,3 +30,8 @@ docs/design/account-and-assets-2026-10-02.md. This does not undo the prior cutov
 - Read the architecture and runbook in `docs/` before changing persistence. Use versioned Goose migrations, explicit ownership predicates, optimistic versions, and cursor pagination. Keep secrets, database files and test captures in ignored `.local/`.
 - Guest authentication is opt-in for development/testing and must fail startup in production. No hard-coded privileged/test identity or client-supplied account identity is trusted.
 - Use `make test`, `make integration`, and `make build`; document actual measurements rather than claiming an unmeasured concurrency ceiling. Do not invoke paid AI providers in tests.
+
+## Codex 用量
+
+用户于 2026-10-02 取消套餐余额检查。后续不主动查询套餐或 credits，
+不因额度查询失败暂停任务；只在用户再次明确要求时查询。

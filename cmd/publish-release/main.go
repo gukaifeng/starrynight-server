@@ -51,6 +51,16 @@ func run() error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
+	db, err := store.Open(ctx, c.DatabaseURL, c.PoolSize)
+	if err != nil {
+		return err
+	}
+	defer db.Pool.Close()
+	unlock, err := assets.LockPublication(ctx, db.Pool)
+	if err != nil {
+		return err
+	}
+	defer unlock()
 	for _, f := range m.Files {
 		head, err := signer.Client.HeadObject(ctx, &oss.HeadObjectRequest{Bucket: oss.Ptr(signer.Bucket), Key: oss.Ptr(f.ObjectKey)})
 		if err != nil {
@@ -60,11 +70,6 @@ func run() error {
 			return fmt.Errorf("size/hash metadata mismatch for %s", f.Path)
 		}
 	}
-	db, err := store.Open(ctx, c.DatabaseURL, c.PoolSize)
-	if err != nil {
-		return err
-	}
-	defer db.Pool.Close()
 	// No UPDATE/UPSERT: replacing bytes or metadata under an old version is forbidden.
 	manifestJSON, err := json.Marshal(m)
 	if err != nil {

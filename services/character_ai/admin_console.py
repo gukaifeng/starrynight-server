@@ -186,6 +186,8 @@ def mount(app,settings,store,engine,admin):
         try:return safe(await engine.provider.design_voice(character,PROFILES[character],revision=body.get('revision')))
         except (ProviderError,ValueError) as error:raise HTTPException(409,str(error)) from None
     app.include_router(router)
+    from .admin_files import mount_files
+    mount_files(app,settings,store,engine,admin)
 
 def memory_version(row):
     # Fits JavaScript's exact integer range and detects row-id reuse or a

@@ -34,6 +34,7 @@ type Config struct {
 	Signer                                         *assets.Signer
 	Secure                                         bool
 	Operations                                     bool
+	RuntimeRoot, ReleaseRoot                       string
 }
 type Principal struct {
 	ID       string `json:"id"`
@@ -42,13 +43,14 @@ type Principal struct {
 	Epoch    int64  `json:"-"`
 }
 type Server struct {
-	Router   http.Handler
-	DB       *store.Store
-	Cache    *redis.Client
-	Sessions *scs.SessionManager
-	Auth     *identity.Service
-	Config   Config
-	Client   *http.Client
+	Router      http.Handler
+	DB          *store.Store
+	Cache       *redis.Client
+	Sessions    *scs.SessionManager
+	Auth        *identity.Service
+	Config      Config
+	Client      *http.Client
+	RedisPrefix string
 }
 type upstreamError struct {
 	Code   int
@@ -78,7 +80,7 @@ func New(cfg Config, db *store.Store, cache *redis.Client, prefix string) (*Serv
 	sm.Cookie.HttpOnly = true
 	sm.Cookie.Secure = cfg.Secure
 	sm.Cookie.SameSite = http.SameSiteStrictMode
-	s := &Server{DB: db, Cache: cache, Auth: a, Sessions: sm, Config: cfg, Client: &http.Client{Timeout: 20 * time.Second}}
+	s := &Server{DB: db, Cache: cache, Auth: a, Sessions: sm, Config: cfg, RedisPrefix: prefix, Client: &http.Client{Timeout: 20 * time.Second}}
 	r := gin.New()
 	_ = r.SetTrustedProxies([]string{"127.0.0.1", "::1"})
 	r.Use(gin.Recovery(), s.headers)
@@ -106,6 +108,7 @@ func New(cfg Config, db *store.Store, cache *redis.Client, prefix string) (*Serv
 	api.Any("/ai/*path", s.ai)
 	api.GET("/operations", s.operations)
 	api.POST("/operations/:unit/restart", s.restart)
+	s.managementRoutes(api)
 	r.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, "/admin-api") || c.Request.Method != "GET" {
 			c.JSON(404, gin.H{"error": "接口不存在"})
@@ -128,9 +131,13 @@ func (s *Server) headers(c *gin.Context) {
 	c.Header("X-Content-Type-Options", "nosniff")
 	c.Header("Referrer-Policy", "same-origin")
 	c.Header("X-Frame-Options", "DENY")
-	c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+	c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 	c.Header("Cache-Control", "no-store")
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 1<<20)
+	limit := int64(1 << 20)
+	if c.Request.Method == "POST" && (c.Request.URL.Path == "/admin-api/v1/library/upload" || c.Request.URL.Path == "/admin-api/v1/objects/upload") {
+		limit = 512 << 20
+	}
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, limit)
 	c.Next()
 }
 func (s *Server) origin(c *gin.Context) {
@@ -149,6 +156,12 @@ func (s *Server) csrf(c *gin.Context) {
 	if c.GetHeader("Origin") != s.Config.Origin || token == "" || subtle.ConstantTimeCompare([]byte(token), []byte(c.GetHeader("X-CSRF-Token"))) != 1 {
 		c.AbortWithStatusJSON(403, gin.H{"error": "页面已过期，请刷新后重试"})
 		return
+	}
+	if s.Config.RuntimeRoot != "" {
+		if _, e := os.Stat(filepath.Join(s.Config.RuntimeRoot, "data/admin/maintenance.json")); e == nil {
+			c.AbortWithStatusJSON(503, gin.H{"error": "维护任务执行中，暂时不能修改数据"})
+			return
+		}
 	}
 	c.Next()
 }
@@ -233,6 +246,9 @@ func writable(c *gin.Context, owner bool) bool {
 	return true
 }
 func fail(c *gin.Context, e error) {
+	if c.Request.Context().Err() != nil {
+		return
+	}
 	var upstream upstreamError
 	if errors.As(e, &upstream) {
 		c.JSON(upstream.Code, gin.H{"error": upstream.Detail})
