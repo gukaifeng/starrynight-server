@@ -54,4 +54,4 @@ make build
 
 ## 浏览器验证
 
-`scripts/verify_admin_browser.mjs` 使用真实管理 API；设置 ADMIN_TEST_BASE、ADMIN_TEST_PASSWORD_FILE、CHROME_EXECUTABLE。默认仅查看；ADMIN_TEST_CREATE_FIXTURE=true 会创建独立验证账户并编辑资料，只在专用本地数据库使用。截图与结果写 .local/admin-verification。没有截图或浏览器通过记录时不可声称完成视觉验证。
+`scripts/verify_admin_browser.mjs` 使用真实管理 API；设置 ADMIN_TEST_BASE、ADMIN_TEST_PASSWORD_FILE、CHROME_EXECUTABLE。本机代理导致连接关闭时可设置 ADMIN_TEST_DIRECT=true，令测试浏览器直连。默认仅查看；ADMIN_TEST_CREATE_FIXTURE=true 会创建独立验证账户并编辑资料，只在专用本地数据库使用。截图与结果写 .local/admin-verification。没有截图或浏览器通过记录时不可声称完成视觉验证。

@@ -8,7 +8,7 @@ const base=process.env.ADMIN_TEST_BASE??'http://127.0.0.1:18100';
 const password=(await fs.readFile(process.env.ADMIN_TEST_PASSWORD_FILE,'utf8')).trim();
 const output=process.env.ADMIN_TEST_OUTPUT??'.local/admin-verification';
 await fs.mkdir(output,{recursive:true});
-const browser=await chromium.launch({executablePath:process.env.CHROME_EXECUTABLE,headless:true});
+const browser=await chromium.launch({executablePath:process.env.CHROME_EXECUTABLE,headless:true,args:process.env.ADMIN_TEST_DIRECT==='true'?['--no-proxy-server']:[]});
 const context=await browser.newContext({viewport:{width:1512,height:1050}});
 const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
 const nav=name=>page.locator('.sidebar').getByRole('button',{name,exact:true});
