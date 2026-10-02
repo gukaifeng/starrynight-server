@@ -29,4 +29,8 @@
 
 启动新服务前执行加法迁移 16，并沿用既有在线数据库备份与版本化部署流程。回滚代码不回滚业务数据库；角色包以版本选择回退，不在旧版本下覆盖文件。
 
+管理平台的数据浏览器提供「商店预览」只读记录，定位每个角色的图片、试听和公开描述。OSS 删除保护同时检查不可变发布清单及商店预览引用；即使角色暂时下架，也不能误删仍被记录引用的对象。发布工具与管理删除共用数据库发布锁。
+
+2026-10-03 实测：私有 Bucket 中上传 48 个预览对象与 6 个运行包（Fiona、瑞希、拉姆ネ，各含真机和模拟器版本）；商店公开接口返回 16 项。48 个预览的实际 GET 下载通过大小和 SHA-256 校验，三个角色的已登录下载票据通过 OSS 读取，未登录票据请求返回 401。真实 PostgreSQL / Redis 隔离测试库中的 API、管理员集成测试，以及 Go race/vet 检查通过；管理测试覆盖商店预览的删除保护及只读浏览。测试没有调用付费 AI。
+
 官方依据：[OSS Go v2 预签名下载](https://www.alibabacloud.com/help/en/oss/developer-reference/v2-presign-download)、[Unity 分块压缩](https://docs.unity.com/en-us/engine/6000.0/script-reference/unityeditor/buildassetbundleoptions/chunkbasedcompression)。

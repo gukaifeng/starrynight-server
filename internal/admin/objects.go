@@ -20,20 +20,28 @@ func safeObject(key string) bool {
 	return key != "" && len(key) < 1024 && path.Clean(key) == key && !strings.HasPrefix(key, "/") && !strings.HasPrefix(key, "../") && !strings.ContainsAny(key, "\x00\r\n\\")
 }
 func (s *Server) objectReferences(ctx context.Context, key string) ([]map[string]any, error) {
-	rows, e := s.DB.Pool.Query(ctx, "SELECT character_id,platform,version,distributable FROM character_releases WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(manifest->'files') f WHERE f->>'object_key'=$1)", key)
+	rows, e := s.DB.Pool.Query(ctx, `
+		SELECT character_id, platform, version, distributable, 'release' AS kind
+		FROM character_releases
+		WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(manifest->'files') f WHERE f->>'object_key'=$1)
+		UNION ALL
+		SELECT character_id, 'preview', 0, true, 'marketplace'
+		FROM character_market_assets
+		WHERE EXISTS (SELECT 1 FROM jsonb_each(COALESCE(data->'media', '{}'::jsonb)) m WHERE m.value->>'object_key'=$1)
+		ORDER BY character_id, platform, version`, key)
 	if e != nil {
 		return nil, e
 	}
 	defer rows.Close()
 	out := []map[string]any{}
 	for rows.Next() {
-		var char, platform string
+		var char, platform, kind string
 		var version int64
 		var enabled bool
-		if e := rows.Scan(&char, &platform, &version, &enabled); e != nil {
+		if e := rows.Scan(&char, &platform, &version, &enabled, &kind); e != nil {
 			return nil, e
 		}
-		out = append(out, map[string]any{"character_id": char, "platform": platform, "version": version, "enabled": enabled})
+		out = append(out, map[string]any{"character_id": char, "platform": platform, "version": version, "enabled": enabled, "kind": kind})
 	}
 	return out, rows.Err()
 }
@@ -158,7 +166,7 @@ func (s *Server) objectDelete(c *gin.Context) {
 			return nil, e
 		}
 		if len(refs) > 0 {
-			return nil, bad("对象被不可变发布版本引用，不能删除")
+			return nil, bad("对象被角色发布版本或商店预览引用，不能删除")
 		}
 		head, e := s.Config.Signer.Client.HeadObject(c.Request.Context(), &oss.HeadObjectRequest{Bucket: oss.Ptr(s.Config.Signer.Bucket), Key: oss.Ptr(body.Key)})
 		if e != nil {

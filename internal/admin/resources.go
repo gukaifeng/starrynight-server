@@ -27,6 +27,7 @@ var Resources = []Resource{
 	{"entries", "记忆与片段", "对话", "人工记忆和共同片段；删除写入同步墓碑", []string{"user_id", "character_id", "kind", "id"}, []string{"user_id", "character_id", "kind", "id", "data", "version", "deleted"}, []string{"data"}, []string{"remove"}},
 	{"conversation_goals", "关系与目标", "对话", "可切换的关系、任务和沙盒目标", []string{"user_id", "character_id"}, []string{"user_id", "character_id", "config", "progress", "version", "progress_version"}, []string{"config"}, nil},
 	{"character_releases", "资源发布", "内容", "清单只读；启用下载需已确认再分发权", []string{"character_id", "platform", "version"}, []string{"character_id", "platform", "version", "release_id", "manifest", "distributable", "published_at"}, nil, []string{"disable_release", "enable_release"}},
+	{"character_market_assets", "商店预览", "内容", "封面、头像与音色试听的不可变 OSS 引用；通过验证后的发布工具更新", []string{"character_id"}, []string{"character_id", "data", "updated_at"}, nil, nil},
 	{"support_tickets", "反馈工单", "运营", "查看反馈并标记处理状态", []string{"id"}, []string{"id", "user_id", "category", "content", "state", "created_at", "version"}, []string{"state"}, nil},
 	{"identities", "登录身份", "系统", "身份关联，只读；不显示认证令牌", []string{"provider", "subject"}, []string{"provider", "subject", "user_id", "verified_at"}, nil, nil},
 	{"account_handles", "星夜号历史", "系统", "永久保留分配历史与唯一性", []string{"handle"}, []string{"handle", "user_id", "assigned_at", "retired_at"}, nil, nil},

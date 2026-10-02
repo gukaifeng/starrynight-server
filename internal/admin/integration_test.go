@@ -335,6 +335,21 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer db.Pool.Exec(ctx, "DELETE FROM characters WHERE id=$1", charID)
+	previewKey := "characters/" + charID + "/previews/fixture/avatar.png"
+	_, e = db.Pool.Exec(ctx, `INSERT INTO character_market_assets(character_id,data) VALUES($1,jsonb_build_object('media',jsonb_build_object('avatar',jsonb_build_object('object_key',$2::text))))`, charID, previewKey)
+	if e != nil {
+		t.Fatal(e)
+	}
+	refs, e := app.objectReferences(ctx, previewKey)
+	if e != nil || len(refs) != 1 || refs[0]["kind"] != "marketplace" || refs[0]["character_id"] != charID {
+		t.Fatalf("marketplace preview deletion protection missing: %v %v", refs, e)
+	}
+	refs, e = app.objectReferences(ctx, previewKey+"-unused")
+	if e != nil || len(refs) != 0 {
+		t.Fatalf("unreferenced object incorrectly protected: %v %v", refs, e)
+	}
+	code, data = request(srv.URL, "GET", "/resources/character_market_assets", nil, "", "")
+	assert(code, 200, data)
 	charBody := Mutation{Keys: map[string]string{"id": charID}, Values: map[string]any{"name": "after", "visibility": "public"}, Expected: 1}
 	code, data = request(srv.URL, "POST", "/resources/characters/mutate", charBody, app.Config.Origin, csrf)
 	assert(code, 200, data)
