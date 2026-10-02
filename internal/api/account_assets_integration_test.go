@@ -69,11 +69,19 @@ func TestImportedCharacterCatalogSupportsAccountSubscriptions(t *testing.T) {
 	if err := json.Unmarshal(s.call("GET", "/v1/characters?limit=200", "", nil, 200), &list); err != nil {
 		t.Fatal(err)
 	}
-	if len(list.Items) != 41 {
-		t.Fatalf("expected 41 bundled character identities, got %d", len(list.Items))
+	if len(list.Items) != 16 {
+		t.Fatalf("expected 16 active bundled character identities, got %d", len(list.Items))
+	}
+	settings := decode[store.Document](t, s.call("GET", "/v1/me/settings", a.Token, nil, 200))
+	if settings.Data["last_character"] != "anime-chiffon" {
+		t.Fatal("new account must start with the active client default")
+	}
+	var subscribed bool
+	if err := s.db.Pool.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM subscriptions WHERE user_id=$1 AND character_id=$2)", a.User.ID, "anime-chiffon").Scan(&subscribed); err != nil || !subscribed {
+		t.Fatal("new account must subscribe to the active default")
 	}
 	s.call("GET", "/v1/characters/anime-kipfel-v111", "", nil, 200)
-	s.call("PUT", "/v1/me/subscriptions/anime-airi", a.Token, nil, 200)
-	s.call("GET", "/v1/characters/anime-airi/preferences", a.Token, nil, 200)
+	s.call("PUT", "/v1/me/subscriptions/anime-fiona", a.Token, nil, 200)
+	s.call("GET", "/v1/characters/anime-fiona/preferences", a.Token, nil, 200)
 	s.call("GET", "/v1/me/feedback?after=invalid", a.Token, nil, 422)
 }

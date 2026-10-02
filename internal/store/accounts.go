@@ -15,6 +15,9 @@ func scanUser(row pgx.Row) (User, error) {
 
 const userColumns = `id::text,starry_id,COALESCE(username,''),guest,version,profile,session_epoch`
 
+// Must match the independently published client roster's initial companion.
+const InitialCompanionID = "anime-chiffon"
+
 func (s *Store) User(ctx context.Context, id string) (User, error) {
 	return scanUser(s.Pool.QueryRow(ctx, "SELECT "+userColumns+" FROM users WHERE id=$1", id))
 }
@@ -44,10 +47,11 @@ func (s *Store) CreateUser(ctx context.Context, username, hash, name string, gue
 	if _, e = tx.Exec(ctx, `INSERT INTO account_clocks(user_id) VALUES($1)`, id); e != nil {
 		return u, e
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO settings(user_id,data) VALUES($1,'{"theme":"silver","style":"glass","chat_font_size":15,"last_character":"anime-kipfel"}')`, id); e != nil {
+	initialSettings := map[string]any{"theme": "silver", "style": "glass", "chat_font_size": 15, "last_character": InitialCompanionID}
+	if _, e = tx.Exec(ctx, `INSERT INTO settings(user_id,data) VALUES($1,$2)`, id, initialSettings); e != nil {
 		return u, e
 	}
-	if _, e = tx.Exec(ctx, `INSERT INTO subscriptions(user_id,character_id) VALUES($1,'anime-kipfel')`, id); e != nil {
+	if _, e = tx.Exec(ctx, `INSERT INTO subscriptions(user_id,character_id) VALUES($1,$2)`, id, InitialCompanionID); e != nil {
 		return u, e
 	}
 	if e = createAuthor(ctx, tx, id, name); e != nil {
@@ -56,10 +60,10 @@ func (s *Store) CreateUser(ctx context.Context, username, hash, name string, gue
 	if e = event(ctx, tx, id, "account", id, false, u); e != nil {
 		return u, e
 	}
-	if e = event(ctx, tx, id, "settings", "settings", false, Document{1, 1, map[string]any{"theme": "silver", "style": "glass", "chat_font_size": 15, "last_character": "anime-kipfel"}}); e != nil {
+	if e = event(ctx, tx, id, "settings", "settings", false, Document{1, 1, initialSettings}); e != nil {
 		return u, e
 	}
-	if e = event(ctx, tx, id, "subscription", "anime-kipfel", false, map[string]any{"id": "anime-kipfel"}); e != nil {
+	if e = event(ctx, tx, id, "subscription", InitialCompanionID, false, map[string]any{"id": InitialCompanionID}); e != nil {
 		return u, e
 	}
 	return u, tx.Commit(ctx)
