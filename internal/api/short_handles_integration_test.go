@@ -77,6 +77,18 @@ func TestShortHandleMigrationPreservesIdentityAndAllocation(t *testing.T) {
 	if next != "xy3" {
 		t.Fatal("registration allocator was rewound", next)
 	}
+	if _, err = provider.UpTo(ctx, 12); err != nil {
+		t.Fatal(err)
+	}
+	if err = db.QueryRowContext(ctx, "SELECT starry_id FROM users WHERE id=$1", id).Scan(&current); err != nil || current != "xy100000001" {
+		t.Fatal("nine-digit migration changed ordinal", current, err)
+	}
+	if err = db.QueryRowContext(ctx, "SELECT user_id=$1 AND retired_at IS NOT NULL FROM account_handles WHERE handle='xy1'", id).Scan(&retained); err != nil || !retained {
+		t.Fatal("short alias not reserved", err)
+	}
+	if err = db.QueryRowContext(ctx, "INSERT INTO users(id,guest) VALUES($1,true) RETURNING starry_id", store.NewID()).Scan(&next); err != nil || next != "xy100000004" {
+		t.Fatal("nine-digit allocator lost a gap", next, err)
+	}
 }
 
 func TestShortHandlesAreUniqueAcrossConcurrentDatabasePools(t *testing.T) {

@@ -246,3 +246,22 @@ async def test_idle_drafts_obey_real_silence_gate_and_follow_latest_user_turn(tm
     await pool.tasks[('u',request.character_id)]
     assert pool.status('u',request)['ready']['idle']==1
     await pool.close();store.db.close()
+
+@pytest.mark.asyncio
+async def test_ready_event_does_not_cancel_another_inflight_event(tmp_path):
+    store,provider,engine,pool,request=setup(tmp_path)
+    await ready(pool,request)
+    with store.db:
+        store.db.execute("UPDATE reaction_drafts SET status='expired' WHERE kind='shake'")
+    provider.block=asyncio.Event()
+    pool.prepare('u',request)
+    await asyncio.sleep(.01)
+    shake=pool.find_job('u',request.character_id,pool.context_key('u',request),'shake')
+    assert shake and not shake.task.done()
+    trigger=request.model_copy(update=dict(request_id=uuid.uuid4(),trigger='model_pinched',timeline_reply=True,
+        interaction=ModelInteraction(kind='pinch_in',intensity=.7)))
+    async with asyncio.timeout(.5):
+        events=[event async for event in engine.reply('u',trigger)]
+    assert events[0]['prepared'] and any(e['type']=='segment.audio.chunk' for e in events)
+    assert not shake.task.cancelled() and not shake.task.done()
+    await pool.close();store.db.close()

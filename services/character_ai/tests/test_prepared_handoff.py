@@ -79,7 +79,7 @@ def quick_setup(tmp_path):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('story',[False,True])
-async def test_choices_rank_then_prepare_sequentially_publish_only_selected_pair(tmp_path,story):
+async def test_choices_rank_then_prepare_concurrently_publish_only_selected_pair(tmp_path,story):
     store,provider,engine,pool,request,body=quick_setup(tmp_path)
     if story:
         request.scene={'story_id':'rain-letter','story_revision':'1'}
@@ -109,13 +109,13 @@ async def test_choices_rank_then_prepare_sequentially_publish_only_selected_pair
 async def test_lower_rank_selection_promotes_pending_branch_and_cancels_unused_work(tmp_path):
     store,provider,engine,pool,request,body=quick_setup(tmp_path);provider.answer_gate=asyncio.Event()
     pool.quick.prepare('u',body)
-    await until(lambda:len(provider.inputs)==1)
+    await until(lambda:len(provider.inputs)==3)
     options=pool.quick.status('u',body)['options'];choice=options[2]
     actual=request.model_copy(update=dict(request_id=uuid.uuid4(),trigger='user_message',text=choice['text'],quick_reply_id=uuid.UUID(choice['id']),timeline_reply=True))
     async def collect():return [e async for e in engine.reply('u',actual)]
     pending=asyncio.create_task(collect())
     await until(lambda:choice['text'] in provider.inputs)
-    assert provider.inputs==[options[0]['text'],choice['text']]
+    assert provider.inputs==[option['text'] for option in options]
     assert len(store.history('u',request.character_id))==1
     provider.answer_gate.set();events=await pending
     initial=next(e for e in events if e['type']=='reply.narration.ready')

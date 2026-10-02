@@ -68,15 +68,18 @@ class QuickReplies:
                 with self.store.db:self.store.db.execute('INSERT OR REPLACE INTO quick_reply_sets VALUES(?,?,?,?,?,?)',
                     (owner,char,source,key,dump(options),time.time()+900))
                 saved=dict(source_message_id=source,options=options)
-            # One answer per choice, highest-likelihood branch first. Queued
-            # lower choices can be promoted by a real selection immediately.
+            # Start all three once, in likelihood order. The bounded shared
+            # gate limits provider concurrency, but no branch waits for another
+            # branch's complete TTS/performance stream to finish.
+            jobs=[]
             for option in saved['options']:
                 if self.latest(owner,char)!=source or self.pool.context_key(owner,request)!=key:return
                 kind='quick:'+option['id']
                 if self.pool.rows(owner,char,key,kind):continue
                 branch=request.model_copy(update=dict(text=option['text'],trigger='story' if request.scene.get('story_id') else 'user_message',quick_reply_id=None))
                 job=self.pool.ensure_job(owner,branch,key,kind,source=source)
-                await asyncio.shield(job.task)
+                jobs.append(job)
+            await asyncio.gather(*(asyncio.shield(job.task) for job in jobs))
         except asyncio.CancelledError:raise
         except Exception as error:self.store.put('quick_reply_review',owner,char,dict(status='unavailable',reason=type(error).__name__))
 

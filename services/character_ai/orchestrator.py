@@ -240,11 +240,14 @@ class Orchestrator:
         # Entry identity and transcript position belong to now, not preparation.
         if self.reactions:
             claim=self.reactions.claim(owner,request) if request.timeline_reply and not resume else None
-            await self.reactions.yield_to_reply(owner,keep=claim.get('job') if claim else None)
             if claim:
+                # A prepared answer already owns its generation. Waiting for
+                # unrelated provider cancellation adds latency and destroys
+                # other event buffers that are still valid in this context.
                 async with aclosing(self.reactions.deliver(owner,request,context,claim)) as output:
                     async for item in output:yield item
                 return
+            await self.reactions.yield_to_reply(owner)
         async with aclosing(self.compose_reply(owner,request,context,budget)) as source:
             async for item in source:yield item
 
