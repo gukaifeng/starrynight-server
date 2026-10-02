@@ -11,6 +11,10 @@ def test_object_stream_handles_quotes_unicode_and_chunk_boundaries():
     for c in raw:values.extend(parser.feed(c))
     assert values[0]['say']=='Hmm… "a flower"?' and values[1]['focus']=='naming'
     assert not parser.started
+    parser=Objects(nested=True)
+    prefix='{"beats":[{"say":"Hello?","asides":[["I wonder.","before"]]}'
+    assert parser.feed(prefix)[0]['say']=='Hello?' and parser.started
+    assert parser.feed('],"goal_feedback":{"evidence":"hello"}}')[0]['goal_feedback']['evidence']=='hello'
     b=beat(dict(say='你好，今天想聊什么？',asides=[['不合规','bad-stage']],state={'junk':1}),1)
     assert b.dialogue.text=='你好，今天想聊什么？' and not b.asides
     with pytest.raises(ValueError):beat(dict(say={'bad':'text'}),1)

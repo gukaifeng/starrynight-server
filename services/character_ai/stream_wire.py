@@ -1,9 +1,9 @@
 """Incremental JSON objects: complete strings/objects only, never regex repair."""
-import json
+import json,re
 from .schemas import Beat,Speech,StagedThought,GoalFeedback,CONTROL_TEXT
 
 class Objects:
-    def __init__(self):self.buffer='';self.started=False;self.depth=0;self.quoted=False;self.escape=False
+    def __init__(self,nested=False):self.buffer='';self.started=False;self.depth=0;self.quoted=False;self.escape=False;self.nested=nested;self.array_depth=0;self.beat_start=None
     def feed(self,chunk):
         result=[]
         for c in chunk:
@@ -17,8 +17,16 @@ class Objects:
                 elif c=='\\':self.escape=True
                 elif c=='"':self.quoted=False
             elif c=='"':self.quoted=True
-            elif c=='{':self.depth+=1
+            elif c=='[':self.array_depth+=1
+            elif c==']':self.array_depth-=1
+            elif c=='{':
+                self.depth+=1
+                if self.nested and self.depth==2 and self.array_depth==1 and re.match(r'^\s*\{\s*"beats"\s*:\s*\[',self.buffer):self.beat_start=len(self.buffer)-1
             elif c=='}':
+                if self.nested and self.depth==2 and self.beat_start is not None and self.array_depth==1:
+                    try:result.append(json.loads(self.buffer[self.beat_start:]))
+                    except ValueError:raise ValueError('STREAM_JSON_INVALID') from None
+                    self.beat_start=None
                 self.depth-=1
                 if not self.depth:
                     try:result.append(json.loads(self.buffer))

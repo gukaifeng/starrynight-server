@@ -17,6 +17,7 @@ class Settings:
     # Main cold user turns keep the existing character model independently.
     preparation_model: str = 'qwen-flash-character'
     streaming_core: bool = True
+    streaming_model: str = 'qwen-turbo'
     # Suggestions predict the user's next turn; they do not role-play the avatar.
     suggestions_model: str = 'qwen-turbo'
     # Animation control JSON is not role dialogue. Use the existing fast
