@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 @dataclass
 class Settings:
+    platform_internal_url: str = ''
     data_dir: Path = field(default_factory=lambda: ROOT / '.local/character-ai')
     api_key: str = field(default='', repr=False)
     client_token: str = field(default='', repr=False)
@@ -43,6 +44,9 @@ class Settings:
         data = json.loads(path.read_text()) if path.exists() else {}
         result = cls(**{k:v for k,v in data.items() if k in cls.__dataclass_fields__})
         result.data_dir = Path(result.data_dir)
+        result.platform_internal_url = os.environ.get('STARRY_PLATFORM_INTERNAL_URL',result.platform_internal_url)
+        if result.platform_internal_url and result.platform_internal_url not in ('http://127.0.0.1:8090','http://127.0.0.1:18090'):
+            raise ValueError('Goal persistence must use a known loopback API')
         if os.environ.get('STARRY_AI_DISABLE_PAID') == '1': result.paid_enabled = False
         if not result.host.startswith('https://') or not result.host.endswith('.aliyuncs.com'):
             raise ValueError('Provider host must be an Alibaba HTTPS endpoint')

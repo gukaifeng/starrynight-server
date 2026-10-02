@@ -48,6 +48,7 @@ def create_app(settings=None,provider=None):
         except ValueError:raise HTTPException(400,'INSTALLATION_REQUIRED')
         if not re.fullmatch(r'[a-zA-Z0-9_-]{1,100}',account):raise HTTPException(400,'ACCOUNT_REQUIRED')
         return hmac.new(settings.client_token.encode(),(install+'|'+account).encode(),hashlib.sha256).hexdigest()
+    from . import goals
     def admin(headers):
         if not settings.admin_token or not hmac.compare_digest(headers.get('authorization','').removeprefix('Bearer '),settings.admin_token):raise HTTPException(401,'UNAUTHORIZED')
     def acquire(key):
@@ -73,6 +74,7 @@ def create_app(settings=None,provider=None):
     async def inspector(character:str,body:Request,request:HTTPRequest):
         if not settings.enable_test_inspector:raise HTTPException(404)
         who=owner(request.headers)
+        if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         if character!=body.character_id:raise HTTPException(400,'CHARACTER_MISMATCH')
         if request.headers.get('x-starry-reply-mode')=='timeline-v2':body.timeline_reply=True
         body.parallel_performance=body.timeline_reply and request.headers.get('x-starry-performance-mode')=='parallel-v1'
@@ -80,6 +82,7 @@ def create_app(settings=None,provider=None):
     @app.post('/v1/conversations/{character}/messages')
     async def messages(character:str,body:Request,request:HTTPRequest):
         who=owner(request.headers)
+        if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         check_reset(who,character,body)
         if character!=body.character_id:raise HTTPException(400,'CHARACTER_MISMATCH')
         if body.trigger in ('user_message','story') and not body.text.strip():raise HTTPException(400,'EMPTY_MESSAGE')
@@ -98,23 +101,27 @@ def create_app(settings=None,provider=None):
     @app.post('/v1/conversations/{character}/reactions/prepare')
     async def prepare_reactions(character:str,body:PreparationRequest,request:HTTPRequest):
         who=owner(request.headers)
+        if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         check_reset(who,character,body)
         if character!=body.character_id:raise HTTPException(400,'CHARACTER_MISMATCH')
         return reactions.prepare(who,body)
     @app.post('/v1/conversations/{character}/reactions/pause')
     async def pause_reactions(character:str,body:PreparationRequest,request:HTTPRequest):
         who=owner(request.headers)
+        if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         if character!=body.character_id:raise HTTPException(400,'CHARACTER_MISMATCH')
         await reactions.pause(who,character,lease=str(body.request_id))
         return dict(paused=True)
     @app.post('/v1/conversations/{character}/reactions/status')
     async def reaction_status(character:str,body:PreparationRequest,request:HTTPRequest):
         who=owner(request.headers)
+        if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         if character!=body.character_id:raise HTTPException(400,'CHARACTER_MISMATCH')
         return reactions.status(who,body)
     @app.post('/v1/conversations/{character}/messages/{message_id}/translation')
     async def translate_message(character:str,message_id:UUID,body:TranslationRequest,request:HTTPRequest):
         who=owner(request.headers)
+        if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         if (who,character) in resetting:raise HTTPException(409,'CONVERSATION_RESETTING')
         try:return await translations.translate(who,character,str(message_id),body)
         except TimeoutError:raise HTTPException(504,'TRANSLATION_TIMEOUT') from None
@@ -131,6 +138,7 @@ def create_app(settings=None,provider=None):
     @app.post('/v1/conversations/{character}/suggestions/{operation}')
     async def suggestions(character:str,operation:str,body:QuickReplyRequest,request:HTTPRequest):
         who=owner(request.headers)
+        if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         check_reset(who,character,body)
         if character!=body.character_id:raise HTTPException(400,'CHARACTER_MISMATCH')
         if operation=='prepare':return reactions.quick.prepare(who,body)

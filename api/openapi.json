@@ -587,6 +587,171 @@
         ],
         "type": "object"
       },
+      "GoalBranch": {
+        "additionalProperties": false,
+        "properties": {
+          "affection": {
+            "format": "double",
+            "type": "number"
+          },
+          "familiarity": {
+            "format": "double",
+            "type": "number"
+          },
+          "milestones": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "task_progress": {
+            "format": "double",
+            "type": "number"
+          },
+          "trust": {
+            "format": "double",
+            "type": "number"
+          }
+        },
+        "required": [
+          "familiarity",
+          "trust",
+          "affection",
+          "task_progress",
+          "milestones"
+        ],
+        "type": "object"
+      },
+      "GoalConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmed_couple": {
+            "type": "boolean"
+          },
+          "extensions": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "initial_relation": {
+            "type": "string"
+          },
+          "long_term": {
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "relationship",
+              "task",
+              "sandbox"
+            ],
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "short_term": {
+            "maxLength": 160,
+            "type": "string"
+          },
+          "task": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mode",
+          "initial_relation",
+          "long_term",
+          "short_term",
+          "task",
+          "paused",
+          "confirmed_couple"
+        ],
+        "type": "object"
+      },
+      "Goals": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/Goals.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "bond": {
+            "$ref": "#/components/schemas/GoalBranch"
+          },
+          "branches": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/GoalBranch"
+            },
+            "type": "object"
+          },
+          "config": {
+            "$ref": "#/components/schemas/GoalConfig"
+          },
+          "progress_version": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "romance_allowed": {
+            "type": "boolean"
+          },
+          "schema_version": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "version": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "schema_version",
+          "version",
+          "progress_version",
+          "romance_allowed",
+          "config",
+          "branches",
+          "bond"
+        ],
+        "type": "object"
+      },
+      "InputBody": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/InputBody.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "config": {
+            "$ref": "#/components/schemas/GoalConfig"
+          },
+          "conversation_reset": {
+            "type": "string"
+          },
+          "expected_version": {
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_version",
+          "config"
+        ],
+        "type": "object"
+      },
       "Manifest": {
         "additionalProperties": false,
         "properties": {
@@ -2754,6 +2919,102 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      }
+    },
+    "/v1/conversations/{character}/goals": {
+      "get": {
+        "operationId": "conversation-goals",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character",
+            "required": true,
+            "schema": {
+              "maxLength": 120,
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Goals"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "session": []
+          }
+        ]
+      },
+      "put": {
+        "operationId": "set-conversation-goals",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "character",
+            "required": true,
+            "schema": {
+              "maxLength": 120,
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InputBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Goals"
                 }
               }
             },

@@ -158,6 +158,7 @@ func New(c config.Config, db *store.Store, r *redis.Client) (*Server, error) {
 	s.catalogRoutes()
 	s.journalRoutes()
 	s.syncRoutes()
+	s.goalRoutes()
 	s.documentAIRoutes()
 	return s, nil
 }

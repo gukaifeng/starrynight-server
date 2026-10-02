@@ -121,7 +121,9 @@ def test_core_prompt_does_not_contain_the_large_avatar_catalogue(tmp_path):
     assert 'avatar_capability' in extra[-1]['content']
     assert '"cues"' not in core[0]['content']
     assert 'recent_response_focus' in core[0]['content']
-    assert len(core[0]['content'])<8000
+    # Shared goal policy and bounded feedback schema add a fixed prefix, not a
+    # per-role capability catalogue or another model invocation.
+    assert len(core[0]['content'])<10000
     store.db.close()
 
 def test_late_same_group_cues_are_coalesced_to_current_phase():

@@ -156,7 +156,7 @@ def translation_payload(settings,text,target):
 def speech_payload(settings,character,beat,voice):
     text,instruction=speech_input(beat)
     return dict(model=settings.tts_model,input=dict(text=text,voice=voice,format='pcm',sample_rate=24000,
-                instruction=PROFILES.get(character,{}).get('voice_delivery','')+instruction,language_hints=[language(character)]))
+                instruction=PROFILES.get(character,{}).get('voice_delivery','')+instruction,language_hints=[beat.get('language',language(character))]))
 
 class Provider:
     def __init__(self, settings, store, client=None):

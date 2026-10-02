@@ -1,7 +1,7 @@
 """Single-use real AI event drafts, including handoff of an in-flight stream."""
 import asyncio,hashlib,json,random,time,uuid
 from contextlib import aclosing
-from . import novelty
+from . import novelty,goals
 from .schemas import ModelInteraction,Plan
 from .speech_text import audio_key
 from .storage import dump
@@ -66,7 +66,7 @@ class ReactionPool:
         from .profiles import PROFILES
         # v4 adds conversational pauses/delivery and corresponding expression
         # selection. Retire only unspoken drafts; archive/audio remain intact.
-        value=[4,reply_flow.REVISION,idle_presence.REVISION,request.character_id,self.has_met(owner,request),PROFILES[request.character_id],voice.get('voice_id'),request.preferences,
+        value=[goals.REVISION,request._goal_snapshot,self.store.get('goal_snapshot',owner,request.character_id,{}),4,reply_flow.REVISION,idle_presence.REVISION,request.character_id,self.has_met(owner,request),PROFILES[request.character_id],voice.get('voice_id'),request.preferences,
                [m.model_dump() for m in request.memories],sorted(request.available_assets),{k:v for k,v in request.scene.items() if k!='time'},history]
         return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
 
@@ -196,8 +196,9 @@ class ReactionPool:
             job.claimed=True;return dict(id=job.id,kind=kind,job=job)
         self.store.put('reaction_pool_review',owner,char,dict(status='miss',kind=kind));return None
 
-    def publish(self,owner,request,context,claim,script,plan):
+    async def publish(self,owner,request,context,claim,script,plan):
         char=request.character_id;script={**script,'trigger':request.trigger}
+        script['goal_state']=await goals.commit(self.settings,request,Plan.model_validate(plan))
         self.store.publish_reply(owner,char,str(request.request_id),request.text,script,prepared_id=claim['id'],allow_preparing='job' in claim)
         self.engine.commit_context(owner,request,context,script,Plan.model_validate(plan))
         self.store.put('vocals',owner,char,[v['event'] for b in script['beats'] for v in b['vocal_events']])
@@ -212,7 +213,7 @@ class ReactionPool:
 
     async def deliver(self,owner,request,context,claim):
         if 'candidate' in claim:
-            candidate=claim['candidate'];script=self.publish(owner,request,context,claim,candidate['script'],candidate['plan'])
+            candidate=claim['candidate'];script=await self.publish(owner,request,context,claim,candidate['script'],candidate['plan'])
             yield dict(type='reply.narration.ready',script=script,cached=False,prepared=True)
             if request.wants_audio:
                 async with aclosing(self.engine.audio(owner,request.character_id,script,create=False)) as audio:
@@ -224,7 +225,7 @@ class ReactionPool:
             async with aclosing(job.stream()) as stream:
                 async for item in stream:
                     if item['type']=='reply.narration.ready':
-                        script=self.publish(owner,request,context,claim,item['script'],job.plan)
+                        script=await self.publish(owner,request,context,claim,item['script'],job.plan)
                         item={**item,'script':script,'prepared':True,'preparation_inflight':True}
                     elif item['type']=='reply.visuals.updated':
                         script={**item['script'],'trigger':request.trigger};self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}

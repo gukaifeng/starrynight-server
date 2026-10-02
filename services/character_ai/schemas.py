@@ -1,6 +1,6 @@
 from typing import Literal
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, PrivateAttr
 import re, hashlib
 
 CONTROL_TEXT = re.compile(r'["\'](?:speech|dialogue|performance|beat_id|expression_intent|action_intent|vocal_events)["\']\s*:')
@@ -117,7 +117,16 @@ class MemoryProposal(Strict):
     importance: float = Field(default=.5,ge=0,le=1)
     type: Literal['user_fact','shared_event'] = 'user_fact'
 
+class GoalFeedback(Strict):
+    familiarity: float = Field(default=0,ge=-.04,le=.04)
+    trust: float = Field(default=0,ge=-.04,le=.04)
+    affection: float = Field(default=0,ge=-.04,le=.04)
+    task_progress: float = Field(default=0,ge=-.04,le=.04)
+    milestone: Literal['','shared_interest','trust_opened','date_agreed','repair','learning_step','preference_understood'] = ''
+    evidence: str = Field(default='',max_length=100)
+
 class Plan(Strict):
+    goal_feedback: GoalFeedback = Field(default_factory=GoalFeedback)
     reply_type: Literal['normal_reply','idle_event','fallback'] = 'normal_reply'
     response_focus: str = Field(default='',max_length=100,
         description='本轮新增的具体内容摘要，先确定一个还没有讲过的新细节、观点或回应，再据此生成台词。不是台词或思考步骤。')
@@ -178,6 +187,9 @@ class ModelInteraction(Strict):
     intensity: float = Field(ge=0,le=1)
 
 class Request(Strict):
+    # Never writable through JSON. Only the authenticated Go gateway attaches this.
+    _goal_snapshot: dict = PrivateAttr(default_factory=dict)
+    _goal_account: str = PrivateAttr(default='')
     request_id: UUID
     conversation_reset: str = Field(default='',max_length=36)
     character_id: str = Field(min_length=1,max_length=128,pattern=r'^[a-z][a-z0-9_.-]+$')

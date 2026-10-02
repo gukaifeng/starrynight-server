@@ -3,6 +3,7 @@ import asyncio,json,re,time,uuid
 from .schemas import QuickReplyPlan
 from .storage import dump
 from .roleplay import language
+from .goals import spoken_language
 
 SUGGESTIONS='''根据真实聊天，为用户提供恰好三条可以直接发送给角色的自然接话。只输出JSON，不替角色说话，不输出括号动作或心理描写。每条优先6至18字，最多45字，具体接住最新AI发言，三条在意思与走向上不同，不机械重复“继续说”。不要编造用户经历、感受或隐私事实，不引导承诺、花钱或危险行为。可以表达好奇、接话、邀请展开或温和转向。likelihood是你根据上下文估计用户会选择的相对倾向，0至1，按高到低排序；这是启发式排序，不是校准概率。参考用户过往说话习惯，但不要照抄历史发言。未被选择前，这三条都不是用户已说的话。'''
 
@@ -55,12 +56,12 @@ class QuickReplies:
                 # catalogue. The selected answer still uses the complete role context.
                 recent=[dict(role=m['role'],text=m['text'][-600:]) for m in context['recent_messages'][-8:] if m.get('text')]
                 data=dict(recent_messages=recent,preferences=context['preferences'],character_name=context['character_profile'].get('english_name',context['character_profile'].get('name','')),
-                    language_contract=context['language_contract'],roleplay_context=context['roleplay_context'])
-                if language(char)=='en':data['suggestion_length']='Exactly three distinct English replies, normally 3–8 words each and at most 45 characters. Preserve natural English; do not translate Chinese examples.'
+                    language_contract=context['language_contract'],roleplay_context=context['roleplay_context'],goal_context=context['goal_context'])
+                if spoken_language(char,context['goal_context'])=='en':data['suggestion_length']='Exactly three distinct English replies, normally 3–8 words each and at most 45 characters. Preserve natural English; do not translate Chinese examples.'
                 async with asyncio.timeout(12):
                     plan=await self.pool.engine.provider.structured(owner,char,'suggestions',SUGGESTIONS,data,QuickReplyPlan)
                 choices=sorted(plan.options,key=lambda o:o.likelihood,reverse=True)
-                if language(char)=='en' and any(re.search(r'[\u3400-\u9fff\u3040-\u30ff]',o.text) for o in choices):raise ValueError('SUGGESTION_LANGUAGE_INVALID')
+                if spoken_language(char,context['goal_context'])=='en' and any(re.search(r'[\u3400-\u9fff\u3040-\u30ff]',o.text) for o in choices):raise ValueError('SUGGESTION_LANGUAGE_INVALID')
                 if len({o.text.strip() for o in choices})!=3:raise ValueError('DUPLICATE_SUGGESTIONS')
                 options=[dict(id=str(uuid.uuid4()),text=o.text.strip(),likelihood=o.likelihood) for o in choices]
                 if self.latest(owner,char)!=source or self.pool.context_key(owner,request)!=key:return

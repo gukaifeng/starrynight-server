@@ -8,7 +8,7 @@ No text or aside is invented by the adapter.
 from typing import Literal
 import re
 from pydantic import Field, field_validator
-from .schemas import Strict, Speech, VocalType, MemoryProposal, TimelinePlan, CoreTimelinePlan
+from .schemas import Strict, Speech, VocalType, MemoryProposal, TimelinePlan, CoreTimelinePlan, GoalFeedback
 
 Cue = tuple[str,str] | tuple[str,str,int] | tuple[str,str,int,bool]
 Aside = tuple[str,Literal['before','middle','after']] | tuple[str,Literal['before','middle','after'],Literal['visible','hidden','unlock_required']] | tuple[str,Literal['before','middle','after'],Literal['visible','hidden','unlock_required'],str]
@@ -33,6 +33,7 @@ class CompactBeat(SpokenBeat):
     cues: list[Cue] = Field(default_factory=list,max_length=24)
 
 class CompactPlan(Strict):
+    goal_feedback: GoalFeedback = Field(default_factory=GoalFeedback)
     focus: str = Field(min_length=1,max_length=100)
     beats: list[CompactBeat] = Field(default_factory=list,max_length=3)
     idle: Literal['do_nothing','visual_only','thought_only','proactive_speech'] | None = None
@@ -47,7 +48,7 @@ class CompactPlan(Strict):
                 asides=[dict(text=a[0],stage=a[1],visibility=a[2] if len(a)>2 else 'visible',after_text=a[3] if len(a)>3 else '') for a in b.asides],
                 performance=dict(intensity=b.strength,cues=[dict(group=c[0],intent=c[1],offset_ms=c[2] if len(c)>2 else 0,active=c[3] if len(c)>3 else True) for c in getattr(b,'cues',[])]),
                 vocal_events=[dict(event=v,intensity=b.strength) for v in b.vocals]))
-        return schema.model_validate(dict(response_focus=self.focus,beats=beats,idle_decision=self.idle,
+        return schema.model_validate(dict(goal_feedback=self.goal_feedback,response_focus=self.focus,beats=beats,idle_decision=self.idle,
             reply_type='idle_event' if self.idle else 'normal_reply',suggested_state_delta=self.state,memory_updates=self.memory))
 
 class SpokenPlan(CompactPlan):

@@ -26,7 +26,7 @@ https://39.105.116.74:8443 {
 		rewrite * /health
 		reverse_proxy 127.0.0.1:8766
 	}
-	@private path /metrics /v1/ai/testing/* /v1/ai/admin/*
+	@private path /metrics /internal/* /v1/ai/testing/* /v1/ai/admin/*
 	handle @private {
 		respond 404
 	}

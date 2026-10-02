@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -11,6 +13,8 @@ import (
 	"strings"
 	"time"
 )
+
+type goalSnapshotKey struct{}
 
 // The Python inference worker is private. Only explicitly listed user routes
 // pass this gateway; voice design, usage/admin APIs and arbitrary URLs do not.
@@ -106,6 +110,10 @@ func newAIProxy(target *url.URL, token string, transport http.RoundTripper) *htt
 			p.Out.Header.Set("X-Starry-Installation", user)
 			p.Out.Header.Set("X-Starry-Account", user)
 			p.Out.Header.Del("Cookie")
+			p.Out.Header.Del("X-Starry-Goal-Snapshot")
+			if snapshot, ok := p.In.Context().Value(goalSnapshotKey{}).(string); ok {
+				p.Out.Header.Set("X-Starry-Goal-Snapshot", snapshot)
+			}
 		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
 			http.Error(w, "AI worker unavailable", http.StatusBadGateway)
@@ -141,6 +149,29 @@ func (s *Server) aiRoutes() {
 		}
 		ctx, cancel := context.WithTimeout(r.Context(), 180*time.Second)
 		defer cancel()
+		if character != "" {
+			goals, err := s.Store.Goals(ctx, principal(ctx).ID, character)
+			if err != nil {
+				http.Error(w, "goal context unavailable", 503)
+				return
+			}
+			if goals.Version == 0 && r.Method == http.MethodPost {
+				goals, err = s.Store.EnsureGoals(ctx, principal(ctx).ID, character)
+				if err != nil {
+					goals, err = s.Store.Goals(ctx, principal(ctx).ID, character)
+				}
+				if err != nil {
+					http.Error(w, "goal context unavailable", 503)
+					return
+				}
+			}
+			data, err := json.Marshal(goals)
+			if err != nil || len(data) > 16000 {
+				http.Error(w, "goal context unavailable", 503)
+				return
+			}
+			ctx = context.WithValue(ctx, goalSnapshotKey{}, base64.RawURLEncoding.EncodeToString(data))
+		}
 		// Override the regular API's short write deadline for SSE/WebSocket.
 		_ = http.NewResponseController(w).SetWriteDeadline(time.Now().Add(180 * time.Second))
 		r.Body = http.MaxBytesReader(w, r.Body, 8<<20)

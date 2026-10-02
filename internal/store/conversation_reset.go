@@ -51,6 +51,8 @@ func (s *Store) ResetConversation(ctx context.Context, user, character, id strin
 			return err
 		}
 		for _, query := range []string{
+			`DELETE FROM goal_turns WHERE user_id=$1 AND character_id=$2`,
+			`UPDATE conversation_goals SET progress='{}',progress_version=progress_version+1,version=version+1 WHERE user_id=$1 AND character_id=$2`,
 			`DELETE FROM messages WHERE user_id=$1 AND character_id=$2`,
 			`DELETE FROM entries WHERE user_id=$1 AND character_id=$2`,
 			`DELETE FROM changes WHERE user_id=$1 AND ((kind IN ('message','memory','moment') AND split_part(resource_id,'/',1)=$2) OR (kind='preference' AND resource_id=$2))`,
@@ -78,6 +80,13 @@ func (s *Store) ResetConversation(ctx context.Context, user, character, id strin
 		// Reset comes first; a client drops its stale outbox before applying the
 		// sanitized preference and hidden-list state in this same sync stream.
 		if err = event(ctx, tx, user, "conversation_reset", character, false, out); err != nil {
+			return err
+		}
+		goals, goalErr := readGoals(ctx, tx, user, character)
+		if goalErr != nil {
+			return goalErr
+		}
+		if err = event(ctx, tx, user, "goal", character, false, goals); err != nil {
 			return err
 		}
 		if err = event(ctx, tx, user, "preference", character, false, doc); err != nil {

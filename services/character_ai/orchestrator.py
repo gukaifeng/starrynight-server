@@ -13,6 +13,7 @@ from .semantic_novelty import SemanticNovelty
 from . import parallel_performance
 from .ordered_audio import ordered_audio
 from .roleplay import language, language_instruction, scenario_context, wrong_language
+from . import goals
 from . import idle_presence
 
 def event(kind, **data): return dict(type=kind,**data)
@@ -76,7 +77,11 @@ class Orchestrator:
                                    deliveries=Speech.model_json_schema()['properties']['delivery']['enum'],
                                    vocal_events=Vocal.model_json_schema()['properties']['event']['enum']))
         context['roleplay_context']=scenario_context(char,request.scene)
-        context['language_contract']=language_instruction(char)
+        context['goal_context']=goals.context(request)
+        context['language_contract']=goals.language_contract(char,context['goal_context'])
+        progress=context['goal_context']['bond']
+        if progress:
+            context['relationship'].update(closeness=progress.get('familiarity',0),trust=progress.get('trust',0),affection=progress.get('affection',0))
         # Retain original archives, but don't feed historical broken control JSON
         # back to the model as a demonstration of how to speak.
         context['recent_messages']=[m for m in context['recent_messages'] if m['role']!='assistant' or not CONTROL_TEXT.search(m['text'])]
@@ -166,7 +171,7 @@ class Orchestrator:
             if request.trigger in INTERACTION_TRIGGERS:brief_shake_plan(plan,context['interaction_context']['mood'],language(char))
             text=plan_text(plan)
             wrong_gesture=interaction_mismatch(request,text)
-            language_problem=('English-only character: rewrite all dialogue and visible asides in English. Do not translate or quote Chinese. Keep the same new content and role.' if wrong_language(char,plan) else None)
+            language_problem=('English-only character: rewrite all dialogue and visible asides in English. Do not translate or quote Chinese. Keep the same new content and role.' if wrong_language('anime-lime' if context['goal_context']['config'].get('mode')=='task' and context['goal_context']['config'].get('task')=='english' else char,plan) else None)
             content_problem=wrong_gesture or language_problem
             duplicate=novelty.match(self.store,owner,text,extra)
             related=await self.semantic.match(owner,text,request.trigger) if not duplicate and not content_problem else None
@@ -298,9 +303,10 @@ class Orchestrator:
                 visuals=[dict(asset_id=c['asset']['asset_id'],group=c['asset']['group'],duration_ms=c['duration_ms'],
                     offset_ms=c['offset_ms'],active=c['active'],grounding=r['grounding']) for c in r['performances']]))
             if request.timeline_reply:
-                beats[-1]['parts']=compile_parts(b,r,language=language(char))
+                beats[-1]['parts']=compile_parts(b,r,language=goals.spoken_language(char,context['goal_context']))
                 beats[-1]['reading_duration']=duration_hint(beats[-1]['dialogue']['text'] if beats[-1]['dialogue'] else '')
         text='\n'.join(b['dialogue']['text'] for b in beats if b['dialogue'])
+        for b in beats:b['language']=goals.spoken_language(char,context['goal_context'])
         if request.timeline_reply and self.settings.enable_test_inspector:
             self.store.put('reply_flow_review',owner,char,dict(beats=[dict(beat_id=b.beat_id,
                 thought=b.thought.model_dump() if b.thought else None,asides=[a.model_dump() for a in b.asides],parts=wire.get('parts',[]))
@@ -311,6 +317,7 @@ class Orchestrator:
         if draft:
             yield event('reaction.draft',plan=plan.model_dump())
         else:
+            script['goal_state']=await goals.commit(self.settings,request,plan)
             self.store.publish_reply(owner,char,rid,request.text,script)
             self.commit_context(owner,request,context,script,plan)
         yield event('reply.narration.ready',script=script,cached=False)
@@ -338,6 +345,7 @@ class Orchestrator:
         # Only allowed, bounded state fields. Relationship never leaks between roles/accounts.
         for key,value in plan.suggested_state_delta.items():
             if not isinstance(value,(int,float)) or not (-.08<=value<=.08):continue
+            if context['goal_context']['config'].get('paused') and key in ('closeness','trust','conflict'):continue
             target=context['relationship'] if key in ('closeness','trust','conflict') else context['state']
             if key in ('closeness','trust','conflict','happiness','sadness','anger','anxiety','energy'):
                 target[key]=clamp(target.get(key,0)+value)
