@@ -3,6 +3,8 @@ import pytest
 from services.character_ai import goals
 from services.character_ai.schemas import Request,Plan
 from services.character_ai.planner_wire import SpokenPlan
+from services.character_ai.planner_wire import GoalSpokenPlan,wire_schema
+from services.character_ai.schemas import CoreTimelinePlan
 from services.character_ai.storage import Store
 from services.character_ai.config import Settings
 from services.character_ai.orchestrator import Orchestrator
@@ -30,3 +32,10 @@ def test_wire_keeps_evidence_and_feedback():
  p=SpokenPlan(focus='新邀请',beats=[],goal_feedback=dict(affection=.02,evidence='一起喝茶',milestone='date_agreed'))
  full=p.expand(Plan);assert full.goal_feedback.affection==.02 and full.goal_feedback.evidence=='一起喝茶'
  assert not Plan().goal_feedback.affection
+
+def test_real_goal_turn_requires_evidence_but_events_remain_compatible():
+    context=dict(trigger='user_message',user_message='一起喝茶',goal_context=dict(config_version=1))
+    assert wire_schema('plan',CoreTimelinePlan,context) is GoalSpokenPlan
+    with pytest.raises(Exception):GoalSpokenPlan(focus='约会',beats=[])
+    with pytest.raises(Exception):GoalSpokenPlan(focus='约会',beats=[],goal_feedback={})
+    assert wire_schema('plan',CoreTimelinePlan,{**context,'trigger':'idle','user_message':''}) is SpokenPlan

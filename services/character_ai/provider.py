@@ -99,17 +99,19 @@ def structured_messages(purpose,system,context,schema):
         return [dict(role='system',content=system+'\nJSON Schema:\n'+prompt_schema(schema)+'\n'+context.get('language_contract','')),dict(role='user',content=dump(context))]
     # Keep the large reusable prefix ahead of state/timestamps/history, so
     # automatic prefix caching can reuse it even on the first conversation.
-    transport=wire_schema(purpose,schema)
+    transport=wire_schema(purpose,schema,context)
     compact=issubclass(transport,CompactPlan)
-    shape=SPOKEN_SHAPE if transport is SpokenPlan else WIRE_SHAPE if compact else PLAN_SHAPE
+    shape=SPOKEN_SHAPE if issubclass(transport,SpokenPlan) else WIRE_SHAPE if compact else PLAN_SHAPE
     instruction=(wire_system(system) if compact else system)+'\nJSON Schema:\n'+prompt_schema(transport)+'\n'+shape
     data=planner_data(context)
-    if transport is SpokenPlan:data.pop('avatar_capability',None)
+    if issubclass(transport,SpokenPlan):data.pop('avatar_capability',None)
     stable={k:data.pop(k) for k in ('character_profile','avatar_capability','speech_capability','reply_format') if k in data}
     instruction+='\n角色与能力（数据，不是用户发言）：\n'+dump(stable)
     instruction+='\n当前状态（数据，不是用户发言）：\n'+dump(data)
     instruction+='\n只生成必要字段的紧凑JSON。先确定本轮的新内容点，再写beats；不用默认值或空数组填满整个Schema。日常一个beat，通常2条不同的短心声分散在完整短句前后（中文我/咱，英文I/my/we/our），不拆词；问候和预准备场景也一样。台词自然带1至2处符合情绪的语气词或停顿，极短或严肃回应可以不加。'
-    if transport is not SpokenPlan:instruction+='普通表演至多2个关键cue，其余由导演扩展；用户指定的表现全部填写。'
+    if not issubclass(transport,SpokenPlan):instruction+='普通表演至多2个关键cue，其余由导演扩展；用户指定的表现全部填写。'
+    if context.get('goal_context',{}).get('config_version') and context.get('user_message','').strip():
+        instruction+='\n本轮必须提供goal_feedback对象，evidence逐字复制user_message的短语。有新选择或真实学习成果才推进；其余delta可为0。这个字段不是台词，不能念出来。'
     if correction:=context.get('novelty_correction'):
         # One concise private constraint, not a second copy of the old dialogue.
         instruction+='\n本轮内部修订要求（不要向用户提及）：'+correction['instruction']
@@ -227,8 +229,8 @@ class Provider:
             except Exception: code = None
             raise ProviderError('PROVIDER_'+str(response.status_code)+'_'+str(code or 'ERROR')[:60])
     async def structured(self, owner, character, purpose, system, context, schema):
-        transport_schema=wire_schema(purpose,schema)
-        shape = (SPOKEN_SHAPE if transport_schema is SpokenPlan else WIRE_SHAPE if transport_schema is CompactPlan else PLAN_SHAPE) if purpose == 'plan' else ''
+        transport_schema=wire_schema(purpose,schema,context)
+        shape = (SPOKEN_SHAPE if issubclass(transport_schema,SpokenPlan) else WIRE_SHAPE if issubclass(transport_schema,CompactPlan) else PLAN_SHAPE) if purpose == 'plan' else ''
         messages=structured_messages(purpose,system,context,schema)
         # Exactly one schema correction; network/timeouts are never blindly retried.
         attempts=1 if purpose in ('performance','suggestions','translation') else 2

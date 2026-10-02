@@ -54,9 +54,19 @@ class CompactPlan(Strict):
 class SpokenPlan(CompactPlan):
     beats: list[SpokenBeat] = Field(default_factory=list,max_length=3)
 
-def wire_schema(purpose,schema):
-    if purpose=='plan' and issubclass(schema,CoreTimelinePlan):return SpokenPlan
-    return CompactPlan if purpose=='plan' and issubclass(schema,TimelinePlan) else schema
+class GroundedGoalFeedback(GoalFeedback):
+    evidence: str = Field(min_length=1,max_length=100)
+
+class GoalCompactPlan(CompactPlan):
+    goal_feedback: GroundedGoalFeedback
+
+class GoalSpokenPlan(SpokenPlan):
+    goal_feedback: GroundedGoalFeedback
+
+def wire_schema(purpose,schema,context=None):
+    grounded=bool(context and context.get('goal_context',{}).get('config_version') and context.get('trigger') in ('user_message','story') and context.get('user_message','').strip())
+    if purpose=='plan' and issubclass(schema,CoreTimelinePlan):return GoalSpokenPlan if grounded else SpokenPlan
+    return (GoalCompactPlan if grounded else CompactPlan) if purpose=='plan' and issubclass(schema,TimelinePlan) else schema
 
 def wire_system(system):
     """Same content rules, expressed in the private wire's field vocabulary."""
