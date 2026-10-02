@@ -22,6 +22,20 @@ class QuickReplies:
         row=self.store.db.execute('SELECT * FROM quick_reply_sets WHERE owner=? AND character=?',(owner,request.character_id)).fetchone()
         if row and row['expires']>time.time() and row['context_key']==self.pool.context_key(owner,request) and row['source']==self.latest(owner,request.character_id):
             return dict(source_message_id=row['source'],options=json.loads(row['data']))
+        # Packaged introductions already carry three authored choices. Return
+        # them before speculation starts, without invoking a suggestion model
+        # or writing from this read-only status path. Stable UUIDs also let the
+        # normal speculative branches prepare their real AI answers directly.
+        source=self.latest(owner,request.character_id)
+        if not source or str(getattr(request,'source_message_id',source))!=source:return None
+        opening=self.store.db.execute('SELECT data FROM messages WHERE id=? AND owner=? AND character=?',
+            (source,owner,request.character_id)).fetchone()
+        data=json.loads(opening['data']) if opening else {}
+        choices=data.get('initial_replies',[])
+        if not data.get('opening_id') or not isinstance(choices,list) or len(choices)!=3:return None
+        if not all(isinstance(text,str) and 2<=len(text)<=45 for text in choices) or len(set(choices))!=3:return None
+        return dict(source_message_id=source,options=[dict(id=str(uuid.uuid5(uuid.UUID(source),'opening-choice-'+str(i))),
+                    text=text,likelihood=1-i*.2) for i,text in enumerate(choices)])
         return None
 
     def valid_choice(self,owner,request):

@@ -17,6 +17,27 @@ class NoProvider:
     def __getattr__(self, key):
         raise AssertionError('Opening/deletion must not invoke provider: '+key)
 
+@pytest.mark.asyncio
+async def test_all_bundled_openings_offer_read_only_immediate_choices(tmp_path):
+    app=create_app(Settings(data_dir=tmp_path,client_token='opening-test',paid_enabled=False),NoProvider())
+    headers={'Authorization':'Bearer opening-test','X-Starry-Installation':str(uuid.uuid4()),'X-Starry-Account':'fixture'}
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+        for role in compile_catalog()['characters']:
+            char=role['characterID'];source=str(uuid.uuid4());path='/v1/conversations/'+char
+            assert (await client.post(path+'/opening',headers=headers,json=dict(message_id=source,opening_id=role['variants'][0]['id']))).status_code==200
+            body=dict(request_id=str(uuid.uuid4()),character_id=char,source_message_id=source)
+            first=await client.post(path+'/suggestions/status',headers=headers,json=body)
+            assert first.status_code==200
+            result=first.json();assert [o['text'] for o in result['options']]==role['initialReplies']
+            assert result['preparing'] is False
+            assert result== (await client.post(path+'/suggestions/status',headers=headers,json=body)).json()
+            for option in result['options']:uuid.UUID(option['id'])
+            stale={**body,'source_message_id':str(uuid.uuid4())}
+            assert not (await client.post(path+'/suggestions/status',headers=headers,json=stale)).json()['options']
+        assert app.state.store.db.execute('SELECT count(*) FROM quick_reply_sets').fetchone()[0]==0
+        assert app.state.store.db.execute('SELECT count(*) FROM usage').fetchone()[0]==0
+    await app.state.reactions.close();await app.state.turns.close();app.state.store.db.close()
+
 def test_all_openings_match_roster_language_and_real_performances():
     catalog=compile_catalog()
     performance=json.loads(Path('services/character_ai/performance_catalog.json').read_text())['characters']
