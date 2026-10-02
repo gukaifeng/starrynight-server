@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from . import prompts, schemas
 from .profiles import PROFILES, assets
-from .provider import structured_messages, structured_payload, EMOTIONS, DELIVERY, VOCALS
+from .provider import streaming_payload, structured_messages, structured_payload, EMOTIONS, DELIVERY, VOCALS
 from .planner_wire import CompactPlan, SpokenPlan, WIRE_SHAPE, SPOKEN_SHAPE
 from .parallel_performance import PerformancePlan, performance_context
 from .public_profiles import public_profile
@@ -27,9 +27,11 @@ def report(settings,engine,owner,request):
     add('memories','全部服务端记忆','本账号、本角色的全部记忆；本轮实际选中的记忆见上下文。',
         [dict(r) for r in store.db.execute('SELECT id,source,content,importance,created,recalled FROM memories WHERE owner=? AND character=? ORDER BY created',(owner,char))])
     add('client','本机发送内容','当前草稿及偏好、候选记忆、可用表现等请求正文。',request.model_dump(mode='json'))
-    add('payload','完整规划请求预览','与实际 provider 共用构造函数；JSON Schema、system/user 消息及采样参数全部展开。',
+    add('payload','非流式回退规划请求预览' if settings.streaming_core else '完整规划请求预览','与实际 provider 共用构造函数；JSON Schema、system/user 消息及采样参数全部展开。',
         structured_payload(settings,'plan',structured_messages('plan',prompts.CORE_PLANNER if request.parallel_performance else prompts.PLANNER,context,
             schemas.CoreTimelinePlan if request.parallel_performance else (schemas.ShakeTimelinePlan if request.trigger in ('model_shaken','model_pinched') else schemas.TimelinePlan) if request.timeline_reply else schemas.Plan)))
+    if settings.streaming_core and request.timeline_reply and request.parallel_performance:
+        add('streaming-payload','实际核心句子流请求预览','与真实 provider 共用构造函数；完整人设、提示词、上下文和 JSON mode 参数。只读不调用模型。',streaming_payload(settings,context)[0])
     if request.parallel_performance:
         add('performance-payload','并发表演请求预览','与核心对话同时开始，8秒默认上限；失败不影响文字、心声和语音。',
             structured_payload(settings,'performance',structured_messages('performance',prompts.PERFORMER,performance_context(context),PerformancePlan)))
@@ -64,7 +66,7 @@ def report(settings,engine,owner,request):
     # Runtime rules live in executable code as well as prompts. Include the full
     # deployed modules so a tester can inspect thresholds/filters without a
     # hand-maintained summary becoming a second, misleading source of truth.
-    for name in ('goals','prompts','schemas','planner_wire','parallel_performance','ordered_audio','reaction_pool','prepared_draft','quick_replies','greetings','idle_presence','novelty','semantic_novelty','reply_flow','reply_text','director','performance_library','speech_text','orchestrator','provider','translation','asr','storage'):
+    for name in ('goals','prompts','schemas','planner_wire','stream_wire','streaming_reply','parallel_performance','ordered_audio','reaction_pool','prepared_draft','quick_replies','greetings','idle_presence','novelty','semantic_novelty','reply_flow','reply_text','director','performance_library','speech_text','orchestrator','provider','translation','asr','storage'):
         module=importlib.import_module('.'+name,__package__)
         add('rules-'+name,'执行规则 · '+name,'当前服务实际加载版本的完整规则源码。',Path(module.__file__).read_text())
     return dict(version=1,character_id=char,captured_at=datetime.now(timezone.utc).isoformat(),sections=sections)

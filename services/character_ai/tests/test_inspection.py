@@ -111,3 +111,19 @@ def test_scene_previews_are_distinct_while_persona_is_shared(tmp_path):
     assert len(set(personas))==1
     assert store.db.execute('SELECT count(*) FROM usage').fetchone()[0]==0
     store.db.close()
+
+
+def test_streaming_preview_uses_real_builder_and_exposes_incremental_rules(tmp_path):
+    from services.character_ai.tests.test_reaction_pool import setup
+    from services.character_ai.inspection import report
+    from services.character_ai.provider import streaming_payload
+    store,provider,engine,pool,request=setup(tmp_path)
+    request.timeline_reply=True;request.parallel_performance=True
+    sections={s['id']:s['content'] for s in report(engine.settings,engine,'u',request)['sections']}
+    payload=json.loads(sections['streaming-payload'])
+    assert payload==streaming_payload(engine.settings,json.loads(sections['context']))[0]
+    assert payload['stream'] and payload['response_format']['type']=='json_object'
+    assert payload['model']==engine.settings.streaming_model
+    assert 'class Objects' in sections['rules-stream_wire']
+    assert 'await announced.wait()' in sections['rules-streaming_reply']
+    store.db.close()
