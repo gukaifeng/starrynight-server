@@ -10,7 +10,6 @@
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
-    "@fontsource/fraunces": "^5.2.0",
     "@fontsource/ibm-plex-mono": "^5.2.0",
     "@fontsource/ibm-plex-sans": "^5.2.0",
     "@headlessui/react": "^2.2.0",

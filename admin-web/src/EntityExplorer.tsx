@@ -1,194 +1,62 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import { ArrowLeft, ChevronRight, Link2, Pencil, Users, X } from "lucide-react";
+import { type Page, type Resource, type Row } from "./api";
 import {
-  ArrowLeft,
-  ArrowRight,
-  ChevronRight,
-  Database,
-  Heart,
-  Link2,
-  Search,
-  Users,
-  X,
-} from "lucide-react";
-import { compact, type Resource, type Row, type Page } from "./api";
-import { Json, Message, time, useData } from "./Management";
-import { RecordAvatar, imageURL } from "./RecordImages";
-
-export type EntityScope = { user_id?: string; character_id?: string };
-export type ResourceRenderer = (
-  resource: Resource,
-  scope: EntityScope,
-) => ReactNode;
-export const object = (value: unknown): Row =>
-  value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Row)
-    : {};
-const text = (v: unknown) => (typeof v === "string" ? v : "");
-const number = (v: unknown) => Number(v ?? 0).toLocaleString();
-const userName = (r: Row) =>
-  text(object(r.profile).display_name) ||
-  text(r.starry_id) ||
-  text(r.username) ||
-  "访客";
-type DetailData = {
+  Facts,
+  Heading,
+  labels,
+  number,
+  object,
+  Pager,
+  Panel,
+  RawData,
+  scalar,
+  SearchBox,
+  State,
+  Stats,
+  StructuredData,
+  Tabs,
+  text,
+  useData,
+  userName,
+  useSearch,
+} from "./ConsoleUI";
+import { RecordAvatar, RecordGallery } from "./RecordImages";
+import type { Scope } from "./DataWorkspace";
+export type EntityScope = Scope;
+export type ResourceRenderer = (r: Resource, scope: Scope) => ReactNode;
+type Detail = {
   entity: Row;
   stats: Row;
   settings?: Row;
   author?: Row;
   owner?: Row;
 };
-
-function Pager({
-  page,
-  cursors,
-  loading,
-  onCursors,
-}: {
-  page: Page | null;
-  cursors: string[];
-  loading: boolean;
-  onCursors: (v: string[]) => void;
-}) {
-  return (
-    <div className="pagination entity-pagination">
-      <span>
-        第 {cursors.length} 页 · {page?.items.length ?? 0} 条 · 游标分页
-      </span>
-      <button
-        className="secondary"
-        disabled={loading || cursors.length === 1}
-        onClick={() => onCursors(cursors.slice(0, -1))}
-      >
-        <ArrowLeft size={14} />
-        上一页
-      </button>
-      <button
-        className="secondary"
-        disabled={loading || !page?.next}
-        onClick={() => onCursors([...cursors, page!.next])}
-      >
-        下一页
-        <ArrowRight size={14} />
-      </button>
-    </div>
-  );
-}
-function State({
-  loading,
-  error,
-  empty,
-}: {
-  loading: boolean;
-  error: string;
-  empty?: boolean;
-}) {
-  return error ? (
-    <Message text={error} />
-  ) : loading ? (
-    <div className="entity-state" role="status">
-      正在读取当前页…
-    </div>
-  ) : empty ? (
-    <div className="entity-state">当前范围没有记录</div>
-  ) : null;
-}
-function Value({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="entity-value">
-      <dt>{label}</dt>
-      <dd>{children}</dd>
-    </div>
-  );
-}
-function GoalSummary({ row }: { row: Row }) {
-  const config = object(row.goal_config),
-    progress = object(row.goal_progress),
-    bond = object(progress.bond);
-  const names: Record<string, string> = {
-    relationship: "关系养成",
-    task: "任务陪伴",
-    sandbox: "自由相处",
-    strangers: "陌生人",
-    pursuit: "追求",
-    flirting: "暧昧",
-    lovers: "恋人",
-    friends: "朋友",
-    mentor: "师徒",
-    rivals: "宿敌",
-    childhood: "青梅竹马",
-    romance: "恋爱",
-    friendship: "友谊",
-    understanding: "彼此理解",
-  };
-  const label = (v: unknown) => names[text(v)] || text(v) || "未设置";
-  return Object.keys(config).length ? (
-    <>
-      <dl>
-        <Value label="相处模式">
-          {label(config.mode)}
-          {config.paused ? " · 已暂停" : ""}
-        </Value>
-        <Value label="初始关系">{label(config.initial_relation)}</Value>
-        <Value label="长期方向">{label(config.long_term)}</Value>
-        <Value label="本次目标">
-          {text(config.short_term) || "随对话自然发展"}
-        </Value>
-      </dl>
-      {!!Object.keys(bond).length && (
-        <div className="bond-meters">
-          {[
-            ["familiarity", "熟悉"],
-            ["trust", "信任"],
-            ["affection", "好感"],
-          ].map(([k, n]) => (
-            <div key={k}>
-              <span>{n}</span>
-              <meter min={0} max={100} value={Number(bond[k] ?? 0)} />
-              <b>{Number(bond[k] ?? 0).toFixed(1)}</b>
-            </div>
-          ))}
-        </div>
-      )}
-      <details>
-        <summary>完整目标、进度与分支</summary>
-        <Json data={{ 目标: config, 进度: progress }} />
-      </details>
-    </>
-  ) : (
-    <p className="scope-note">
-      尚未保存关系目标。原始推理记录可在下面查看，不推断或补造关系进度。
-    </p>
-  );
-}
 export function scopedResources(
   resources: Resource[],
-  scope: EntityScope,
+  scope: Scope,
   ai: boolean,
 ) {
-  return resources.filter((r) => {
-    if (!!r.ai !== ai) return false;
-    const user = scope.user_id,
-      character = scope.character_id;
-    if (ai) {
-      if (["config", "prompts"].includes(r.id)) return false;
-      return (
-        (!user || r.fields.includes("owner") || r.id === "reply_embeddings") &&
-        (!character ||
-          r.fields.includes("character") ||
-          ["profiles", "reply_embeddings"].includes(r.id))
-      );
-    }
-    return (
-      (!user ||
-        r.fields.includes("user_id") ||
-        ["users", "characters"].includes(r.id)) &&
-      (!character || r.fields.includes("character_id") || r.id === "characters")
-    );
-  });
+  return resources.filter(
+    (r) =>
+      !!r.ai === ai &&
+      (ai
+        ? !["config", "prompts"].includes(r.id) &&
+          (!scope.user_id ||
+            r.fields.includes("owner") ||
+            r.id === "reply_embeddings") &&
+          (!scope.character_id ||
+            r.fields.includes("character") ||
+            ["profiles", "reply_embeddings"].includes(r.id))
+        : (!scope.user_id ||
+            r.fields.includes("user_id") ||
+            ["users", "characters"].includes(r.id)) &&
+          (!scope.character_id ||
+            r.fields.includes("character_id") ||
+            r.id === "characters")),
+  );
 }
-
-function ScopedData({
+export function ScopedData({
   resources,
   scope,
   ai,
@@ -196,28 +64,24 @@ function ScopedData({
   initial,
 }: {
   resources: Resource[];
-  scope: EntityScope;
+  scope: Scope;
   ai: boolean;
   renderResource: ResourceRenderer;
   initial?: string;
 }) {
-  const list = scopedResources(resources, scope, ai);
-  const [selected, setSelected] = useState(
-    initial ?? (ai ? "messages" : "preferences"),
-  );
-  const resource = list.find((r) => r.id === selected) ?? list[0];
+  const list = scopedResources(resources, scope, ai),
+    [selected, setSelected] = useState(
+      initial || (ai ? "messages" : "preferences"),
+    );
+  const current = list.find((r) => r.id === selected) || list[0];
   return (
     <section className="scoped-data">
       <div className="scope-toolbar">
-        <div>
-          <Database size={16} />
-          <strong>{ai ? "AI 实际运行数据" : "账户同步与内容归档"}</strong>
-        </div>
         <label>
-          数据分类
+          {ai ? "AI 数据分类" : "账户数据分类"}
           <select
             aria-label={ai ? "AI 数据分类" : "账户数据分类"}
-            value={resource?.id ?? ""}
+            value={current?.id || ""}
             onChange={(e) => setSelected(e.target.value)}
           >
             {list.map((r) => (
@@ -227,392 +91,262 @@ function ScopedData({
             ))}
           </select>
         </label>
+        <p>
+          {ai
+            ? "推理服务实际使用的上下文、记忆与预生成回复。"
+            : "当前对象的同步记录与内容归档。"}
+        </p>
       </div>
-      <p className="scope-note">
-        {ai
-          ? "这里是推理服务实际使用的上下文、自动记忆及预缓存；不会与 PostgreSQL 聊天归档相加。"
-          : "只显示当前用户／角色范围内的记录。编辑和重置继续采用版本检查、权限控制和操作审计。"}
-      </p>
-      {resource ? (
-        renderResource(resource, scope)
+      {current ? (
+        <>
+          <h2 className="resource-title">{current.name}</h2>
+          {renderResource(current, scope)}
+        </>
       ) : (
-        <div className="entity-state">
-          此范围的数据暂不可用；可到后台数据查看服务状态。
-        </div>
+        <State empty />
       )}
     </section>
   );
 }
-
-function RelationshipDetail({
-  row,
+function WorkerSummary({ scope, refresh }: { scope: Scope; refresh: number }) {
+  const p = new URLSearchParams({
+      ...(scope.user_id ? { owner: scope.user_id } : {}),
+      ...(scope.character_id ? { character: scope.character_id } : {}),
+    }),
+    { data, error, loading } = useData<Row>(
+      "/ai/console/entity-summary?" + p,
+      refresh,
+    );
+  return (
+    <Panel title="AI 运行统计" className="worker-summary">
+      <p className="panel-note">独立于聊天归档，不合并统计。</p>
+      <State loading={loading} error={error} />
+      {data && (
+        <>
+          <Stats
+            items={["messages", "memories", "requests", "reaction_drafts"].map(
+              (k) => [k === "messages" ? "上下文消息" : labels[k], data[k]],
+            )}
+          />
+          <RawData value={data} />
+        </>
+      )}
+    </Panel>
+  );
+}
+export function EntityExplorer({
+  view,
   resources,
   refresh,
   navigate,
   renderResource,
-  back,
+  editEntity,
 }: {
-  row: Row;
+  view: string;
   resources: Resource[];
   refresh: number;
-  navigate: (v: string) => void;
+  navigate: (s: string) => void;
   renderResource: ResourceRenderer;
-  back: () => void;
+  editEntity?: (r: Resource, row: Row) => void;
 }) {
-  const scope = {
-    user_id: text(row.user_id || row.owner),
-    character_id: text(row.character_id || row.character),
-  };
-  const isAccount = row.owner ? row.account_exists === true : true;
-  const [source, setSource] = useState<"archive" | "ai">(
-    row.owner ? "ai" : "archive",
-  );
-  return (
-    <div className="relationship-detail">
-      <button className="text-button" onClick={back}>
-        <ArrowLeft size={15} />
-        返回关系列表
-      </button>
-      <div className="relationship-path">
-        <button
-          disabled={!isAccount}
-          onClick={() => navigate("user:" + scope.user_id)}
-        >
-          <Users size={16} />
-          {row.owner ? scope.user_id : userName(row)}
-        </button>
-        <Link2 size={16} />
-        <button onClick={() => navigate("character:" + scope.character_id)}>
-          <RecordAvatar
-            identity={{
-              kind: "character",
-              id: scope.character_id,
-              name: text(row.character_name) || scope.character_id,
-            }}
-            revision={refresh}
-          />
-          {text(row.character_name) || scope.character_id}
-          <ChevronRight size={14} />
-        </button>
-      </div>
-      {!isAccount && (
-        <p className="scope-note">
-          历史推理标识没有对应的账户 UUID，保留原始标识，不与其他账户合并。
-        </p>
-      )}
-      <div className="relationship-overview">
-        <div>
-          <span>当前订阅</span>
-          <strong>{row.subscribed ? "已订阅" : "未订阅"}</strong>
-        </div>
-        <div>
-          <span>{row.owner ? "AI 上下文" : "聊天归档"}</span>
-          <strong>{number(row.messages)} 条</strong>
-        </div>
-        <div>
-          <span>消息页状态</span>
-          <strong>
-            {object(row.conversation).hidden ? "不显示" : "正常显示"}
-          </strong>
-        </div>
-      </div>
-      <div className="entity-info-grid">
-        <section className="panel entity-info">
-          <h3>关系目标与进度</h3>
-          <GoalSummary row={row} />
-        </section>
-        <section className="panel entity-info">
-          <h3>偏好与会话状态</h3>
-          <Json
-            data={{
-              偏好: row.preference ?? null,
-              会话: row.conversation ?? null,
-            }}
-          />
-        </section>
-      </div>
-      <div className="source-switch" aria-label="会话数据来源">
-        <button
-          disabled={!isAccount}
-          aria-pressed={source === "archive"}
-          onClick={() => setSource("archive")}
-        >
-          账户归档
-        </button>
-        <button aria-pressed={source === "ai"} onClick={() => setSource("ai")}>
-          AI 上下文与运行记录
-        </button>
-      </div>
-      {source === "archive" && isAccount ? (
-        <ScopedData
-          resources={resources}
-          scope={scope}
-          ai={false}
-          initial="messages"
-          renderResource={renderResource}
-        />
-      ) : (
-        <WorkerData
-          resources={resources}
-          owner={scope.user_id}
-          character={scope.character_id}
-          renderResource={renderResource}
-        />
-      )}
-    </div>
-  );
-}
-
-// A historical worker owner is not always a registered UUID. Keep it exact.
-function WorkerData({
-  resources,
-  owner,
-  character,
-  renderResource,
-}: {
-  resources: Resource[];
-  owner?: string;
-  character?: string;
-  renderResource: ResourceRenderer;
-}) {
-  return (
-    <ScopedData
+  const isUser = view === "directory:users" || view.startsWith("user:"),
+    id = view.includes(":") ? view.slice(view.indexOf(":") + 1) : "";
+  return view.startsWith("directory:") ? (
+    <Directory
+      key={view}
+      kind={isUser ? "users" : "characters"}
+      refresh={refresh}
+      navigate={navigate}
+    />
+  ) : (
+    <EntityDetail
+      key={view}
+      kind={isUser ? "users" : "characters"}
+      id={id}
       resources={resources}
-      scope={{ user_id: owner, character_id: character }}
-      ai
+      refresh={refresh}
+      navigate={navigate}
       renderResource={renderResource}
+      editEntity={editEntity}
     />
   );
 }
-
-function WorkerSummary({
-  scope,
-  refresh,
-}: {
-  scope: EntityScope;
-  refresh: number;
-}) {
-  const p = new URLSearchParams({
-    ...(scope.user_id ? { owner: scope.user_id } : {}),
-    ...(scope.character_id ? { character: scope.character_id } : {}),
-  });
-  const { data, error, loading } = useData<Row>(
-    "/ai/console/entity-summary?" + p.toString(),
-    refresh,
-  );
-  return (
-    <section className="panel worker-summary">
-      <div>
-        <strong>AI 实际运行</strong>
-        <small>独立统计，不与账户归档相加</small>
-      </div>
-      {error ? (
-        <span className="scope-note">AI 汇总暂不可用；账户数据仍可查看。</span>
-      ) : loading ? (
-        <span className="scope-note">正在读取当前对象的推理统计…</span>
-      ) : (
-        <>
-          <span>
-            <b>{number(data?.messages)}</b>上下文消息
-          </span>
-          <span>
-            <b>{number(data?.memories)}</b>自动记忆
-          </span>
-          <span>
-            <b>{number(data?.requests)}</b>推理请求
-          </span>
-          <span>
-            <b>{number(data?.reaction_drafts)}</b>场景预缓存
-          </span>
-          <details>
-            <summary>更多统计</summary>
-            <Json data={data} />
-          </details>
-        </>
-      )}
-    </section>
-  );
-}
-
-function Relationships({
-  scope,
-  resources,
+function Directory({
+  kind,
   refresh,
   navigate,
-  renderResource,
 }: {
-  scope: EntityScope;
-  resources: Resource[];
+  kind: "users" | "characters";
   refresh: number;
-  navigate: (v: string) => void;
-  renderResource: ResourceRenderer;
+  navigate: (s: string) => void;
 }) {
-  const [kind, setKind] = useState(""),
-    [cursors, setCursors] = useState([""]),
-    [focused, setFocused] = useState<Row | null>(null);
-  const worker = kind === "ai";
-  const query = new URLSearchParams({
-    ...scope,
-    ...(worker ? {} : { kind }),
-    after: cursors.at(-1)!,
-  });
-  const { data, error, loading } = useData<Page>(
-    (worker ? "/directory/ai-relationships?" : "/directory/relationships?") +
-      query.toString(),
+  const isUser = kind === "users",
+    [q, setQ] = useState(""),
+    query = useSearch(q),
+    [filter, setFilter] = useState(""),
+    [limit, setLimit] = useState("25"),
+    [cursors, setCursors] = useState([""]);
+  useEffect(() => setCursors([""]), [query, filter, limit]);
+  const { data, loading, error } = useData<Page>(
+    "/directory/" +
+      kind +
+      "?" +
+      new URLSearchParams({
+        q: query,
+        kind: filter,
+        limit,
+        after: cursors.at(-1) || "",
+      }),
     refresh,
   );
-  if (focused)
-    return (
-      <RelationshipDetail
-        row={focused}
-        resources={resources}
-        refresh={refresh}
-        navigate={navigate}
-        renderResource={renderResource}
-        back={() => setFocused(null)}
-      />
-    );
   return (
-    <section className="panel relationships-panel">
-      <div className="table-toolbar">
-        <div>
-          <h2>
-            {scope.user_id ? "这个用户与角色的关系" : "这个角色与用户的关系"}
-          </h2>
-          <p className="scope-note">
-            选择一组关系，查看目标、偏好、对话、记忆和推理明细。
-          </p>
-        </div>
-        <label>
-          关系范围
-          <select
-            aria-label="关系范围"
-            value={kind}
-            onChange={(e) => {
-              setKind(e.target.value);
-              setCursors([""]);
-            }}
-          >
-            <option value="">全部账户关系</option>
-            <option value="subscribers">当前订阅</option>
-            <option value="conversations">账户会话</option>
-            <option value="ai">AI 推理会话</option>
-          </select>
-        </label>
-      </div>
-      <State loading={loading} error={error} empty={!data?.items.length} />
-      {!loading && !error && (
-        <div className="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>{scope.user_id ? "角色" : "用户"}</th>
-                <th>{worker ? "推理记录" : "订阅／关系"}</th>
-                <th>聊天条数</th>
-                <th>最近会话</th>
-                <th>关联页面</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.items.map((row) => {
-                const uid = text(row.user_id || row.owner),
-                  cid = text(row.character_id || row.character),
-                  name = scope.user_id
-                    ? text(row.character_name) || cid
-                    : worker && !row.account_exists
-                      ? uid
-                      : userName(row);
-                return (
-                  <tr key={uid + ":" + cid}>
-                    <td>
-                      <button
-                        className="entity-inline"
-                        onClick={() => setFocused(row)}
-                      >
-                        <RecordAvatar
-                          identity={{
-                            kind: scope.user_id ? "character" : "user",
-                            id: scope.user_id ? cid : uid,
-                            name,
-                          }}
-                          revision={refresh}
-                        />
-                        <span>
-                          <strong>{name}</strong>
-                          <small>
-                            {scope.user_id ? cid : text(row.starry_id) || uid}
-                          </small>
-                        </span>
-                      </button>
-                    </td>
-                    <td>
-                      <span className="tag">
-                        {worker
-                          ? `自动记忆 ${number(row.memories)}`
-                          : row.subscribed
-                            ? "已订阅"
-                            : "未订阅"}
-                      </span>
-                      {!!row.goal_config && (
-                        <small className="relation-goal">
-                          {compact(
-                            object(row.goal_config).mode ??
-                              object(row.goal_config).long_term_goal,
-                          )}
-                        </small>
-                      )}
-                    </td>
-                    <td className="mono">{number(row.messages)}</td>
-                    <td>
-                      {time(
-                        worker
-                          ? row.last_message_at
-                          : object(row.conversation).updated_at,
-                      )}
-                    </td>
-                    <td>
-                      <div className="relation-actions">
-                        <button
-                          className="text-button"
-                          onClick={() => setFocused(row)}
-                        >
-                          关系与记录
-                          <ChevronRight size={13} />
-                        </button>
-                        <button
-                          className="text-button"
-                          onClick={() =>
-                            navigate(
-                              scope.user_id
-                                ? "character:" + cid
-                                : "user:" + uid,
-                            )
-                          }
-                          disabled={
-                            worker && !scope.user_id && !row.account_exists
-                          }
-                        >
-                          {scope.user_id ? "角色页" : "用户页"}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-      <Pager
-        page={data}
-        cursors={cursors}
-        loading={loading}
-        onCursors={setCursors}
+    <>
+      <Heading
+        title={isUser ? "用户" : "角色"}
+        description={
+          isUser
+            ? "查询账户，查看资料、关系与完整对话记录。"
+            : "管理角色资料，查看订阅者与对话情况。"
+        }
       />
-    </section>
+      <section className="panel">
+        <div className="table-toolbar">
+          <SearchBox
+            label={isUser ? "搜索用户" : "搜索角色"}
+            placeholder={isUser ? "昵称、星夜号、账号或 UUID" : "角色名称或 ID"}
+            value={q}
+            onChange={setQ}
+          />
+          <div className="toolbar-filters">
+            {isUser && (
+              <select
+                aria-label="用户类型"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              >
+                <option value="">全部用户</option>
+                <option value="registered">注册用户</option>
+                <option value="guest">访客</option>
+              </select>
+            )}
+            <select
+              aria-label="每页数量"
+              value={limit}
+              onChange={(e) => setLimit(e.target.value)}
+            >
+              {["10", "25", "50"].map((n) => (
+                <option key={n} value={n}>
+                  {n} 条 / 页
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <State loading={loading} error={error} />
+        {!loading && !error && (
+          <>
+            <div className="table-scroll entity-directory-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{isUser ? "用户" : "角色"}</th>
+                    <th>{isUser ? "星夜号" : "角色 ID"}</th>
+                    <th>{isUser ? "登录账号" : "可见性"}</th>
+                    <th>{isUser ? "账户类型" : "版本"}</th>
+                    <th>{isUser ? "注册时间" : "更新时间"}</th>
+                    <th>
+                      <span className="sr-only">详情</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.items.map((row) => {
+                    const name = isUser
+                      ? userName(row)
+                      : text(row.name) || text(row.id);
+                    return (
+                      <tr
+                        key={text(row.id)}
+                        data-entity-id={text(row.id)}
+                        tabIndex={0}
+                        onClick={() =>
+                          navigate((isUser ? "user:" : "character:") + row.id)
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter")
+                            navigate(
+                              (isUser ? "user:" : "character:") + row.id,
+                            );
+                        }}
+                      >
+                        <td>
+                          <div className="identity-cell">
+                            <RecordAvatar
+                              identity={{
+                                kind: isUser ? "user" : "character",
+                                id: text(row.id),
+                                name,
+                              }}
+                              revision={row.version}
+                            />
+                            <div>
+                              <strong>{name}</strong>
+                              {isUser && (
+                                <small className="mono">{text(row.id)}</small>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="mono">
+                          {scalar(isUser ? row.starry_id : row.id)}
+                        </td>
+                        <td>
+                          {scalar(
+                            isUser ? row.username : row.visibility,
+                            isUser ? "username" : "visibility",
+                          )}
+                        </td>
+                        <td>
+                          {isUser ? (
+                            <span
+                              className={
+                                "badge " + (row.guest ? "" : "positive")
+                              }
+                            >
+                              {row.guest ? "访客" : "已注册"}
+                            </span>
+                          ) : (
+                            number(row.version)
+                          )}
+                        </td>
+                        <td className="muted nowrap">
+                          {scalar(
+                            isUser ? row.created_at : row.updated_at,
+                            isUser ? "created_at" : "updated_at",
+                          )}
+                        </td>
+                        <td>
+                          <ChevronRight size={14} />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <State empty={!data?.items.length} />
+          </>
+        )}
+        <Pager
+          page={data}
+          loading={loading}
+          cursors={cursors}
+          setCursors={setCursors}
+        />
+      </section>
+    </>
   );
 }
-
 function EntityDetail({
   kind,
   id,
@@ -620,485 +354,487 @@ function EntityDetail({
   refresh,
   navigate,
   renderResource,
+  editEntity,
 }: {
   kind: "users" | "characters";
   id: string;
   resources: Resource[];
   refresh: number;
-  navigate: (v: string) => void;
+  navigate: (s: string) => void;
   renderResource: ResourceRenderer;
+  editEntity?: (r: Resource, row: Row) => void;
 }) {
-  const { data, error, loading } = useData<DetailData>(
-    "/directory/" + kind + "/" + encodeURIComponent(id),
-    refresh,
-  );
   const isUser = kind === "users",
-    scope = isUser ? { user_id: id } : { character_id: id };
-  if (loading || error || !data)
+    { data, error, loading } = useData<Detail>(
+      "/directory/" + kind + "/" + encodeURIComponent(id),
+      refresh,
+    ),
+    [tab, setTab] = useState("profile"),
+    scope: Scope = isUser ? { user_id: id } : { character_id: id };
+  const r = resources.find((r) => !r.ai && r.id === kind);
+  if (!data)
     return (
       <>
         <button
-          className="text-button"
-          onClick={() =>
-            navigate(isUser ? "directory:users" : "directory:characters")
-          }
+          className="back-link"
+          onClick={() => navigate("directory:" + kind)}
         >
-          <ArrowLeft size={14} />
-          返回目录
+          <ArrowLeft size={15} />
+          {isUser ? "用户列表" : "角色列表"}
         </button>
-        <State loading={loading} error={error} empty={!data} />
+        <State loading={loading} error={error} />
       </>
     );
   const row = data.entity,
-    profile = object(row.profile),
-    name = isUser ? userName(row) : text(row.name) || id;
-  const metrics = isUser
-    ? [
-        ["subscriptions", "订阅角色"],
-        ["conversations", "账户会话"],
-        ["messages", "归档消息"],
-        ["created_characters", "创作角色"],
-      ]
-    : [
-        ["subscriptions", "当前订阅者"],
-        ["chatters", "归档聊天用户"],
-        ["messages", "归档消息"],
-        ["ai_messages", "AI 归档回复"],
-      ];
+    name = isUser ? userName(row) : text(row.name),
+    profile = object(row.profile);
   return (
-    <div className="entity-detail">
+    <div className="entity-page">
       <button
-        className="text-button entity-back"
-        onClick={() =>
-          navigate(isUser ? "directory:users" : "directory:characters")
-        }
+        className="back-link"
+        onClick={() => navigate("directory:" + kind)}
       >
-        <ArrowLeft size={14} />
-        返回{isUser ? "用户" : "角色"}目录
+        <ArrowLeft size={15} />
+        {isUser ? "用户列表" : "角色列表"}
       </button>
-      <section className="panel entity-hero">
-        {!isUser && (
-          <img
-            className="entity-cover"
-            src={imageURL({ kind: "character", id, name }, "cover", refresh)}
-            alt={name + "的封面"}
-            onError={(e) => {
-              e.currentTarget.style.visibility = "hidden";
-            }}
-          />
-        )}
-        <div className="entity-hero-main">
-          <RecordAvatar
-            identity={{ kind: isUser ? "user" : "character", id, name }}
-            className="entity-large-avatar"
-            revision={refresh}
-          />
-          <div>
-            <div className="eyebrow">
-              {isUser ? "ACCOUNT / RELATIONSHIPS" : "CHARACTER / CONNECTIONS"}
-            </div>
-            <h1>{name}</h1>
-            <p>
+      <header className="entity-hero">
+        <RecordAvatar
+          className="entity-avatar"
+          identity={{ kind: isUser ? "user" : "character", id, name }}
+          revision={row.version}
+        />
+        <div className="entity-heading">
+          <h1>{name}</h1>
+          <p>
+            {isUser ? text(row.starry_id) || "访客账户" : id}
+            <span
+              className={"badge " + (isUser && !row.guest ? "positive" : "")}
+            >
               {isUser
-                ? text(profile.bio) || "这个用户的资料、关系与相遇。"
-                : text(row.description) || "角色资料与用户关系。"}
+                ? row.guest
+                  ? "访客"
+                  : "注册用户"
+                : scalar(row.visibility, "visibility")}
+            </span>
+          </p>
+          {!!(isUser ? profile.bio : row.description) && (
+            <p className="entity-bio">
+              {text(isUser ? profile.bio : row.description)}
             </p>
-            <div className="entity-identifiers">
-              <code>{isUser ? text(row.starry_id) || "未分配星夜号" : id}</code>
-              <span className="tag">
-                {isUser
-                  ? row.guest
-                    ? "游客账户"
-                    : "注册账户"
-                  : row.deleted
-                    ? "已下架"
-                    : row.visibility === "public"
-                      ? "公开角色"
-                      : row.visibility === "private"
-                        ? "私人角色"
-                        : "未列出角色"}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
-        <div className="entity-metrics">
-          {metrics.map(([key, label]) => (
-            <div key={key}>
-              <strong>{number(data.stats[key])}</strong>
-              <span>{label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-      <WorkerSummary scope={scope} refresh={refresh} />
-      <TabGroup className="entity-tabs">
-        <TabList>
-          {[
-            "概览",
-            isUser ? "角色与羁绊" : "订阅者与对话用户",
-            isUser ? "账户全部数据" : "角色全部数据",
-            "AI 运行数据",
-          ].map((label) => (
-            <Tab key={label}>{label}</Tab>
-          ))}
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <div className="entity-info-grid">
-              <section className="panel entity-info">
-                <h2>{isUser ? "账户资料" : "角色资料"}</h2>
-                <dl>
-                  <Value label={isUser ? "内部 UUID" : "角色 ID"}>
-                    <code>{id}</code>
-                  </Value>
-                  <Value label={isUser ? "登录账号" : "作者"}>
-                    {isUser
-                      ? text(row.username) || "游客尚未设置"
-                      : text(object(data.author?.data).name) ||
-                        text(row.author_id)}
-                  </Value>
-                  <Value label={isUser ? "注册时间" : "更新时间"}>
-                    {time(isUser ? row.created_at : row.updated_at)}
-                  </Value>
-                  <Value label="资料版本">{number(row.version)}</Value>
-                  {!isUser && !!data.owner && (
-                    <Value label="创建用户">
-                      <button
-                        className="text-button"
-                        onClick={() => navigate("user:" + text(data.owner!.id))}
-                      >
-                        {userName(data.owner!)}
-                        <ChevronRight size={13} />
-                      </button>
-                    </Value>
-                  )}
-                  {!!data.author?.user_id && (
-                    <Value label="作者账户">
-                      <button
-                        className="text-button"
-                        onClick={() =>
-                          navigate("user:" + text(data.author!.user_id))
-                        }
-                      >
-                        {text(data.author!.user_id)}
-                        <ChevronRight size={13} />
-                      </button>
-                    </Value>
-                  )}
-                </dl>
-                <details>
-                  <summary>完整{isUser ? "个人资料" : "角色元数据"}</summary>
-                  <Json data={isUser ? row.profile : row.data} />
-                </details>
-              </section>
-              <section className="panel entity-info">
-                <h2>{isUser ? "全局设置与创作者资料" : "作者与来源"}</h2>
-                <Json
-                  data={
+        {r && editEntity && (
+          <button className="secondary" onClick={() => editEntity(r, row)}>
+            <Pencil size={14} />
+            管理资料
+          </button>
+        )}
+      </header>
+      <Tabs
+        items={[
+          ["profile", "资料概览"],
+          ["relations", isUser ? "角色与羁绊" : "订阅者与对话用户"],
+          ["archive", isUser ? "账户全部数据" : "角色全部数据"],
+          ["ai", "AI 运行数据"],
+        ]}
+        selected={tab}
+        onChange={setTab}
+      />
+      <div className="tab-content" role="tabpanel">
+        {tab === "profile" && (
+          <div className="profile-layout">
+            <div className="profile-main">
+              <Panel
+                title={isUser ? "账户资料" : "角色资料"}
+                className="entity-info"
+              >
+                <Facts
+                  data={row}
+                  keys={
                     isUser
-                      ? {
-                          全局设置: data.settings ?? null,
-                          作者资料: data.author ?? null,
-                        }
-                      : {
-                          作者: data.author,
-                          来源角色: row.base_id,
-                          角色数据: row.data,
-                        }
+                      ? [
+                          "id",
+                          "starry_id",
+                          "username",
+                          "guest",
+                          "created_at",
+                          "version",
+                        ]
+                      : [
+                          "id",
+                          "name",
+                          "description",
+                          "author_id",
+                          "base_id",
+                          "visibility",
+                          "updated_at",
+                          "version",
+                        ]
                   }
                 />
-              </section>
-              <section className="panel entity-info entity-accounting">
-                <Heart size={20} />
-                <div>
-                  <h3>从一段关系进入全部记录</h3>
-                  <p>
-                    订阅、聊天、目标进度和记忆按同一个用户与角色组合查看。账户归档和
-                    AI 实际上下文分别展示，统计口径可追溯。
-                  </p>
-                </div>
-              </section>
+                {isUser ? (
+                  <>
+                    <h3 className="subsection-title">个人资料</h3>
+                    <StructuredData value={row.profile} />
+                  </>
+                ) : (
+                  <>
+                    <h3 className="subsection-title">角色信息</h3>
+                    <StructuredData value={row.data} />
+                  </>
+                )}
+                <RawData value={row} />
+              </Panel>
+              {isUser ? (
+                <Panel title="全局设置">
+                  <StructuredData value={data.settings} />
+                </Panel>
+              ) : (
+                r && (
+                  <Panel title="头像与封面">
+                    <RecordGallery
+                      resource={r}
+                      row={row}
+                      revision={row.version}
+                    />
+                  </Panel>
+                )
+              )}
+              {data.author && (
+                <Panel title="作者资料">
+                  <div className="author-inline">
+                    <RecordAvatar
+                      identity={{
+                        kind: "author",
+                        id: text(data.author.id),
+                        name: text(object(data.author.data).name) || "作者",
+                      }}
+                      revision={data.author.version}
+                    />
+                    <div>
+                      <strong>
+                        {text(object(data.author.data).name) ||
+                          text(data.author.id)}
+                      </strong>
+                      <span className="muted">
+                        {text(object(data.author.data).bio)}
+                      </span>
+                    </div>
+                  </div>
+                  <Facts data={data.author} />
+                  {!!data.author.user_id && (
+                    <button
+                      className="text-button"
+                      onClick={() => navigate("user:" + data.author!.user_id)}
+                    >
+                      查看作者账户
+                      <ChevronRight size={14} />
+                    </button>
+                  )}
+                </Panel>
+              )}
+              {!!data.owner && (
+                <Panel title="创建用户">
+                  <button
+                    className="text-button"
+                    onClick={() => navigate("user:" + data.owner!.id)}
+                  >
+                    {userName(data.owner)}
+                    <ChevronRight size={14} />
+                  </button>
+                </Panel>
+              )}
             </div>
-          </TabPanel>
-          <TabPanel>
-            <Relationships
-              scope={scope}
-              resources={resources}
-              refresh={refresh}
-              navigate={navigate}
-              renderResource={renderResource}
-            />
-          </TabPanel>
-          <TabPanel>
-            <ScopedData
-              resources={resources}
-              scope={scope}
-              ai={false}
-              renderResource={renderResource}
-              initial={isUser ? "users" : "characters"}
-            />
-          </TabPanel>
-          <TabPanel>
+            <aside className="profile-aside">
+              <Panel title="账户归档统计">
+                <Stats
+                  items={
+                    (isUser
+                      ? [
+                          ["订阅角色", data.stats.subscriptions],
+                          ["关注作者", data.stats.follows],
+                          ["创建角色", data.stats.created_characters],
+                          ["会话", data.stats.conversations],
+                        ]
+                      : [
+                          ["订阅用户", data.stats.subscriptions],
+                          ["对话用户", data.stats.chatters],
+                          ["会话", data.stats.conversations],
+                        ]) as [string, unknown][]
+                  }
+                />
+                <div className="compact-metrics">
+                  {["messages", "user_messages", "ai_messages"].map((k) => (
+                    <div key={k}>
+                      <span>{k === "messages" ? "归档消息" : labels[k]}</span>
+                      <strong>{number(data.stats[k])}</strong>
+                    </div>
+                  ))}
+                </div>
+                <p className="panel-note">仅统计账户同步的记录。</p>
+              </Panel>
+              <WorkerSummary scope={scope} refresh={refresh} />
+            </aside>
+          </div>
+        )}
+        {tab === "relations" && (
+          <Relationships
+            scope={scope}
+            resources={resources}
+            refresh={refresh}
+            navigate={navigate}
+            renderResource={renderResource}
+          />
+        )}
+        {tab === "archive" && (
+          <ScopedData
+            resources={resources}
+            scope={scope}
+            ai={false}
+            initial={isUser ? "users" : "characters"}
+            renderResource={renderResource}
+          />
+        )}
+        {tab === "ai" && (
+          <>
+            <WorkerSummary scope={scope} refresh={refresh} />
             <ScopedData
               resources={resources}
               scope={scope}
               ai
-              renderResource={renderResource}
               initial={isUser ? "messages" : "profiles"}
+              renderResource={renderResource}
             />
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
+          </>
+        )}
+      </div>
     </div>
   );
 }
-
-export function EntityExplorer({
-  kind,
-  id,
+function Relationships({
+  scope,
   resources,
   refresh,
   navigate,
   renderResource,
 }: {
-  kind: "users" | "characters";
-  id?: string;
+  scope: Scope;
   resources: Resource[];
   refresh: number;
-  navigate: (v: string) => void;
+  navigate: (s: string) => void;
   renderResource: ResourceRenderer;
 }) {
-  const [q, setQ] = useState(""),
-    [query, setQuery] = useState(""),
-    [filter, setFilter] = useState(""),
-    [size, setSize] = useState("25"),
-    [cursors, setCursors] = useState([""]);
+  const [kind, setKind] = useState(""),
+    [cursors, setCursors] = useState([""]),
+    [selected, setSelected] = useState<Row | null>(null),
+    [source, setSource] = useState("ai");
   useEffect(() => {
-    const t = setTimeout(() => {
-      setQuery(q.trim());
-      setCursors([""]);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [q]);
-  // Directory and detail are separate components: detail navigation never
-  // fetches the directory (or every count in the database) in the background.
-  return id ? (
-    <EntityDetail
-      key={kind + ":" + id}
-      kind={kind}
-      id={id}
-      resources={resources}
-      refresh={refresh}
-      navigate={navigate}
-      renderResource={renderResource}
-    />
-  ) : (
-    <EntityDirectory
-      kind={kind}
-      q={q}
-      setQ={setQ}
-      query={query}
-      filter={filter}
-      setFilter={(v) => {
-        setFilter(v);
-        setCursors([""]);
-      }}
-      size={size}
-      setSize={(v) => {
-        setSize(v);
-        setCursors([""]);
-      }}
-      cursors={cursors}
-      setCursors={setCursors}
-      refresh={refresh}
-      navigate={navigate}
-    />
-  );
-}
-
-function EntityDirectory({
-  kind,
-  q,
-  setQ,
-  query,
-  filter,
-  setFilter,
-  size,
-  setSize,
-  cursors,
-  setCursors,
-  refresh,
-  navigate,
-}: {
-  kind: "users" | "characters";
-  q: string;
-  setQ: (v: string) => void;
-  query: string;
-  filter: string;
-  setFilter: (v: string) => void;
-  size: string;
-  setSize: (v: string) => void;
-  cursors: string[];
-  setCursors: (v: string[]) => void;
-  refresh: number;
-  navigate: (v: string) => void;
-}) {
-  const isUser = kind === "users",
+    setCursors([""]);
+    setSelected(null);
+  }, [kind]);
+  const ai = kind === "ai",
     p = new URLSearchParams({
-      q: query,
-      kind: filter,
-      limit: size,
-      after: cursors.at(-1)!,
-    });
-  const { data, error, loading } = useData<Page>(
-    "/directory/" + kind + "?" + p.toString(),
-    refresh,
-  );
-  return (
-    <div className="entity-directory">
-      <div className="page-heading">
-        <div>
-          <div className="eyebrow">
-            {isUser ? "PEOPLE, WITH A STORY" : "CHARACTERS, WITH CONNECTIONS"}
-          </div>
-          <h1>{isUser ? "用户" : "角色"}</h1>
-          <p>
-            {isUser
-              ? "从一个账户，看见资料、偏好和每一段关系。"
-              : "从一个角色，看见设定、订阅者和每一次对话。"}
-          </p>
-        </div>
-        <div className="directory-mode">
-          <span className="live-dot" />
-          按需查询 · 每页最多 50 条
-        </div>
-      </div>
-      <section className="panel">
-        <div className="table-toolbar directory-toolbar">
-          <label className="search-box">
-            <Search size={16} />
-            <input
-              aria-label={isUser ? "搜索用户" : "搜索角色"}
-              placeholder={
-                isUser ? "星夜号、用户名、昵称或完整 UUID…" : "角色名称或 ID…"
-              }
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-            {q && (
-              <button aria-label="清除目录搜索" onClick={() => setQ("")}>
-                <X size={14} />
+      ...scope,
+      kind: ai ? "" : kind,
+      after: cursors.at(-1) || "",
+    }),
+    { data, error, loading } = useData<Page>(
+      "/directory/" + (ai ? "ai-relationships" : "relationships") + "?" + p,
+      refresh,
+    );
+  if (selected) {
+    const owner = text(selected.user_id || selected.owner),
+      char = text(selected.character_id || selected.character),
+      pair = { user_id: owner, character_id: char },
+      account = selected.owner ? selected.account_exists === true : true;
+    return (
+      <div className="relationship-detail">
+        <div className="relationship-path">
+          <button className="back-link" onClick={() => setSelected(null)}>
+            <ArrowLeft size={14} />
+            返回关系列表
+          </button>
+          <div>
+            {account ? (
+              <button
+                className="text-button"
+                onClick={() => navigate("user:" + owner)}
+              >
+                {userName(selected)}
               </button>
+            ) : (
+              <code>{owner}</code>
             )}
-          </label>
-          {isUser && (
-            <select
-              aria-label="账户类型"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
+            <Link2 size={15} />
+            <button
+              className="text-button"
+              onClick={() => navigate("character:" + char)}
             >
-              <option value="">全部用户</option>
-              <option value="registered">注册用户</option>
-              <option value="guest">游客</option>
-            </select>
-          )}
-          <select
-            aria-label="每页数量"
-            value={size}
-            onChange={(e) => setSize(e.target.value)}
-          >
-            {[10, 25, 50].map((n) => (
-              <option value={n} key={n}>
-                {n} 条／页
-              </option>
-            ))}
-          </select>
+              {text(selected.character_name) || char}
+            </button>
+          </div>
         </div>
-        <State loading={loading} error={error} empty={!data?.items.length} />
-        {!loading && !error && (
+        <div className="relationship-overview">
+          <Panel title="关系与目标">
+            <Facts
+              data={selected}
+              keys={["subscribed", "subscribed_at", "conversation"]}
+            />
+            <StructuredData
+              value={{
+                goal_config: selected.goal_config,
+                goal_progress: selected.goal_progress,
+                preference: selected.preference,
+              }}
+            />
+          </Panel>
+          <Panel title="对话统计">
+            <Stats
+              items={[
+                [ai ? "上下文消息" : "归档消息", selected.messages],
+                ["用户消息", selected.user_messages],
+                ["AI 消息", selected.ai_messages],
+              ]}
+            />
+            {ai && (
+              <p className="panel-note">
+                未关联正式账户的历史上下文仍按原始所有者读取。
+              </p>
+            )}
+            <RawData value={selected} />
+          </Panel>
+        </div>
+        <Tabs
+          items={[
+            ["ai", "AI 上下文与运行记录"],
+            ...(account
+              ? [["archive", "账户归档与关系记录"] as [string, string]]
+              : []),
+          ]}
+          selected={source}
+          onChange={setSource}
+        />
+        <ScopedData
+          key={source}
+          resources={resources}
+          scope={pair}
+          ai={source === "ai"}
+          renderResource={renderResource}
+          initial={source === "ai" ? "messages" : "conversation_goals"}
+        />
+      </div>
+    );
+  }
+  const isUser = !!scope.user_id;
+  return (
+    <section className="panel relationships-panel">
+      <div className="table-toolbar">
+        <h2>{isUser ? "关联角色" : "关联用户"}</h2>
+        <select
+          aria-label="关系范围"
+          value={kind}
+          onChange={(e) => setKind(e.target.value)}
+        >
+          <option value="">全部关系</option>
+          <option value="subscribers">已订阅</option>
+          <option value="conversations">已对话</option>
+          <option value="ai">AI 实际上下文（含历史用户）</option>
+        </select>
+      </div>
+      <State loading={loading} error={error} />
+      {!loading && !error && (
+        <>
           <div className="table-scroll">
-            <table className="entity-directory-table">
+            <table>
               <thead>
                 <tr>
-                  <th>{isUser ? "用户" : "角色"}</th>
-                  <th>{isUser ? "星夜号／账号" : "作者"}</th>
-                  <th>状态</th>
-                  <th>{isUser ? "注册时间" : "更新时间"}</th>
-                  <th />
+                  <th>{isUser ? "角色" : "用户"}</th>
+                  <th>订阅</th>
+                  <th>{ai ? "上下文消息" : "归档消息"}</th>
+                  <th>{ai ? "自动记忆" : "相处目标"}</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 {data?.items.map((row) => {
-                  const id = text(row.id),
-                    name = isUser ? userName(row) : text(row.name);
-                  const open = () =>
-                    navigate((isUser ? "user:" : "character:") + id);
+                  const owner = text(row.user_id || row.owner),
+                    char = text(row.character_id || row.character),
+                    account = row.owner ? row.account_exists === true : true;
                   return (
-                    <tr
-                      key={id}
-                      data-entity-id={id}
-                      tabIndex={0}
-                      onClick={open}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") open();
-                      }}
-                      aria-label={"查看" + name}
-                    >
+                    <tr key={owner + ":" + char}>
                       <td>
-                        <div className="record-identity">
-                          <RecordAvatar
-                            identity={{
-                              kind: isUser ? "user" : "character",
-                              id,
-                              name,
-                            }}
-                            revision={`${row.version}:${refresh}`}
-                          />
-                          <span>
-                            <strong>{name}</strong>
-                            <small className="mono">
-                              {isUser ? id : text(row.description) || id}
-                            </small>
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        {isUser ? (
-                          <>
-                            <strong className="mono">
-                              {text(row.starry_id) || "—"}
+                        <div className="identity-cell">
+                          {(isUser || account) && (
+                            <RecordAvatar
+                              identity={{
+                                kind: isUser ? "character" : "user",
+                                id: isUser ? char : owner,
+                                name: isUser
+                                  ? text(row.character_name) || char
+                                  : userName(row),
+                              }}
+                            />
+                          )}
+                          <div>
+                            <strong>
+                              {isUser
+                                ? text(row.character_name) || char
+                                : account
+                                  ? userName(row)
+                                  : owner}
                             </strong>
-                            <small className="cell-subtitle">
-                              {text(row.username) || "游客账户"}
+                            <small>
+                              {isUser
+                                ? char
+                                : account
+                                  ? text(row.starry_id)
+                                  : "历史上下文"}
                             </small>
-                          </>
-                        ) : (
-                          text(row.author_name) || text(row.author_id)
-                        )}
+                          </div>
+                        </div>
                       </td>
                       <td>
                         <span
                           className={
-                            "tag " +
-                            (!row.guest && !row.deleted ? "tag-good" : "")
+                            "badge " + (row.subscribed ? "positive" : "")
                           }
                         >
-                          {isUser
-                            ? row.guest
-                              ? "游客"
-                              : "注册"
-                            : row.deleted
-                              ? "已下架"
-                              : row.visibility === "public"
-                                ? "公开"
-                                : row.visibility === "private"
-                                  ? "私人"
-                                  : "未列出"}
+                          {row.subscribed ? "已订阅" : "未订阅"}
                         </span>
                       </td>
-                      <td>{time(isUser ? row.created_at : row.updated_at)}</td>
+                      <td>{number(row.messages)}</td>
                       <td>
-                        <ChevronRight size={15} />
+                        {ai
+                          ? number(row.memories)
+                          : scalar(object(row.goal_config).mode, "mode")}
+                      </td>
+                      <td>
+                        <div className="row-actions">
+                          {(isUser || account) && (
+                            <button
+                              className="text-button"
+                              aria-label={isUser ? "角色页" : "用户页"}
+                              onClick={() =>
+                                navigate(
+                                  (isUser ? "character:" : "user:") +
+                                    (isUser ? char : owner),
+                                )
+                              }
+                            >
+                              {isUser ? "角色页" : "用户页"}
+                            </button>
+                          )}
+                          <button
+                            className="text-button"
+                            onClick={() => {
+                              setSelected(row);
+                              setSource(ai ? "ai" : "archive");
+                            }}
+                          >
+                            关系与记录
+                            <ChevronRight size={13} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -1106,112 +842,100 @@ function EntityDirectory({
               </tbody>
             </table>
           </div>
-        )}
-        <Pager
-          page={data}
-          cursors={cursors}
-          loading={loading}
-          onCursors={setCursors}
-        />
-      </section>
-      <p className="directory-footnote">
-        只读取当前页，不计算整库总数。打开详情后按需读取当前对象的关系与统计。
-      </p>
-    </div>
+          <State empty={!data?.items.length} />
+        </>
+      )}
+      <Pager
+        page={data}
+        loading={loading}
+        cursors={cursors}
+        setCursors={setCursors}
+      />
+    </section>
   );
 }
-
 export function BackendIndex({
   resources,
-  owner,
   navigate,
   tools,
 }: {
   resources: Resource[];
-  owner: boolean;
-  navigate: (v: string) => void;
+  navigate: (s: string) => void;
   tools: { id: string; name: string }[];
 }) {
-  const groups = ["对话", "AI", "内容", "账户", "运营", "系统", "管理"];
+  const [q, setQ] = useState(""),
+    [group, setGroup] = useState("全部"),
+    list = resources.filter(
+      (r) =>
+        (group === "全部" || r.group === group) &&
+        (r.name + " " + r.id + " " + r.description)
+          .toLowerCase()
+          .includes(q.toLowerCase()),
+    );
+  const groups = ["全部", ...new Set(resources.map((r) => r.group))];
   return (
-    <div className="backend-index">
-      <div className="page-heading">
-        <div>
-          <div className="eyebrow">BEHIND EVERY ENCOUNTER</div>
-          <h1>后台数据</h1>
-          <p>
-            数据库、AI 会话与运行管理。账户与角色的详细信息也可以从这里追溯。
-          </p>
-        </div>
-        <button className="secondary" onClick={() => navigate("overview")}>
-          系统总览
-          <ArrowRight size={15} />
-        </button>
-      </div>
-      <div className="backend-groups">
-        {groups.map((group) => (
-          <section className="panel backend-group" key={group}>
-            <div className="eyebrow">
-              {group === "AI"
-                ? "INTELLIGENCE"
-                : group === "系统"
-                  ? "DATABASE"
-                  : "DATA"}
-            </div>
-            <h2>
-              {group === "对话"
-                ? "对话与关系归档"
-                : group === "AI"
-                  ? "AI 推理与语音"
-                  : group === "系统"
-                    ? "数据库与同步"
-                    : group}
-            </h2>
-            {resources
-              .filter((r) => r.group === group)
-              .map((r) => (
-                <button
-                  key={(r.ai ? "ai:" : "") + r.id}
-                  onClick={() => navigate((r.ai ? "ai:" : "") + r.id)}
-                >
-                  <span>
-                    <strong>{r.name}</strong>
-                    <small>{r.description}</small>
-                  </span>
-                  <ChevronRight size={14} />
-                </button>
-              ))}
-          </section>
-        ))}
-      </div>
-      <section className="panel backend-operations">
-        <div>
-          <div className="eyebrow">OPERATIONS</div>
-          <h2>服务器管理</h2>
-          <p>
-            {owner
-              ? "配置、资源、备份、缓存与维护，保留现有操作权限。"
-              : "当前为受限账户，服务器写操作仅对所有者开放。"}
-          </p>
-        </div>
-        <div>
-          {owner &&
-            tools.map((t) => (
-              <button
-                className="secondary"
-                key={t.id}
-                onClick={() => navigate("manage:" + t.id)}
-              >
-                {t.name}
-                <ChevronRight size={13} />
-              </button>
-            ))}
-          <button className="secondary" onClick={() => navigate("operations")}>
-            服务运行
+    <>
+      <Heading
+        title="后台数据"
+        description="查看数据、AI 运行记录及服务管理。"
+      />
+      <div className="backend-tools">
+        {[
+          { id: "overview", name: "服务与数据总览" },
+          { id: "voice-timings", name: "语音耗时" },
+          { id: "operations", name: "服务运行" },
+          ...tools.map((t) => ({ ...t, id: "manage:" + t.id })),
+        ].map((t) => (
+          <button
+            key={t.id}
+            className="secondary"
+            onClick={() => navigate(t.id)}
+          >
+            {t.name}
             <ChevronRight size={13} />
           </button>
+        ))}
+      </div>
+      <section className="panel backend-catalog">
+        <div className="table-toolbar">
+          <SearchBox
+            value={q}
+            onChange={setQ}
+            label="搜索后台数据"
+            placeholder="搜索数据名称或用途"
+          />
+          <span className="muted">{list.length} 个数据分类</span>
         </div>
+        <div className="filter-tabs">
+          {groups.map((g) => (
+            <button
+              key={g}
+              className={g === group ? "selected" : ""}
+              onClick={() => setGroup(g)}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+        <div className="backend-groups">
+          {list.map((r) => (
+            <button
+              className="catalog-item"
+              key={(r.ai ? "ai:" : "") + r.id}
+              onClick={() => navigate((r.ai ? "ai:" : "") + r.id)}
+            >
+              <span className="catalog-group">
+                {r.group}
+                {r.ai ? " · AI" : ""}
+              </span>
+              <strong>{r.name}</strong>
+              <span>{r.description}</span>
+              <ChevronRight size={16} />
+            </button>
+          ))}
+        </div>
+        <State empty={!list.length} />
       </section>
-    </div>
+    </>
   );
 }

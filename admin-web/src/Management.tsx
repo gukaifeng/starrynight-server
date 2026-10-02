@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { api, compact, type Row } from "./api";
+import { useState } from "react";
+import { compact, type Row } from "./api";
+import { StructuredData } from "./ConsoleUI";
 import { MediaLibrary } from "./MediaLibrary";
 import { SystemManagement } from "./SystemManagement";
 
@@ -20,28 +21,7 @@ export const tools = [
   { id: "files", name: "服务器文件" },
   { id: "jobs", name: "维护任务" },
 ];
-export function useData<T>(path: string, refresh: number) {
-  const [data, setData] = useState<T | null>(null),
-    [error, setError] = useState(""),
-    [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError("");
-    api<T>(path, { signal: controller.signal })
-      .then((v) => {
-        if (!controller.signal.aborted) setData(v);
-      })
-      .catch((e) => {
-        if (!controller.signal.aborted) setError((e as Error).message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [path, refresh]);
-  return { data, error, loading };
-}
+export { useData } from "./ConsoleUI";
 export function bytes(value: unknown) {
   const n = Number(value ?? 0);
   return n >= 1073741824
@@ -115,7 +95,11 @@ export function Message({ text }: { text: string }) {
   ) : null;
 }
 export function Json({ data }: { data: unknown }) {
-  return <pre className="management-json">{JSON.stringify(data, null, 2)}</pre>;
+  return (
+    <div className="management-data">
+      <StructuredData value={data} />
+    </div>
+  );
 }
 export function Management({
   view,
@@ -137,7 +121,6 @@ export function Management({
     <section className="management-workspace">
       <div className="page-heading">
         <div>
-          <div className="eyebrow">星夜 · 服务器工作区</div>
           <h1>{heading}</h1>
           <p>
             {view === "audio"

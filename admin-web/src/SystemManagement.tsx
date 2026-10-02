@@ -313,7 +313,7 @@ function Configuration({
               <h2>AI 服务与凭据</h2>
               {fields("ai")}
               <p className="panel-note">
-                对话模型、声音模型、预算和预缓存参数在左侧“模型与预算”管理。
+                对话模型、声音模型、预算和预缓存参数在后台数据的“模型与预算”中管理。
               </p>
             </section>
           </div>

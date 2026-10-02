@@ -65,7 +65,11 @@ export function compact(value: unknown): string {
     const v = value as Row;
     const title =
       v.display_name ?? v.name ?? v.text ?? v.content ?? v.bio ?? v.mode;
-    return title ? String(title) : JSON.stringify(value);
+    return title
+      ? String(title)
+      : Array.isArray(value)
+        ? `${value.length} 项`
+        : `${Object.keys(v).length} 个字段`;
   }
   return String(value);
 }

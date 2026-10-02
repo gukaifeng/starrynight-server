@@ -146,7 +146,6 @@ export function VoiceTimings({ refresh }: { refresh: number }) {
     <section className="voice-workspace">
       <div className="page-heading">
         <div>
-          <div className="eyebrow">STARRY NIGHT / VOICE TIMELINE</div>
           <h1>语音耗时</h1>
           <p>
             逐次拆解生成、缓存与交付。用追踪 ID 对照手机日志；并行耗时不能相加。
