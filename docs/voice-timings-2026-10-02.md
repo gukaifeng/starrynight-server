@@ -57,4 +57,11 @@ AI worker 现有私有 SQLite WAL 增加 `voice_traces` 表，`(owner,id)` 为�
 - 本机隔离管理员密码与云端不同，使用各自私有密码文件；未修改线上管理员或用户密码。
 - 本轮不调用图片模型，也不通过付费对话来制造性能样本。上线后的实际慢请求会自然留下可比较的记录。
 
-部署和真机安装的实际结果在完成后补记。
+## 2026-10-02 发布与实测
+
+- 源码版本 `21b210181c7a`，发布目录 `20261002T113118Z-21b210181c7a`。使用现有升级工具显式 `--restart-ai`，先进行完整校验，再备份 PostgreSQL 与 AI SQLite 后切换。备份在 `~/app/backups/before-api-20261002T113118Z-21b210181c7a`。原有用户、对话和缓存未清理。
+- 云端 API、AI worker、管理平台、HTTPS edge 均 active；8443 与 8444 健康检查返回 200。未认证的真实管理资源接口返回 401，8443 上的 AI 管理接口返回 404；语音日志没有公开访问入口。
+- 使用已有、各段文件均齐全的 PCM 缓存做一次 `verification:cached_replay` 验证，`STARRY_AI_DISABLE_PAID=1` 且 `create=False`，没有调用任何付费模型。实际记录 21 个 span、11 个事件，首音频生产交付 2.253 ms、总生产时间 3.048 ms。该结果不包含公网传输、客户端播放或新 TTS 生成，不能解释此前十秒的真实慢请求。
+- 真实 HTTPS 管理平台通过 Chrome 检查：1512×1050 和 390×844 布局、时间轴、全部环节、完整 JSON 导出，无 pageerror / 横向溢出。验证截图及导出保留于本机忽略的 `.local/voice-timings-cloud/`。
+- Python 完整测试 252 passed / 4 skipped，专项覆盖并发、取消、隐私及账户隔离；Go vet/race/build 和真实 PostgreSQL/Redis 集成均通过，TypeScript/Vite 构建和 Vitest 通过。既有模型预览大 chunk 提示不影响构建。
+- 客户端 NativeUI 模拟器真实 AVAudioEngine 回归通过，完整 device 签名构建通过，并已成功安装到 iPhone 17。未把模拟器本地 PCM 或云端缓存样例当作百炼性能测量。后续用户真实请求会自然留下生成、预生成、网络与播放记录。
