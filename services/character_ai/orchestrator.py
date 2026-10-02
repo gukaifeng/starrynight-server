@@ -92,6 +92,7 @@ class Orchestrator:
         context['recent_asides_to_avoid']=aside_quality.recent(self.store,owner,char)
         context['visible_details']=aside_quality.appearance_choices(PROFILES[char],context['recent_asides_to_avoid'],goals.spoken_language(char,context['goal_context'])) if request.trigger=='idle' else []
         context['reply_format']='timeline-v2' if request.timeline_reply else 'legacy'
+        if correction:=getattr(request,'_stream_correction',None):context['novelty_correction']=correction
         if request.trigger=='idle':context['idle_context']=idle_presence.context(self.store,owner,char,context)
         if request.trigger in ENTRY_TRIGGERS:
             last = self.store.db.execute('SELECT max(created) FROM messages WHERE owner=? AND character=?',(owner,char)).fetchone()[0]

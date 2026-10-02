@@ -93,3 +93,23 @@ async def test_inflight_stream_commits_final_goal_feedback_once_after_early_audi
     assert next(e for e in events if e.get('core_complete'))['script']['goal_state']['progress_version']==1
     assert store.state('u',request.character_id)['happiness']==pytest.approx(initial+.04,abs=1e-4)
     await pool.close();store.db.close()
+
+@pytest.mark.asyncio
+async def test_unpublished_copy_retries_with_private_correction_and_no_spoken_duplicate(tmp_path):
+    store,provider,engine,pool,request=setup(tmp_path);calls=[]
+    old='今晚我们一起给那颗最亮的星星想个名字吧。'
+    store.message(str(uuid.uuid4()),'u',request.character_id,'old','assistant',dict(text=old))
+    async def source(owner,char,context):
+        calls.append(context)
+        if len(calls)==1:yield dict(say=old)
+        else:
+            assert context['novelty_correction']['rejected_text']==old
+            yield dict(say='如果用颜色来分辨星星，你会先留意金色还是银白色？')
+    provider.stream_beats=source
+    request=request.model_copy(update=dict(request_id=uuid.uuid4(),trigger='user_message',text='再聊聊星星',timeline_reply=True,parallel_performance=True))
+    events=[e async for e in engine.reply('u',request)]
+    assert len(calls)==2
+    assert all(e['script']['text']!=old for e in events if 'script' in e)
+    assert len([e for e in events if e['type']=='reply.narration.ready'])==1
+    assert '_stream_correction' not in request.model_dump()
+    await pool.close();store.db.close()

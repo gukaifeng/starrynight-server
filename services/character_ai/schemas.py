@@ -194,6 +194,7 @@ class Request(Strict):
     # Never writable through JSON. Only the authenticated Go gateway attaches this.
     _goal_snapshot: dict = PrivateAttr(default_factory=dict)
     _goal_account: str = PrivateAttr(default='')
+    _stream_correction: dict | None = PrivateAttr(default=None)
     request_id: UUID
     conversation_reset: str = Field(default='',max_length=36)
     character_id: str = Field(min_length=1,max_length=128,pattern=r'^[a-z][a-z0-9_.-]+$')

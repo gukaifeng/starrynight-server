@@ -36,7 +36,6 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                         continue
                     if len(plan.beats)>=3:continue
                     b=beat(raw,len(plan.beats)+1)
-                    vt.mark('first_sentence_validated')
                     b.asides=[a for a in b.asides if aside_quality.allowed_language(a.text,goals.spoken_language(char,context['goal_context']))]
                     proposed=Plan(beats=[b])
                     lang_char='anime-lime' if goals.spoken_language(char,context['goal_context'])=='en' else char
@@ -44,10 +43,15 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                     if wrong_language(lang_char,proposed) or interaction_mismatch(request,b.dialogue.text):raise ValueError('STREAM_CONTENT_INVALID')
                     candidate='\n'.join([script['text'],b.dialogue.text]).strip()
                     extra=[dict(text=t) for t in context.get('reserved_reactions',[])]
-                    if novelty.match(engine.store,owner,candidate,extra,exclude_message=script['message_id']):raise ValueError('REPLY_REPEATED')
+                    duplicate=novelty.match(engine.store,owner,candidate,extra,exclude_message=script['message_id'])
                     with vt.span('plan.quality_review'):
-                        related=await engine.semantic.match(owner,candidate,request.trigger,exclude_message=script['message_id'])
-                        if related and related['score']>=.86:raise ValueError('REPLY_REPEATED')
+                        related=await engine.semantic.match(owner,candidate,request.trigger,exclude_message=script['message_id']) if not duplicate else None
+                        if duplicate or (related and related['score']>=.86):
+                            vt.flag('quality_rejected',True)
+                            vt.flag('quality_match',duplicate['reason'] if duplicate else 'meaning')
+                            request._stream_correction=dict(rejected_text=candidate,instruction='直接回应当前输入，换一个尚未讲过的具体细节、观点或继续方向，不用同义改写，也不以泛泛的肯定作为第一句。保留角色、语言、正确事实与心声。')
+                            raise ValueError('REPLY_REPEATED')
+                    vt.mark('first_sentence_validated')
                     resolved=engine.director.beat(owner,char,b,context['relationship'],context['state'],request.available_assets,
                         b.dialogue.speech.emotion,request.trigger,record_usage=not draft)
                     wire=dict(beat_id=b.beat_id,thought=None,dialogue=dict(text=visible_text(b.dialogue.text),speech=b.dialogue.speech.model_dump()),

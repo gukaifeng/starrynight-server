@@ -6,6 +6,7 @@ No embedding downloads, extra classifier calls, or cross-account text exposure.
 """
 import re
 from difflib import SequenceMatcher
+from functools import lru_cache
 from .greetings import normalized
 
 def grams(text):
@@ -14,6 +15,7 @@ def grams(text):
 def tokens(text):
     return ' '.join(sorted(grams(normalized(text))))
 
+@lru_cache(maxsize=2048)
 def similar(left,right):
     a,b=normalized(left),normalized(right)
     if not a or not b:return None
@@ -52,7 +54,10 @@ def match(store,owner,text,extra=(),*,exclude_message=''):
             JOIN reply_novelty n ON n.rowid=f.rowid WHERE reply_novelty_search MATCH ? AND n.owner=?
             AND n.message!=? ORDER BY rank LIMIT 64''',(query,owner,exclude_message)).fetchall()
     rows+=store.db.execute('SELECT text,character FROM reply_novelty WHERE owner=? AND message!=? ORDER BY created DESC LIMIT 64',(owner,exclude_message)).fetchall()
+    seen=set()
     for row in rows+list(extra):
+        if row['text'] in seen:continue
+        seen.add(row['text'])
         if reason:=similar(text,row['text']):return dict(reason=reason,text=row['text'],character=row.get('character') if isinstance(row,dict) else row['character'])
     return None
 
