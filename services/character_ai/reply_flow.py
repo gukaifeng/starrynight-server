@@ -7,7 +7,7 @@ import re
 from .reply_text import visible_text, visible_thought
 from .aside_quality import flatten, repeated, allowed_language, english_effect
 
-REVISION=4
+REVISION=5
 PAUSES=re.compile(r'[，。！？；：、…⋯～~!?;,.:\n\r—–]+')
 HESITATION=re.compile(r'(?<![A-Za-z0-9_])(?:e+m{2,}|h+m{2,}|u+m{2,})(?![A-Za-z0-9_])',re.I)
 PROTECTED=re.compile(r'https?://[^\s，。！？；]+|www\.[^\s，。！？；]+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b(?:Mr|Mrs|Ms|Dr|Prof|St|vs|etc)\.|\b(?:[A-Za-z]\.){2,}',re.I)
@@ -20,7 +20,8 @@ def safe_boundaries(text):
     ellipsis, a number, or a URL. Ambiguous unpunctuated speech stays whole.
     """
     points={0,len(text)}
-    protected=[m.span() for m in PROTECTED.finditer(text)]
+    from .speech_text import bracket_spans
+    protected=[m.span() for m in PROTECTED.finditer(text)]+[(a,b-1 if closed else b) for a,b,closed in bracket_spans(text)]
     def protected_at(index):return any(a<=index<b for a,b in protected)
     def finish(index):
         # Keep all trailing punctuation and closing quotes with the clause.

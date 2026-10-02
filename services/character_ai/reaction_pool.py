@@ -82,7 +82,7 @@ class ReactionPool:
         if not voice.get('approved'):return False
         for beat in script['beats']:
             if not beat.get('dialogue') and not beat.get('vocal_events'):continue
-            path=self.settings.data_dir/'audio'/(audio_key(owner,char,voice['voice_id'],script['message_id'],beat['beat_id'])+'.pcm')
+            path=self.settings.data_dir/'audio'/(audio_key(owner,char,voice['voice_id'],script['message_id'],beat['beat_id'],text=(beat.get('dialogue') or {}).get('text',''))+'.pcm')
             try:
                 if not path.is_file() or path.stat().st_size==0:return False
             except OSError:return False
@@ -108,7 +108,7 @@ class ReactionPool:
             audio=[]
             for b in script['beats']:
                 if not b.get('dialogue') and not b.get('vocal_events'):continue
-                path=self.settings.data_dir/'audio'/(audio_key(owner,request.character_id,data['voice_id'],script['message_id'],b['beat_id'])+'.pcm')
+                path=self.settings.data_dir/'audio'/(audio_key(owner,request.character_id,data['voice_id'],script['message_id'],b['beat_id'],text=(b.get('dialogue') or {}).get('text',''))+'.pcm')
                 content=path.read_bytes();total+=len(content)
                 if total>4*1024*1024:return result
                 audio.append(dict(beat_id=b['beat_id'],data=base64.b64encode(content).decode()))
@@ -317,7 +317,7 @@ class ReactionPool:
             candidate=json.loads(row['data']);script=candidate['script']
             if not self.store.db.execute('SELECT 1 FROM messages WHERE id=?',(script['message_id'],)).fetchone():
                 voice=candidate.get('voice_id',self.store.get('voice','system',char,{}).get('voice_id',''))
-                for beat in script['beats']:(self.settings.data_dir/'audio'/(audio_key(owner,char,voice,script['message_id'],beat['beat_id'])+'.pcm')).unlink(missing_ok=True)
+                for beat in script['beats']:(self.settings.data_dir/'audio'/(audio_key(owner,char,voice,script['message_id'],beat['beat_id'],text=(beat.get('dialogue') or {}).get('text',''))+'.pcm')).unlink(missing_ok=True)
         with self.store.db:
             self.store.db.execute("DELETE FROM reaction_drafts WHERE owner=? AND character=? AND status='expired'",(owner,char))
             self.store.db.execute("DELETE FROM reaction_drafts WHERE owner=? AND character=? AND status='used' AND created<?",(owner,char,time.time()-86400))

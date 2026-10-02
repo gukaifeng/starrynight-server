@@ -431,7 +431,7 @@ class Orchestrator:
             async for item in output:yield item
 
     async def audio_beat(self,owner,char,script,beat,voice,folder,create):
-        key=audio_key(owner,char,voice['voice_id'],script['message_id'],beat['beat_id'])
+        key=audio_key(owner,char,voice['voice_id'],script['message_id'],beat['beat_id'],text=(beat.get('dialogue') or {}).get('text',''))
         path=folder/(key+'.pcm')
         with vt.span('audio.cache_lookup',beat_id=beat['beat_id']):
             cached=path.exists()

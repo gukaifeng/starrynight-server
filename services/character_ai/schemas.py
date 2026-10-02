@@ -54,9 +54,11 @@ class Dialogue(Strict):
         # never display/read implementation fields as character dialogue.
         if CONTROL_TEXT.search(value):
             raise ValueError('dialogue.text contains control JSON; put speech/performance beside dialogue, never inside its text')
-        from .speech_text import embedded_directions
+        from .speech_text import embedded_directions, malformed_brackets
         if next(embedded_directions(value),None) is not None:
             raise ValueError('dialogue.text contains stage directions; put thoughts in asides and actual actions in performance, without parentheses')
+        if malformed_brackets(value):
+            raise ValueError('dialogue.text contains unmatched brackets; use balanced speech parentheses and put actions in performance')
         return value
 
 class PerformanceCue(Strict):

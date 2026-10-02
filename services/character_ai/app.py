@@ -170,8 +170,8 @@ def create_app(settings=None,provider=None):
         for row in rows:
             script=json.loads(row['data'])
             for beat in script.get('beats',[]):
-                for revision in ('', 'spoken-v2'):
-                    key=audio_key(who,character,voice.get('voice_id',''),script['message_id'],beat['beat_id'],revision=revision)
+                for revision,text in (('', ''),('spoken-v2',''),('spoken-v2',(beat.get('dialogue') or {}).get('text',''))):
+                    key=audio_key(who,character,voice.get('voice_id',''),script['message_id'],beat['beat_id'],revision=revision,text=text)
                     (settings.data_dir/'audio'/(key+'.pcm')).unlink(missing_ok=True)
         with store.db:
             store.clear_novelty(who,character)
