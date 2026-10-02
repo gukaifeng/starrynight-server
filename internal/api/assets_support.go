@@ -11,6 +11,31 @@ import (
 )
 
 func (s *Server) assetsSupportRoutes() {
+	type MarketInput struct {
+		ListInput
+		Query    string `query:"q" maxLength:"100"`
+		Platform string `query:"platform" enum:"ios,ios-simulator" default:"ios"`
+	}
+	register(s, "GET", "/v1/store/characters", "character-marketplace", false, func(ctx context.Context, in *MarketInput) (*Output[store.Page[store.MarketListing]], error) {
+		page, err := s.Store.Marketplace(ctx, principal(ctx).ID, in.Query, in.After, in.Platform, in.Limit)
+		if err != nil {
+			return nil, problem(err)
+		}
+		for i := range page.Items {
+			for kind, media := range page.Items[i].Media {
+				if s.Assets != nil {
+					url, e := s.Assets.Preview(ctx, media.ObjectKey)
+					if e != nil {
+						return nil, problem(e)
+					}
+					media.URL = url
+				}
+				media.ObjectKey = ""
+				page.Items[i].Media[kind] = media
+			}
+		}
+		return output(page, nil)
+	})
 	type DownloadInput struct {
 		ID       string `path:"id" maxLength:"120" pattern:"^[a-zA-Z0-9_-]+$"`
 		Platform string `query:"platform" enum:"ios,ios-simulator" default:"ios"`

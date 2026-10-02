@@ -858,6 +858,83 @@
         ],
         "type": "object"
       },
+      "MarketListing": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "additionalProperties": {},
+            "type": "object"
+          },
+          "delivery": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "download_bytes": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "media": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MarketMedia"
+            },
+            "type": "object"
+          },
+          "name": {
+            "type": "string"
+          },
+          "release_version": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "data",
+          "media",
+          "delivery",
+          "download_bytes",
+          "release_version"
+        ],
+        "type": "object"
+      },
+      "MarketMedia": {
+        "additionalProperties": false,
+        "properties": {
+          "content_type": {
+            "type": "string"
+          },
+          "object_key": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string"
+          },
+          "size": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "size",
+          "sha256",
+          "content_type"
+        ],
+        "type": "object"
+      },
       "Message": {
         "additionalProperties": false,
         "properties": {
@@ -1115,6 +1192,36 @@
           "items": {
             "items": {
               "$ref": "#/components/schemas/Entry"
+            },
+            "type": [
+              "array",
+              "null"
+            ]
+          },
+          "next_cursor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "type": "object"
+      },
+      "PageMarketListing": {
+        "additionalProperties": false,
+        "properties": {
+          "$schema": {
+            "description": "A URL to the JSON Schema for this object.",
+            "examples": [
+              "https://example.com/schemas/PageMarketListing.json"
+            ],
+            "format": "uri",
+            "readOnly": true,
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MarketListing"
             },
             "type": [
               "array",
@@ -4612,6 +4719,78 @@
             "session": []
           }
         ]
+      }
+    },
+    "/v1/store/characters": {
+      "get": {
+        "operationId": "character-marketplace",
+        "parameters": [
+          {
+            "explode": false,
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "maxLength": 160,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "default": 50,
+              "format": "int64",
+              "maximum": 200,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "explode": false,
+            "in": "query",
+            "name": "platform",
+            "schema": {
+              "default": "ios",
+              "enum": [
+                "ios",
+                "ios-simulator"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageMarketListing"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "default": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        }
       }
     },
     "/v1/sync": {

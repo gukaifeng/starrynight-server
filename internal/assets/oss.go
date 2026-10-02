@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
 	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
+	"strings"
 	"time"
 )
 
@@ -52,4 +53,16 @@ func (s *Signer) Ticket(ctx context.Context, m Manifest) (Manifest, time.Time, e
 		out.Files[i].ObjectKey = ""
 	}
 	return out, expiry, nil
+}
+
+// A preview is also private OSS data; browsing requires no bucket listing rights.
+func (s *Signer) Preview(ctx context.Context, key string) (string, error) {
+	if !safePath.MatchString(key) || len(key) > 1024 || strings.Contains(key, "..") || strings.HasPrefix(key, "/") {
+		return "", fmt.Errorf("invalid preview key")
+	}
+	result, err := s.Client.Presign(ctx, &oss.GetObjectRequest{Bucket: oss.Ptr(s.Bucket), Key: oss.Ptr(key)}, oss.PresignExpiration(time.Now().UTC().Add(15*time.Minute)))
+	if err != nil {
+		return "", err
+	}
+	return result.URL, nil
 }

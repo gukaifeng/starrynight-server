@@ -55,3 +55,11 @@ func TestTicketsUseOfficialOfflineSignerAndDoNotExposeObjectKeys(t *testing.T) {
 		t.Fatal("signing mutated stored manifest")
 	}
 }
+func TestPreviewRejectsUnsafeStorageKeys(t *testing.T) {
+	s := Signer{}
+	for _, key := range []string{"", "../escape", "/root", "characters/../../escape", "bad?query"} {
+		if _, err := s.Preview(context.Background(), key); err == nil {
+			t.Fatalf("accepted key %q", key)
+		}
+	}
+}
