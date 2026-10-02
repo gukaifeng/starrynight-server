@@ -57,3 +57,9 @@ async def test_admin_console_auth_secrets_profiles_config(tmp_path,monkeypatch):
             assert not store.db.execute("SELECT 1 FROM reaction_drafts WHERE id='ours'").fetchone()
     finally:
         PROFILES.clear();PROFILES.update(snapshot);app.state.store.db.close();await app.state.engine.provider.close()
+def test_voice_authorization_duration_is_visible_but_credentials_are_not():
+    from services.character_ai.admin_console import safe
+    assert safe({'gateway':{'authorization_ms':9.5,'authorization':'secret'}})=={
+        'gateway':{'authorization_ms':9.5,'authorization':'[已隐藏]'}}
+    for value in ('secret',{'authorization':'secret'},float('nan'),True):
+        assert safe({'authorization_ms':value})=={'authorization_ms':'[已隐藏]'}
