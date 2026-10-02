@@ -5,7 +5,7 @@ Jobs outlive the web request and write private, atomic status files. Backups and
 restore candidates are verified before an active database is touched.
 """
 
-import argparse, datetime, fcntl, hashlib, json, os, re, shlex, shutil, sqlite3, subprocess, sys, tarfile, time, uuid
+import argparse, datetime, fcntl, hashlib, json, os, re, shlex, shutil, sqlite3, subprocess, sys, tarfile, tempfile, time, uuid
 from pathlib import Path
 from urllib.parse import urlsplit, unquote
 from activate_standby_release import environment, pg_environment
@@ -355,7 +355,22 @@ def ready(url, timeout=45):
     raise ValueError("服务就绪检查失败")
 
 
-def create_backup(root, release, quiet=False):
+def copy_backup_media(source, target):
+    """Copy a stable media snapshot without following links or special files."""
+    target.mkdir(mode=0o700, parents=True, exist_ok=True)
+    for entry in source.iterdir():
+        if entry.is_symlink() or entry.name.endswith(".tmp"):
+            continue
+        destination = target / entry.name
+        if entry.is_dir():
+            copy_backup_media(entry, destination)
+        elif entry.is_file() and entry.name not in (
+            "state.sqlite3", "state.sqlite3-wal", "state.sqlite3-shm"
+        ):
+            shutil.copy2(entry, destination)
+
+
+def create_backup(root, release, quiet=False, job=None):
     env = environment(root / "config/platform.env")
     ai = json.loads((root / "config/ai-settings.json").read_text())
     data = Path(ai["data_dir"])
@@ -367,77 +382,70 @@ def create_backup(root, release, quiet=False):
     )
     folder = root / "backups" / name
     folder.mkdir(mode=0o700, parents=True)
-    if not quiet:
-        service("stop", "starry-api", "starry-ai")
-    try:
-        run(
-            [root / "postgres/bin/pg_dump", "-Fc", "--file", folder / "platform.dump"],
-            env=pg_environment(env),
-            timeout=180,
-        )
-        with (
-            sqlite3.connect(data / "state.sqlite3") as source,
-            sqlite3.connect(folder / "ai-state.sqlite3") as target,
-        ):
-            source.backup(target)
-        with tarfile.open(folder / "media.tar.gz", "w:gz") as archive:
-            for entry in data.iterdir():
-                if entry.name in (
-                    "state.sqlite3",
-                    "state.sqlite3-wal",
-                    "state.sqlite3-shm",
-                ) or entry.name.endswith(".tmp"):
-                    continue
-                archive.add(
-                    entry,
-                    arcname="ai/" + entry.name,
-                    filter=lambda m: None if m.issym() or m.islnk() else m,
-                )
-            if (root / "data/library-trash").exists():
-                archive.add(
-                    root / "data/library-trash",
-                    arcname="library-trash",
-                    filter=lambda m: None if m.issym() or m.islnk() else m,
-                )
-            if (root / "data/library").exists():
-                archive.add(
-                    root / "data/library",
-                    arcname="library",
-                    filter=lambda m: None if m.issym() or m.islnk() else m,
-                )
-        cfg = folder / "config"
-        cfg.mkdir(mode=0o700)
-        for p in (root / "config").glob("*"):
-            if (
-                p.is_file()
-                and not p.is_symlink()
-                and p.suffix in (".env", ".json", ".conf")
-            ):
-                shutil.copy2(p, cfg / p.name)
-        files = {
-            p.relative_to(folder).as_posix(): dict(
-                bytes=p.stat().st_size, sha256=sha(p)
+    paused_at = time.monotonic()
+    # Compress immutable copies after restarting the App services. Keeping a
+    # private snapshot also prevents later cache writes from changing the tar.
+    with tempfile.TemporaryDirectory(prefix=".snapshot-", dir=folder) as temporary:
+        snapshot = Path(temporary)
+        try:
+            if job:
+                status(job, "running", stage="暂停写入并复制一致快照")
+            if not quiet:
+                service("stop", "starry-api", "starry-ai")
+            run(
+                [root / "postgres/bin/pg_dump", "-Fc", "--file", folder / "platform.dump"],
+                env=pg_environment(env),
+                timeout=180,
             )
-            for p in folder.rglob("*")
-            if p.is_file()
-        }
-        atomic(
-            folder / "control-room-manifest.json",
-            dict(
-                schema=1,
-                created=now(),
-                files=files,
-                release=release.name,
-                redis_sessions="not restored; all app sessions are revoked on restore",
-            ),
-        )
-        verify_backup(root, folder.name)
-    finally:
-        if not quiet:
-            service("start", "starry-api", "starry-ai")
-            ready("http://127.0.0.1:8090/health/ready")
-            ready("http://127.0.0.1:8766/health")
-    return backup_info(root, folder.name)
+            with (
+                sqlite3.connect(data / "state.sqlite3") as source,
+                sqlite3.connect(folder / "ai-state.sqlite3") as target,
+            ):
+                source.backup(target)
+            copy_backup_media(data, snapshot / "ai")
+            for name in ("library", "library-trash"):
+                if (root / "data" / name).exists():
+                    copy_backup_media(root / "data" / name, snapshot / name)
+            cfg = folder / "config"
+            cfg.mkdir(mode=0o700)
+            for p in (root / "config").glob("*"):
+                if (
+                    p.is_file()
+                    and not p.is_symlink()
+                    and p.suffix in (".env", ".json", ".conf")
+                ):
+                    shutil.copy2(p, cfg / p.name)
+            snapshot_completed = now()
+        finally:
+            if not quiet:
+                service("start", "starry-api", "starry-ai")
+                ready("http://127.0.0.1:8090/health/ready")
+                ready("http://127.0.0.1:8766/health")
+        paused_seconds = round(time.monotonic() - paused_at, 3) if not quiet else 0
+        if job:
+            status(job, "running", stage="服务已恢复，压缩与校验快照")
+        with tarfile.open(folder / "media.tar.gz", "w:gz") as archive:
+            for entry in snapshot.iterdir():
+                archive.add(entry, arcname=entry.name)
+    files = {
+        p.relative_to(folder).as_posix(): dict(bytes=p.stat().st_size, sha256=sha(p))
+        for p in folder.rglob("*")
+        if p.is_file()
+    }
+    atomic(
+        folder / "control-room-manifest.json",
+        dict(
+            schema=1,
+            created=now(),
+            snapshot_completed=snapshot_completed,
+            service_pause_seconds=paused_seconds,
+            files=files,
+            release=release.name,
+            redis_sessions="not restored; all app sessions are revoked on restore",
+        ),
+    )
+    verify_backup(root, folder.name)
+    return backup_info(root, folder.name) | {"service_pause_seconds": paused_seconds}
 
 
 def restore_candidate(root, release, folder, candidate):
@@ -733,7 +741,7 @@ def execute_job(root, release, identifier):
         atomic(maintenance, dict(job_id=identifier, started=now()))
         try:
             if operation == "backup":
-                result = create_backup(root, release)
+                result = create_backup(root, release, job=path)
             elif operation == "verify-backup":
                 result = dict(verified=True, manifest=verify_backup(root, body["id"]))
             elif operation == "restore":

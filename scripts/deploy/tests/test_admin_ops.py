@@ -151,6 +151,59 @@ def test_jobs_are_independent_of_admin_service(runtime, tmp_path, monkeypatch):
     )
 
 
+def test_backup_compression_uses_snapshot_after_services_resume(runtime, tmp_path, monkeypatch):
+    audio = runtime / "data/ai/audio/a.pcm"
+    audio.write_bytes(b"before-resume")
+    (runtime / "data/ai/audio/private-link").symlink_to(runtime / "config/platform.env")
+    (runtime / "data/ai/audio/unfinished.tmp").write_bytes(b"unfinished")
+    services = []
+
+    def run_dump(args, **kwargs):
+        Path(args[args.index("--file") + 1]).write_bytes(b"fixture-dump")
+
+    def service(*args):
+        services.append(args[0])
+        if args[0] == "start":
+            audio.write_bytes(b"after-resume")
+
+    monkeypatch.setattr(ops, "run", run_dump)
+    monkeypatch.setattr(ops, "service", service)
+    monkeypatch.setattr(ops, "ready", lambda *a: None)
+    original_open = ops.tarfile.open
+
+    def archive_open(*args, **kwargs):
+        assert services == ["stop", "start"]
+        return original_open(*args, **kwargs)
+
+    monkeypatch.setattr(ops.tarfile, "open", archive_open)
+    backup = ops.create_backup(runtime, tmp_path)
+    folder = runtime / "backups" / backup["id"]
+    with original_open(folder / "media.tar.gz") as archive:
+        assert archive.extractfile("ai/audio/a.pcm").read() == b"before-resume"
+        assert not any("private-link" in name or "unfinished.tmp" in name for name in archive.getnames())
+    manifest = json.loads((folder / "control-room-manifest.json").read_text())
+    assert manifest["snapshot_completed"] and manifest["service_pause_seconds"] >= 0
+    assert not any(name.startswith(".snapshot-") for name in manifest["files"])
+    assert not list(folder.glob(".snapshot-*"))
+
+
+def test_backup_copy_failure_restarts_services_and_leaves_no_snapshot(runtime, tmp_path, monkeypatch):
+    services = []
+    monkeypatch.setattr(ops, "service", lambda *args: services.append(args[0]))
+    monkeypatch.setattr(ops, "ready", lambda *a: None)
+    monkeypatch.setattr(ops, "run", lambda *a, **kw: b"")
+
+    def fail(*args):
+        raise OSError("fixture copy failure")
+
+    monkeypatch.setattr(ops, "copy_backup_media", fail)
+    with pytest.raises(OSError):
+        ops.create_backup(runtime, tmp_path)
+    assert services == ["stop", "start"]
+    assert not list((runtime / "backups").glob("*/.snapshot-*"))
+    assert not list((runtime / "backups").glob("*/control-room-manifest.json"))
+
+
 @pytest.mark.skipif(
     os.environ.get("STARRY_INTEGRATION") != "1",
     reason="real isolated PostgreSQL required",

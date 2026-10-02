@@ -17,7 +17,7 @@ try {
   if(['运行配置','声音文件','备份与恢复'].includes(name))await page.screenshot({path:path.join(output,name+'-desktop.png'),fullPage:true,animations:'disabled'});
  }
  await nav('声音文件').click();await expect(page.locator('.management-list tbody tr').first()).toBeVisible();await page.locator('.management-list tbody tr').first().click();await expect(page.locator('audio')).toBeVisible();
- const sound=await page.locator('audio').getAttribute('src');const response=await context.request.get(base+sound);expect(response.status()).toBe(200);const bytes=await response.body();expect(bytes.subarray(0,4).toString()).toBe('RIFF');
+ const sound=await page.locator('audio').getAttribute('src');const audio=await page.evaluate(async url=>{const response=await fetch(url);const bytes=new Uint8Array(await response.arrayBuffer());return {status:response.status,header:String.fromCharCode(...bytes.slice(0,4))};},sound);expect(audio.status).toBe(200);expect(audio.header).toBe('RIFF');
  await page.screenshot({path:path.join(output,'audio-detail-desktop.png'),fullPage:true,animations:'disabled'});
  if(process.env.ADMIN_TEST_MUTATIONS==='true'){
   await page.getByRole('button',{name:'移除文件',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'确认执行'}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
