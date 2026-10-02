@@ -234,4 +234,6 @@ def create_app(settings=None,provider=None):
         try:voice=store.approve_voice(character,job_id)
         except ValueError as error:raise HTTPException(409,str(error)) from None
         return dict(approved=True,character_id=character,revision=voice.get('revision','original-v1'))
+    from .admin_console import mount
+    mount(app,settings,store,engine,admin)
     return app

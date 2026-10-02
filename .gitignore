@@ -21,3 +21,7 @@ settings.json
 data/
 backups/
 .DS_Store
+node_modules/
+admin-web/playwright-report/
+admin-web/test-results/
+admin-web/*.tsbuildinfo

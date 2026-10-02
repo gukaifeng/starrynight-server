@@ -109,6 +109,10 @@ def main():
             run('systemctl','--user','daemon-reload')
         run('systemctl', '--user', 'restart', 'starry-api')
         ready()
+        # A later release switch must refresh the independently running admin
+        # process too, so its frontend and backend come from the same release.
+        if (Path.home()/'.config/systemd/user/starry-admin.service').exists():
+            run('systemctl','--user','restart','starry-admin')
         if args.restart_ai:
             run('systemctl','--user','start','starry-ai')
             client=urllib.request.build_opener(urllib.request.ProxyHandler({}))
@@ -133,6 +137,8 @@ def main():
         candidate.symlink_to(previous)
         os.replace(candidate, current)
         run('systemctl', '--user', 'restart', 'starry-api')
+        if (Path.home()/'.config/systemd/user/starry-admin.service').exists():
+            run('systemctl','--user','restart','starry-admin')
         if args.restart_ai:
             caddyfile.write_bytes(previous_caddy)
             run('systemctl','--user','reload','starry-edge')

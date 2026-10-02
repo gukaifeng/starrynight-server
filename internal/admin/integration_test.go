@@ -1,0 +1,242 @@
+package admin
+
+import (
+	"bytes"
+	"context"
+	"database/sql"
+	"encoding/json"
+	"github.com/alexedwards/argon2id"
+	"github.com/google/uuid"
+	"github.com/gukaifeng/starrynight-server/internal/store"
+	"github.com/gukaifeng/starrynight-server/migrations"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/pressly/goose/v3"
+	"github.com/redis/go-redis/v9"
+	"io"
+	"net/http"
+	"net/http/cookiejar"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"strings"
+	"testing"
+)
+
+func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
+	if os.Getenv("STARRY_INTEGRATION") != "1" {
+		t.Skip("real PostgreSQL / Redis integration")
+	}
+	ctx := context.Background()
+	dbURL := os.Getenv("TEST_DATABASE_URL")
+	u, e := url.Parse(dbURL)
+	if e != nil || !strings.HasSuffix(u.Path, "_test") {
+		t.Fatal("dedicated test DB required")
+	}
+	conn, e := sql.Open("pgx", dbURL)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer conn.Close()
+	provider, e := goose.NewProvider(goose.DialectPostgres, conn, migrations.Files)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = provider.Up(ctx); e != nil {
+		t.Fatal(e)
+	}
+	db, e := store.Open(ctx, dbURL, 8)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer db.Pool.Close()
+	ro, e := redis.ParseURL(os.Getenv("TEST_REDIS_URL"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	cache := redis.NewClient(ro)
+	defer cache.Close()
+	prefix := "admin-test:" + uuid.NewString() + ":"
+	defer func() {
+		iter := cache.Scan(ctx, 0, prefix+"*", 100).Iterator()
+		for iter.Next(ctx) {
+			cache.Del(ctx, iter.Val())
+		}
+	}()
+	password := "fixture-admin-password"
+	hash, e := argon2id.CreateHash(password, argon2id.DefaultParams)
+	if e != nil {
+		t.Fatal(e)
+	}
+	owner, viewer := uuid.NewString(), uuid.NewString()
+	ownerName := "o_" + strings.ReplaceAll(uuid.NewString(), "-", "")[:15]
+	viewerName := "v_" + strings.ReplaceAll(uuid.NewString(), "-", "")[:15]
+	for i, id := range []string{owner, viewer} {
+		name, role := ownerName, "owner"
+		if i == 1 {
+			name, role = viewerName, "viewer"
+		}
+		if _, e = db.Pool.Exec(ctx, "INSERT INTO admin_users(id,username,password_hash,role) VALUES($1,$2,$3,$4)", id, name, hash, role); e != nil {
+			t.Fatal(e)
+		}
+	}
+	defer func() {
+		db.Pool.Exec(ctx, "DELETE FROM admin_audit WHERE actor_id IN ($1,$2)", owner, viewer)
+		db.Pool.Exec(ctx, "DELETE FROM admin_users WHERE id IN ($1,$2)", owner, viewer)
+	}()
+	app, e := New(Config{Origin: "http://127.0.0.1:18100", WebRoot: t.TempDir()}, db, cache, prefix)
+	if e != nil {
+		t.Fatal(e)
+	}
+	srv := httptest.NewServer(app.Router)
+	defer srv.Close()
+	other, e := New(app.Config, db, cache, prefix)
+	if e != nil {
+		t.Fatal(e)
+	}
+	replica := httptest.NewServer(other.Router)
+	defer replica.Close()
+	jar, _ := cookiejar.New(nil)
+	client := &http.Client{Jar: jar}
+	csrf := ""
+	request := func(base, method, path string, body any, origin, token string) (int, []byte) {
+		t.Helper()
+		data, _ := json.Marshal(body)
+		req, _ := http.NewRequest(method, base+"/admin-api/v1"+path, bytes.NewReader(data))
+		req.Header.Set("Content-Type", "application/json")
+		if origin != "" {
+			req.Header.Set("Origin", origin)
+		}
+		req.Header.Set("X-CSRF-Token", token)
+		resp, e := client.Do(req)
+		if e != nil {
+			t.Fatal(e)
+		}
+		defer resp.Body.Close()
+		out, _ := io.ReadAll(resp.Body)
+		return resp.StatusCode, out
+	}
+	assert := func(got, want int, data []byte) {
+		t.Helper()
+		if got != want {
+			t.Fatalf("status %d want %d: %s", got, want, data)
+		}
+	}
+	code, data := request(srv.URL, "GET", "/resources", nil, "", "")
+	assert(code, 401, data)
+	code, data = request(srv.URL, "POST", "/login", map[string]string{"username": ownerName, "password": password}, "https://evil.test", "")
+	assert(code, 403, data)
+	code, data = request(srv.URL, "POST", "/login", map[string]string{"username": ownerName, "password": password}, app.Config.Origin, "")
+	assert(code, 200, data)
+	var session struct {
+		CSRF string `json:"csrf"`
+	}
+	json.Unmarshal(data, &session)
+	csrf = session.CSRF
+	code, data = request(replica.URL, "GET", "/session", nil, "", "")
+	assert(code, 200, data)
+	for _, r := range Resources {
+		t.Log("read resource", r.ID)
+		code, data = request(srv.URL, "GET", "/resources/"+r.ID, nil, "", "")
+		assert(code, 200, data)
+		if strings.Contains(string(data), "password_hash") {
+			t.Fatal("password hash exposed")
+		}
+	}
+	u2, e := db.CreateUser(ctx, "test_"+strings.ReplaceAll(uuid.NewString(), "-", "")[:16], hash, "before", false)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer db.DeleteUser(ctx, u2.ID)
+	body := Mutation{Keys: map[string]string{"id": u2.ID}, Values: map[string]any{"profile": map[string]any{"display_name": "after"}}, Expected: u2.Version, Action: "edit"}
+	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, "")
+	assert(code, 403, data)
+	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, csrf)
+	assert(code, 200, data)
+	updated, e := db.User(ctx, u2.ID)
+	if e != nil || updated.Profile["display_name"] != "after" {
+		t.Fatal("business edit did not persist")
+	}
+	var events int
+	db.Pool.QueryRow(ctx, "SELECT count(*) FROM changes WHERE user_id=$1 AND kind='profile' AND data->'data'->>'display_name'='after'", u2.ID).Scan(&events)
+	if events != 1 {
+		t.Fatal("missing account sync event")
+	}
+	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, csrf)
+	assert(code, 409, data)
+	code, data = request(srv.URL, "POST", "/resources/users/mutate", Mutation{Keys: body.Keys, Values: map[string]any{"starry_id": "xy100000000"}, Expected: updated.Version}, app.Config.Origin, csrf)
+	assert(code, 400, data)
+	// A worker outage after PostgreSQL reset must be retryable with the same
+	// receipt, even though the conversation version advanced in the first try.
+	var calls int
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if r.Header.Get("X-Starry-Account") != u2.ID || r.Header.Get("X-Starry-Installation") != u2.ID || r.Header.Get("Authorization") != "Bearer worker-fixture" {
+			t.Error("worker identity not derived from account")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if calls == 1 {
+			w.WriteHeader(503)
+		}
+		io.WriteString(w, `{"cleared":true}`)
+	}))
+	defer upstream.Close()
+	app.Config.AIURL = upstream.URL
+	app.Config.AIClientToken = "worker-fixture"
+	conv, e := db.SetConversation(ctx, u2.ID, "anime-kipfel", 0, false, false)
+	if e != nil {
+		t.Fatal(e)
+	}
+	reset := Mutation{Keys: map[string]string{"user_id": u2.ID, "character_id": "anime-kipfel"}, Action: "reset", Confirm: true, Expected: conv.Version, ResetID: uuid.NewString()}
+	code, data = request(srv.URL, "POST", "/resources/conversations/mutate", reset, app.Config.Origin, csrf)
+	assert(code, 400, data)
+	code, data = request(srv.URL, "POST", "/resources/conversations/mutate", reset, app.Config.Origin, csrf)
+	assert(code, 200, data)
+	if calls != 2 {
+		t.Fatal("reset retry did not reach worker")
+	}
+	// Official catalogue updates are versioned too and cannot change IDs.
+	charID := "admin-test-" + uuid.NewString()
+	_, e = db.Pool.Exec(ctx, "INSERT INTO characters(id,author_id,visibility,name,description,data) VALUES($1,'starry-studio','private','before','','{}')", charID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer db.Pool.Exec(ctx, "DELETE FROM characters WHERE id=$1", charID)
+	charBody := Mutation{Keys: map[string]string{"id": charID}, Values: map[string]any{"name": "after", "visibility": "public"}, Expected: 1}
+	code, data = request(srv.URL, "POST", "/resources/characters/mutate", charBody, app.Config.Origin, csrf)
+	assert(code, 200, data)
+	code, data = request(srv.URL, "POST", "/resources/characters/mutate", charBody, app.Config.Origin, csrf)
+	assert(code, 409, data)
+	code, data = request(srv.URL, "POST", "/resources/changes/mutate", Mutation{Action: "edit"}, app.Config.Origin, csrf)
+	assert(code, 400, data)
+	code, data = request(srv.URL, "POST", "/logout", map[string]any{}, app.Config.Origin, csrf)
+	assert(code, 200, data)
+	code, data = request(srv.URL, "POST", "/login", map[string]string{"username": viewerName, "password": password}, app.Config.Origin, "")
+	assert(code, 200, data)
+	json.Unmarshal(data, &session)
+	csrf = session.CSRF
+	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, csrf)
+	assert(code, 403, data)
+	if _, e = db.Pool.Exec(ctx, "UPDATE admin_users SET session_epoch=session_epoch+1 WHERE id=$1", viewer); e != nil {
+		t.Fatal(e)
+	}
+	code, data = request(replica.URL, "GET", "/session", nil, "", "")
+	assert(code, 401, data)
+	var auditCount int
+	db.Pool.QueryRow(ctx, "SELECT count(*) FROM admin_audit WHERE actor_id=$1", owner).Scan(&auditCount)
+	if auditCount < 4 {
+		t.Fatal("audit missing")
+	}
+	var leaked bool
+	db.Pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM admin_audit WHERE target::text LIKE $1)", "%"+password+"%").Scan(&leaked)
+	if leaked {
+		t.Fatal("credential in audit")
+	}
+}
+func TestOriginValidation(t *testing.T) {
+	for _, origin := range []string{"", "https://example.com/path", "http://example.com", "https://u:p@example.com", "https://example.com?x=1"} {
+		_, e := New(Config{Origin: origin, Secure: true}, &store.Store{}, redis.NewClient(&redis.Options{Addr: "127.0.0.1:0"}), "test:")
+		if e == nil {
+			t.Fatalf("accepted bad origin %s", origin)
+		}
+	}
+}

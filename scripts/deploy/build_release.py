@@ -30,8 +30,13 @@ def main():
         shutil.copy2(source, target)
     (output / 'bin').mkdir()
     env = os.environ | {'CGO_ENABLED': '0', 'GOOS': 'linux', 'GOARCH': 'amd64'}
-    for name in ('api', 'migrate', 'publish-release'):
+    for name in ('api', 'migrate', 'publish-release', 'admin'):
         subprocess.run(['go', 'build', '-trimpath', '-ldflags=-s -w', '-o', str(output / 'bin' / ('starry-' + name)), './cmd/' + name], cwd=root, env=env, check=True)
+    web=output/'admin-web'
+    subprocess.run(['npm','ci','--no-fund','--no-audit'],cwd=web,check=True)
+    subprocess.run(['npm','run','build'],cwd=web,check=True)
+    # Dependencies are build inputs, not runtime release contents.
+    shutil.rmtree(web/'node_modules')
     manifest = {'release': release, 'source_commit': commit, 'target': 'linux/amd64', 'files': {}}
     for path in sorted(output.rglob('*')):
         if path.is_file():

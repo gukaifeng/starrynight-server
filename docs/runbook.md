@@ -1,5 +1,7 @@
 # 独立服务端运行说明
 
+管理平台见 [星夜控制室](admin-console.md)：独立 8444 HTTPS、独立管理员会话；App 仍使用 8443。管理前端、API、迁移和部署都在此仓库。
+
 ## 本机开发和验证
 
 在本仓库根执行 `make dev-up`，然后 `source .local/environment`。`make check` 执行 Go vet 和 race 单元测试；`make integration` 使用真实 PostgreSQL `starry_test` 和专用 Redis DB，测试多实例会话、数据隔离、版本冲突和并发写入。普通 `go test` 会跳过数据库集成测试，不能代替实际集成验证。

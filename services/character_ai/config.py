@@ -44,6 +44,13 @@ class Settings:
         data = json.loads(path.read_text()) if path.exists() else {}
         result = cls(**{k:v for k,v in data.items() if k in cls.__dataclass_fields__})
         result.data_dir = Path(result.data_dir)
+        override=result.data_dir/'admin-settings.json'
+        if override.exists():
+            # Authentication, endpoints and filesystem paths cannot be changed
+            # by the management UI. Only explicit runtime controls are loaded.
+            from .admin_console import CONFIG_FIELDS
+            for k,v in json.loads(override.read_text()).items():
+                if k in CONFIG_FIELDS:setattr(result,k,v)
         result.platform_internal_url = os.environ.get('STARRY_PLATFORM_INTERNAL_URL',result.platform_internal_url)
         if result.platform_internal_url and result.platform_internal_url not in ('http://127.0.0.1:8090','http://127.0.0.1:18090'):
             raise ValueError('Goal persistence must use a known loopback API')
