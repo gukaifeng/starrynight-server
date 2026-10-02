@@ -9,7 +9,8 @@ def visible_text(text: str) -> str:
     return text.strip()
 
 def visible_thought(text: str) -> str | None:
-    text=visible_text(text)
+    from .aside_quality import flatten
+    text=flatten(visible_text(text))
     # This field is fictional character monologue, never a report on reply
     # planning. Require an explicit first-person short aside, not only absence
     # of a few forbidden words. The 40-codepoint ceiling allows older genuine

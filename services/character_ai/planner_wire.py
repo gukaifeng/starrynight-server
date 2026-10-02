@@ -19,6 +19,7 @@ class SpokenBeat(Strict):
     tone: Speech.model_fields['delivery'].annotation = 'normal'
     strength: float = Field(default=.4,ge=0,le=1)
     asides: list[Aside] = Field(min_length=1,max_length=3)
+    details: list[tuple[str,Literal['before','middle','after']]] = Field(default_factory=list,max_length=1)
     vocals: list[VocalType] = Field(default_factory=list,max_length=2)
 
     @field_validator('mood',mode='before')
@@ -46,6 +47,7 @@ class CompactPlan(Strict):
             beats.append(dict(beat_id=f'b{i+1}',
                 dialogue=dict(text=b.say,speech=dict(emotion=b.mood,delivery=b.tone,intensity=b.strength)) if b.say is not None else None,
                 asides=[dict(text=a[0],stage=a[1],visibility=a[2] if len(a)>2 else 'visible',after_text=a[3] if len(a)>3 else '') for a in b.asides],
+                details=b.details,
                 performance=dict(intensity=b.strength,cues=[dict(group=c[0],intent=c[1],offset_ms=c[2] if len(c)>2 else 0,active=c[3] if len(c)>3 else True) for c in getattr(b,'cues',[])]),
                 vocal_events=[dict(event=v,intensity=b.strength) for v in b.vocals]))
         return schema.model_validate(dict(goal_feedback=self.goal_feedback,response_focus=self.focus,beats=beats,idle_decision=self.idle,
@@ -86,7 +88,7 @@ asides为数组：[心声,阶段]，阶段before/middle/after，通常2条。需
 cues为数组：[group,intent]，可补第三项offset_ms、第四项active布尔。普通交谈只选1至2个关键cue，导演会扩展丰富的多组多阶段表演；用户明确要求多个时全部表达。不需要额外表现时省略cues。
 mood和tone用Schema里的英文枚举。可选strength为0至1；vocals只列声音事件名。不要输出默认值、空数组或空对象凑字段；需要用户记忆、关系变化或待机决策时才填memory/state/idle。'''
 
-SPOKEN_SHAPE='''只输出核心对话的紧凑JSON，不等待表演任务：
+SPOKEN_SHAPE='''只输出核心紧凑JSON：
 {"focus":"<本轮新内容>","beats":[{"say":"<台词>","mood":"happy","tone":"gentle","asides":[["<角色开口时的感受>","before"],["<收尾时不同的感受>","after"]]}]}
-asides每项是[心声,before/middle/after]，通常2条，可选第三项visible/hidden，第四项带结尾标点的完整台词短句。只在完整语句、标点停顿或完整语气词前后插入，绝不拆词；无停顿则放整句前后。问候和预缓存也要提供。中文心声描述我/咱的感受，英文用I/my/we/our，不描述身体动作。mood/tone用Schema枚举。用户要求纯台词时心声用hidden。
-表情动作由独立任务完成，不生成cues、performance、动作说明或资源ID，不宣称动作已经完成。默认字段与空字段省略。'''
+asides=[心声,before/middle/after]，通常2条；可加第三项visible/hidden、第四项带结尾标点的完整台词锚点。不拆词，问候和预缓存也有心声。中文用我/咱，英文用I/my/we/our；纯台词时hidden。details=[visible_details原文,阶段]，最多1条。mood/tone用Schema枚举。
+不等表演，不生成cues、performance或资源ID。默认及空字段省略。'''

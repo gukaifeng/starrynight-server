@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import json
 import uuid
+import time
 import httpx
 import pytest
 from services.character_ai.app import create_app
@@ -62,6 +63,28 @@ async def test_shape_errors_never_cache_or_replace_original(tmp_path):
         assert response.status_code==502
         assert not app.state.store.get('translation:'+message+':zh-Hans',owner,role)
         assert app.state.store.history(owner,role)[0]['text'].startswith('Good morning')
+
+@pytest.mark.asyncio
+async def test_owned_user_and_suggestion_translation_preserves_choices(tmp_path):
+    app,provider,headers,owner,role,message,_=fixture(tmp_path)
+    store=app.state.store;user_id=str(uuid.uuid4());option_id=str(uuid.uuid4())
+    store.message(user_id,owner,role,'fixture','user',dict(text='I would like to learn more.'))
+    choices=[dict(id=option_id,text='Tell me about your garden.',likelihood=.9)]
+    with store.db:store.db.execute('INSERT INTO quick_reply_sets VALUES(?,?,?,?,?,?)',(owner,role,message,'fixture',json.dumps(choices),time.time()+600))
+    user_body=dict(target_language='zh-Hans',source_kind='user',segments=[dict(id='text',kind='dialogue',text='I would like to learn more.')])
+    option_body=dict(target_language='zh-Hans',source_kind='suggestion',option_id=option_id,segments=[dict(id='option',kind='dialogue',text=choices[0]['text'])])
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+        for body in (user_body,option_body):
+            path=f'/v1/conversations/{role}/messages/{message}/translation'
+            a=await client.post(path,headers=headers,json=body);assert a.status_code==200,a.text
+            assert (await client.post(path,headers=headers,json=body)).json()==a.json()
+            assert (await client.post(path,headers={**headers,'X-Starry-Account':'other'},json=body)).status_code==404
+        assert provider.calls==2
+        assert json.loads(store.db.execute('SELECT data FROM quick_reply_sets').fetchone()[0])==choices
+        assert (await client.post(path,headers=headers,json={**option_body,'option_id':str(uuid.uuid4())})).status_code==404
+        wrong=json.loads(json.dumps(option_body));wrong['segments'][0]['text']='not this option'
+        assert (await client.post(path,headers=headers,json=wrong)).status_code==409
+        assert provider.calls==2
 
 @pytest.mark.parametrize('code,name',[('zh-Hans','Chinese'),('zh-Hant','Traditional Chinese'),('en','English')])
 def test_translation_uses_dedicated_mt_protocol(code,name):

@@ -202,7 +202,8 @@ class ReactionPool:
         self.store.put('reaction_pool_review',owner,char,dict(status='miss',kind=kind));return None
 
     async def publish(self,owner,request,context,claim,script,plan):
-        char=request.character_id;script={**script,'trigger':request.trigger}
+        from .aside_quality import review_script, recent
+        char=request.character_id;script=review_script({**script,'trigger':request.trigger},recent(self.store,owner,char),goals.spoken_language(char,context['goal_context']))
         script['goal_state']=await goals.commit(self.settings,request,Plan.model_validate(plan))
         goals.committed(self.store,owner,request,script['goal_state'])
         self.store.publish_reply(owner,char,str(request.request_id),request.text,script,prepared_id=claim['id'],allow_preparing='job' in claim)
@@ -234,7 +235,9 @@ class ReactionPool:
                         script=await self.publish(owner,request,context,claim,item['script'],job.plan)
                         item={**item,'script':script,'prepared':True,'preparation_inflight':True}
                     elif item['type']=='reply.visuals.updated':
-                        script={**item['script'],'trigger':request.trigger};self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}
+                        from .aside_quality import review_script, recent
+                        script=review_script({**item['script'],'trigger':request.trigger},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))
+                        self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}
                     if not request.wants_audio and (item['type'].startswith('segment.audio.') or item['type'].startswith('audio.')):continue
                     yield item
             completed=True

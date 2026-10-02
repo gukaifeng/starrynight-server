@@ -255,6 +255,11 @@
           "duration": 18.0,
           "audioSHA256": "d60b6ac0a221acb95c9b91fc7d810bbbccb69be7096faf0fb854759662973fdf"
         }
+      ],
+      "initialReplies": [
+        "想听听书屋里的故事。",
+        "你找到的那片叶子呢？",
+        "我想和你聊聊今天。"
       ]
     },
     {
@@ -515,6 +520,11 @@
           "duration": 15.84,
           "audioSHA256": "e0aecb39c21483d92a0288e458025560149ec9b5c7fcd5b6181e250cb02e6fe2"
         }
+      ],
+      "initialReplies": [
+        "先说说面包房吧！",
+        "我们去找一个小冒险。",
+        "我想分享今天的开心事。"
       ]
     },
     {
@@ -744,6 +754,11 @@
           "duration": 19.28,
           "audioSHA256": "82d619a58209f395a4b3d96dc81da3865e64d129514b0b7d1c12c7b9307b2813"
         }
+      ],
+      "initialReplies": [
+        "陪我挑一束花吧。",
+        "你最喜欢什么季节？",
+        "我们聊聊今天的心情。"
       ]
     },
     {
@@ -973,6 +988,11 @@
           "duration": 14.24,
           "audioSHA256": "dbfd87f31bc01a35c80732c0a6822d857ab00be82c7eb368ad723bf79fcbd725"
         }
+      ],
+      "initialReplies": [
+        "画一张明信片给我吧。",
+        "你最喜欢画什么？",
+        "我想先说说今天的事。"
       ]
     },
     {
@@ -1203,6 +1223,11 @@
           "duration": 16.24,
           "audioSHA256": "f3f16654ee1831e6a272d92c86d8c3c07c7811409682c9809a25a15c220e5053"
         }
+      ],
+      "initialReplies": [
+        "讲讲修理铺的谜题。",
+        "那个发条玩具怎么了？",
+        "我想先慢慢聊聊。"
       ]
     },
     {
@@ -1463,6 +1488,11 @@
           "duration": 16.56,
           "audioSHA256": "ddc89261426404325548908f0f62284c213331204143535845b9b5a6f5c24cc4"
         }
+      ],
+      "initialReplies": [
+        "我想试试你的新甜点。",
+        "先聊聊招牌配方吧。",
+        "猜猜我喜欢什么口味？"
       ]
     },
     {
@@ -1678,6 +1708,11 @@
           "duration": 14.56,
           "audioSHA256": "ff3fdfc567f9b0e3b15d9773497a54a79d22261a3795a27a8cc96d17c353e2dc"
         }
+      ],
+      "initialReplies": [
+        "Tell me about your greenhouse.",
+        "Let's practice English together.",
+        "What are you growing today?"
       ]
     },
     {
@@ -1887,6 +1922,11 @@
           "duration": 22.08,
           "audioSHA256": "ca176d3e4395c121544fc148d56fef71ad1df784770518743a0ca4ceddeefe0a"
         }
+      ],
+      "initialReplies": [
+        "旅舍最近有什么故事？",
+        "一起想想冬日茶单吧。",
+        "我想先聊聊今天。"
       ]
     },
     {
@@ -2102,6 +2142,11 @@
           "duration": 15.76,
           "audioSHA256": "6c3117e1b02566078b45f329bf4c0a540e4eb2a214eee2b89726acfe3510ebe6"
         }
+      ],
+      "initialReplies": [
+        "Tell me a star story.",
+        "What can we see tonight?",
+        "Let's practice English together."
       ]
     },
     {
@@ -2331,6 +2376,11 @@
           "duration": 17.76,
           "audioSHA256": "1e0696a45bc00c703009424368e770fb435b8e260f8ce4718e411cc3f8eec203"
         }
+      ],
+      "initialReplies": [
+        "一起看看那封信吧。",
+        "你发现了什么线索？",
+        "我想讲一件想留住的事。"
       ]
     },
     {
@@ -2561,6 +2611,11 @@
           "duration": 17.2,
           "audioSHA256": "4a9c9d4bbe11e94b200cbaeb622c7996670060d7a65dc6e4cd55f7518c1f49f2"
         }
+      ],
+      "initialReplies": [
+        "先陪我挑一杯茶吧。",
+        "庭院最近有什么变化？",
+        "我想和你聊聊今天。"
       ]
     }
   ]

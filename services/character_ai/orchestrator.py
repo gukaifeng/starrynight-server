@@ -15,6 +15,7 @@ from .ordered_audio import ordered_audio
 from .roleplay import language, language_instruction, scenario_context, wrong_language
 from . import goals
 from . import idle_presence
+from . import aside_quality
 
 def event(kind, **data): return dict(type=kind,**data)
 
@@ -87,6 +88,8 @@ class Orchestrator:
         context['recent_messages']=[m for m in context['recent_messages'] if m['role']!='assistant' or not CONTROL_TEXT.search(m['text'])]
         context['novelty_context']=novelty.context(self.store,owner,char)
         context['recent_response_focus']=self.store.get('response_focus',owner,char,[])
+        context['recent_asides_to_avoid']=aside_quality.recent(self.store,owner,char)
+        context['visible_details']=aside_quality.appearance_choices(PROFILES[char],context['recent_asides_to_avoid'],goals.spoken_language(char,context['goal_context'])) if request.trigger=='idle' else []
         context['reply_format']='timeline-v2' if request.timeline_reply else 'legacy'
         if request.trigger=='idle':context['idle_context']=idle_presence.context(self.store,owner,char,context)
         if request.trigger in ENTRY_TRIGGERS:
@@ -172,7 +175,8 @@ class Orchestrator:
             text=plan_text(plan)
             wrong_gesture=interaction_mismatch(request,text)
             language_problem=('English-only character: rewrite all dialogue and visible asides in English. Do not translate or quote Chinese. Keep the same new content and role.' if wrong_language('anime-lime' if context['goal_context']['config'].get('mode')=='task' and context['goal_context']['config'].get('task')=='english' else char,plan) else None)
-            content_problem=wrong_gesture or language_problem
+            aside_problem=aside_quality.plan_problem(plan,context.get('recent_asides_to_avoid',[]))
+            content_problem=wrong_gesture or language_problem or aside_problem
             duplicate=novelty.match(self.store,owner,text,extra)
             related=await self.semantic.match(owner,text,request.trigger) if not duplicate and not content_problem else None
             # BGE is a retrieval model, not an equivalence judge. One semantic
@@ -184,8 +188,8 @@ class Orchestrator:
             if self.settings.enable_test_inspector:
                 self.store.put('novelty_review',owner,char,dict(attempts=reviews,accepted=not revise,remaining=budget[0]))
             if not revise:return plan
-            correction=dict(rejected_text=text,reason=content_problem or (duplicate or related)['reason'],
-                instruction=(content_problem+' ' if content_problem else '')+'本轮需要一个实质不同的新回应。舍弃草稿的核心观点、请求和比喻，结合当前这条输入换一个具体切入点；不要仅更换同义词，不复述旧问题，不向用户解释修订。保留角色身份、正确事实、真实可执行表演和简短心声。')
+            correction=dict(rejected_text=text,reason=content_problem or (duplicate or related)['reason'],preserve_dialogue=bool(aside_problem and not wrong_gesture and not language_problem and not duplicate and not related),
+                instruction=aside_problem if aside_problem and not wrong_gesture and not language_problem and not duplicate and not related else (content_problem+' ' if content_problem else '')+'本轮需要一个实质不同的新回应。舍弃草稿的核心观点、请求和比喻，结合当前这条输入换一个具体切入点；不要仅更换同义词，不复述旧问题，不向用户解释修订。保留角色身份、正确事实、真实可执行表演和简短心声。')
         # No canned answer, repeated speech or unbounded paid retry. Optional
         # proactive turns stay quiet; a failed direct question uses the normal
         # availability error, never a moderation/repetition message.
@@ -303,7 +307,8 @@ class Orchestrator:
                 visuals=[dict(asset_id=c['asset']['asset_id'],group=c['asset']['group'],duration_ms=c['duration_ms'],
                     offset_ms=c['offset_ms'],active=c['active'],grounding=r['grounding']) for c in r['performances']]))
             if request.timeline_reply:
-                beats[-1]['parts']=compile_parts(b,r,language=goals.spoken_language(char,context['goal_context']))
+                beats[-1]['parts']=compile_parts(b,r,language=goals.spoken_language(char,context['goal_context']),recent_asides=context['recent_asides_to_avoid'],visible_details=context['visible_details'])
+                context['recent_asides_to_avoid'].extend(p['text'] for p in beats[-1]['parts'] if p['kind']!='dialogue')
                 beats[-1]['reading_duration']=duration_hint(beats[-1]['dialogue']['text'] if beats[-1]['dialogue'] else '')
         text='\n'.join(b['dialogue']['text'] for b in beats if b['dialogue'])
         for b in beats:b['language']=goals.spoken_language(char,context['goal_context'])

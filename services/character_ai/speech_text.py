@@ -21,7 +21,21 @@ def is_direction(value: str) -> bool:
     if re.search(r'(?:是什么|什么意思|怎么|为什么|是不是|吗[？?]?$)', value):
         return False
     return bool(LABEL.match(value) or GESTURE.match(value) or
+                re.match(r'^(?:露出|轻翻|翻着|唇角|嘴角|眼睛变|眼神|心里|心想|暗自)|^(?:(?:she|I)\s+)?(?:smiles?|blinks?|nods?|waves?)\b',value,re.I) or
                 re.match(r'^(?:声音|口吻)\s*[:：]', value))
+
+def embedded_directions(text):
+    i=0
+    while i<len(text):
+        if text[i] not in PAIRS:i+=1;continue
+        start=i;stack=[PAIRS[text[i]]];i+=1
+        while i<len(text) and stack:
+            if text[i] in PAIRS:stack.append(PAIRS[text[i]])
+            elif text[i]==stack[-1]:stack.pop()
+            i+=1
+        inside=text[start+1:i-1 if not stack else i]
+        if is_direction(inside):yield inside
+        else:yield from embedded_directions(inside)
 
 def spoken_text(value: str) -> str:
     # Pre-upgrade stored replies can contain a broken control fragment. New

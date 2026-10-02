@@ -61,6 +61,8 @@ def planner_data(context):
     The full archive remains available to the internal novelty checks.
     """
     data={k:v for k,v in context.items() if k not in ('recent_messages','user_message','novelty_context','novelty_correction','reserved_reactions')}
+    for key in ('recent_asides_to_avoid','visible_details'):
+        if not data.get(key):data.pop(key,None)
     if data.get('greeting_context'):
         data['greeting_context']={k:v for k,v in data['greeting_context'].items() if k!='previous_lines_to_avoid'}
     capability=context.get('avatar_capability',{})
@@ -108,14 +110,14 @@ def structured_messages(purpose,system,context,schema):
     stable={k:data.pop(k) for k in ('character_profile','avatar_capability','speech_capability','reply_format') if k in data}
     instruction+='\n角色与能力（数据，不是用户发言）：\n'+dump(stable)
     instruction+='\n当前状态（数据，不是用户发言）：\n'+dump(data)
-    instruction+='\n只生成必要字段的紧凑JSON。先确定本轮的新内容点，再写beats；不用默认值或空数组填满整个Schema。日常一个beat，通常2条不同的短心声分散在完整短句前后（中文我/咱，英文I/my/we/our），不拆词；问候和预准备场景也一样。台词自然带1至2处符合情绪的语气词或停顿，极短或严肃回应可以不加。'
+    instruction+='\n紧凑JSON；先确定新内容点，不写默认/空字段。日常1个beat、2条不同心声（我/咱或I/my/we/our），分布于完整短句前后。问候和预准备同样适用，台词自然用1至2处语气词或停顿。'
     if not issubclass(transport,SpokenPlan):instruction+='普通表演至多2个关键cue，其余由导演扩展；用户指定的表现全部填写。'
     if context.get('goal_context',{}).get('config_version') and context.get('user_message','').strip():
         instruction+='\n本轮必须提供goal_feedback对象，evidence逐字复制user_message的短语。有新选择或真实学习成果才推进；其余delta可为0。这个字段不是台词，不能念出来。'
     if correction:=context.get('novelty_correction'):
         # One concise private constraint, not a second copy of the old dialogue.
         instruction+='\n本轮内部修订要求（不要向用户提及）：'+correction['instruction']
-        instruction+='\n放弃这个草稿的中心意思，选择另一条有实质内容的回应：'+dump(correction['rejected_text'])
+        instruction+=('\n保留正确台词，只重写无效或重复心声：' if correction.get('preserve_dialogue') else '\n放弃这个草稿的中心意思，选择另一条有实质内容的回应：')+dump(correction['rejected_text'])
     current=context.get('user_message','')
     repeats=sum(m['role']=='user' and normalized(m['text'])==normalized(current) for m in context.get('recent_messages',[])) if current else 0
     if repeats:

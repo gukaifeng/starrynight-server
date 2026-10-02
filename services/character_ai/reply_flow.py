@@ -5,8 +5,9 @@ Parts are additive wire metadata; spoken dialogue remains the sole TTS input.
 """
 import re
 from .reply_text import visible_text, visible_thought
+from .aside_quality import flatten, repeated, allowed_language, english_effect
 
-REVISION=3
+REVISION=4
 PAUSES=re.compile(r'[，。！？；：、…⋯～~!?;,.:\n\r—–]+')
 HESITATION=re.compile(r'(?<![A-Za-z0-9_])(?:e+m{2,}|h+m{2,}|u+m{2,})(?![A-Za-z0-9_])',re.I)
 PROTECTED=re.compile(r'https?://[^\s，。！？；]+|www\.[^\s，。！？；]+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|\b(?:Mr|Mrs|Ms|Dr|Prof|St|vs|etc)\.|\b(?:[A-Za-z]\.){2,}',re.I)
@@ -53,35 +54,38 @@ def anchored_boundary(text,anchor,fraction):
     end=start+len(anchor)
     return next(p for p in safe_boundaries(text) if p>=end)
 
-def compile_parts(beat,resolved,language='zh'):
+def compile_parts(beat,resolved,language='zh',recent_asides=(),visible_details=()):
     text=visible_text(beat.dialogue.text) if beat.dialogue else ''
     thoughts=list(beat.asides)
     if not thoughts and beat.thought:
         thoughts=[beat.thought]
-    return compile_text_parts(text,thoughts,resolved.get('performances',[]),language)
+    return compile_text_parts(text,thoughts,resolved.get('performances',[]),language,recent_asides,beat.details,visible_details)
 
-def compile_text_parts(text,thoughts,performances=(),language='zh'):
+def compile_text_parts(text,thoughts,performances=(),language='zh',recent_asides=(),details=(),visible_details=()):
     """Shared by live, prepared and bundled first-meeting content."""
-    size=max(1,len(text));markers=[];seen=set()
+    size=max(1,len(text));markers=[];seen=list(recent_asides)
     for ordinal,thought in enumerate(thoughts):
         value=visible_thought(thought.text) if thought.visibility=='visible' else None
         anchor=getattr(thought,'after_text','')
-        if not value or value in seen:continue
+        if not value or not allowed_language(value,language) or repeated(value,seen):continue
         stage=getattr(thought,'stage','before')
         fraction={'before':0,'middle':(ordinal+1)/(len(thoughts)+1),'after':1}[stage]
         index=anchored_boundary(text,anchor,fraction)
-        markers.append((index,'thought',value));seen.add(value)
+        markers.append((index,'thought',value));seen.append(value)
+    for value,stage in details:
+        if value not in visible_details or not allowed_language(value,language) or repeated(value,seen):continue
+        markers.append((boundary(text,{'before':0,'middle':.5,'after':1}[stage]),'narration',flatten(value)));seen.append(value)
     # Select one genuine observation at onset and one at the later phase.
     # Do not duplicate every simultaneous hand/ear/tail cue in the transcript.
-    cues=[c for c in performances if c['active'] and c['asset'].get('observable_effects')] if language!='en' else []
+    cues=[c for c in performances if c['active'] and c['asset'].get('observable_effects')]
     phases=[sorted([c for c in cues if c['offset_ms']<1200],key=lambda c:(c['asset']['group']!='expression',c['offset_ms'])),
             sorted([c for c in cues if c['offset_ms']>=1200],key=lambda c:c['offset_ms'])]
     for phase in phases:
         for cue in phase:
-            value=visible_text(cue['asset']['observable_effects'][0])
-            if value in seen:continue
+            value=english_effect(cue['asset']) if language=='en' else flatten(visible_text(cue['asset']['observable_effects'][0]))
+            if not value or repeated(value,seen):continue
             fraction=min(.8,cue['offset_ms']/1000/duration_hint(text)) if text else 0
-            markers.append((boundary(text,fraction),'narration',value));seen.add(value);break
+            markers.append((boundary(text,fraction),'narration',value));seen.append(value);break
     parts=[];cursor=0
     for index,kind,value in sorted(markers,key=lambda m:m[0]):
         if index>cursor:

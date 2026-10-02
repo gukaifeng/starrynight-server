@@ -54,6 +54,9 @@ class Dialogue(Strict):
         # never display/read implementation fields as character dialogue.
         if CONTROL_TEXT.search(value):
             raise ValueError('dialogue.text contains control JSON; put speech/performance beside dialogue, never inside its text')
+        from .speech_text import embedded_directions
+        if next(embedded_directions(value),None) is not None:
+            raise ValueError('dialogue.text contains stage directions; put thoughts in asides and actual actions in performance, without parentheses')
         return value
 
 class PerformanceCue(Strict):
@@ -85,6 +88,7 @@ class Beat(Strict):
     beat_id: str = Field(pattern=r'^[a-zA-Z0-9_-]{1,32}$')
     thought: Thought | None = None
     asides: list[StagedThought] = Field(default_factory=list,max_length=3)
+    details: list[tuple[str,Literal['before','middle','after']]] = Field(default_factory=list,max_length=1)
     dialogue: Dialogue | None = None
     performance: Performance = Field(default_factory=Performance)
     narration_intent: NarrationIntent | None = None

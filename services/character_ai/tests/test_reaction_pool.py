@@ -18,6 +18,14 @@ LINES={
  'app_launch':['你来了，我有个关于星星的奇怪想法想讲给你。','看见你打开这里，我就想跟你聊聊旅行的愿望。','我们换个角度想故事吧，如果能住在云上呢？'],
  'return':['又能接上话啦，你觉得雨声适不适合当节拍？','回来得巧，我想跟你商量一次想象中的野餐。','还有件小事想分享，我最在意故事结尾的余韵。'],
  'idle':['安静的时候我总想给窗边的小花起一个名字。','我忽然很好奇，你会怎样描述一片柔软的云？','要是风也会唱歌，我猜它会喜欢不一样的旋律。']}
+THOUGHTS={
+ 'shake':['我差点忘了刚才的节拍。','咱们这样闹一会也不错。','我想把这个玩笑接下去。'],
+ 'pinch_in':['我得认真抓住这位捣蛋鬼。','我还没想好怎么回敬呢。','原来我这么怕痒啊。'],
+ 'pinch_out':['我被这次恶作剧分心了。','我忽然有了新主意。','咱们的玩笑本又多一页。'],
+ 'first_meeting':['我还不知道他的名字呢。','我也愿意先说一点自己。','我有个小问题想听他回答。'],
+ 'app_launch':['我脑中还有那个星星谜题。','我有好多地方想亲眼看看。','住在云上让我很向往。'],
+ 'return':['我听见了雨的拍子。','咱们的野餐会带些什么呢。','我偏爱留一点余韵。'],
+ 'idle':['我想给小花起个特别的名字。','咱们眼中的云也许不一样。','我好奇风会怎样唱歌。']}
 
 class Provider:
     def __init__(self):self.calls=[];self.count={};self.block=None;self.closed=0
@@ -30,7 +38,7 @@ class Provider:
         kind=context.get('prepared_event_context',{}).get('kind') or context.get('interaction_context',{}).get('kind') or context['trigger']
         n=self.count.get(kind,0);self.count[kind]=n+1
         return Plan(response_focus=LINES[kind][n%3],beats=[dict(beat_id='b1',dialogue=dict(text=LINES[kind][n%3]),
-            asides=[dict(text='我有点期待你的回应。',stage='middle')])],suggested_state_delta={'trust':.01},
+            asides=[dict(text=THOUGHTS[kind][n%3],stage='middle')])],suggested_state_delta={'trust':.01},
             idle_decision='proactive_speech' if kind=='idle' else None)
     async def synthesize(self,*args):
         self.calls.append('tts');yield b'\x00\x01'*200

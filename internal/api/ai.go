@@ -69,7 +69,7 @@ func (s *Server) documentAIRoutes() {
 		{"POST", "/v1/ai/conversations/{character}/suggestions/status", "ai-suggestion-status", "Read the ranked choices for the latest AI turn. No paid generation."},
 		{"POST", "/v1/ai/conversations/{character}/reactions/pause", "ai-pause-reactions", "Cancel preparation for this session lease; retains completed, unexpired drafts."},
 		{"POST", "/v1/ai/conversations/{character}/reactions/status", "ai-reaction-status", "Read-only availability for the current context; does not start generation."},
-		{"POST", "/v1/ai/conversations/{character}/messages/{message}/translation", "ai-translate", "Translate visible segments of an owned assistant message to zh-Hans, zh-Hant or en, preserving ids/kinds/order. Read-only; cached by account, message, source and language. Does not alter context or audio."},
+		{"POST", "/v1/ai/conversations/{character}/messages/{message}/translation", "ai-translate", "Translate owned assistant or user text, or an exact owned suggestion, to zh-Hans, zh-Hant or en, preserving ids/kinds/order. source_kind defaults to assistant; suggestion requires option_id. Read-only, owner-scoped and cached; does not alter context or audio."},
 		{"POST", "/v1/ai/conversations/{character}/messages/{message}/audio", "ai-audio", "SSE audio replay for an existing worker message."},
 		{"DELETE", "/v1/ai/conversations/{character}/messages", "ai-clear-context", "Clear worker context. Account archive has its own clear endpoint."},
 		{"DELETE", "/v1/ai/conversations/{character}", "ai-delete-conversation", "Erase worker conversation and memories; requires reset_id UUID query. Idempotent."},

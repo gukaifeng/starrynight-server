@@ -1827,7 +1827,7 @@
     },
     "/v1/ai/conversations/{character}/messages/{message}/translation": {
       "post": {
-        "description": "Translate visible segments of an owned assistant message to zh-Hans, zh-Hant or en, preserving ids/kinds/order. Read-only; cached by account, message, source and language. Does not alter context or audio.",
+        "description": "Translate owned assistant or user text, or an exact owned suggestion, to zh-Hans, zh-Hant or en, preserving ids/kinds/order. source_kind defaults to assistant; suggestion requires option_id. Read-only, owner-scoped and cached; does not alter context or audio.",
         "operationId": "ai-translate",
         "parameters": [
           {

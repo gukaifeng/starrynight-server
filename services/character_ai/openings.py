@@ -21,6 +21,7 @@ def register(store, owner, character, body):
     script=dict(message_id=identifier,character_id=character,text=variant['text'],trigger='firstMeeting',
                 beats=[dict(beat_id='opening',dialogue=dict(text=variant['text']),narrations=[],visuals=[],
                     parts=variant.get('parts',[dict(kind='dialogue',text=variant['text'],at=0)]))],
-                opening_id=body.opening_id)
+                opening_id=body.opening_id,
+                initial_replies=next((c.get('initialReplies',[]) for c in catalog['characters'] if c['characterID']==character),[]))
     store.message(identifier,owner,character,identifier,'assistant',script)
     store.put('greetings',owner,character,[variant['text']])
