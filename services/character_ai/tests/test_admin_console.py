@@ -63,3 +63,50 @@ def test_voice_authorization_duration_is_visible_but_credentials_are_not():
         'gateway':{'authorization_ms':9.5,'authorization':'[已隐藏]'}}
     for value in ('secret',{'authorization':'secret'},float('nan'),True):
         assert safe({'authorization_ms':value})=={'authorization_ms':'[已隐藏]'}
+
+@pytest.mark.asyncio
+async def test_operator_scopes_and_worker_only_relationships(tmp_path):
+    settings=Settings(data_dir=tmp_path,admin_token='operator-fixture',paid_enabled=False)
+    app=create_app(settings);store=app.state.store
+    chars=list(PROFILES)[:2]
+    with store.db:
+        for i in range(33):
+            owner='ours' if i<27 else 'theirs';character=chars[0] if i<30 else chars[1]
+            store.db.execute('INSERT INTO messages VALUES(?,?,?,?,?,?,?)',(f'm{i}',owner,character,'r','assistant',json.dumps(dict(text=f'fixture {i}')),i+1))
+        store.db.execute('INSERT INTO memories VALUES(?,?,?,?,?,?,?,?)',('memory','ours',chars[0],'automatic','only ours',.5,1,0))
+        store.db.execute('INSERT INTO reply_embeddings VALUES(?,?,?)',('m0','local-test',b'never-return-a-vector'))
+        for i in range(27):
+            store.db.execute('INSERT INTO requests VALUES(?,?,?,?,?,?,?)',(f'worker-only-{i:02d}',chars[0],f'r{i}','hash','done','{}',1))
+    try:
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test',headers={'Authorization':'Bearer operator-fixture'}) as client:
+            root='/v1/admin/console'
+            records=(await client.get(root+'/resources',headers={'Authorization':'Bearer operator-fixture'})).json()
+            for resource in records:
+                if 'owner' in resource['fields']:
+                    response=await client.get(root+'/resources/'+resource['id'],params=dict(owner='ours',character=chars[0]));assert response.status_code==200,response.text
+                    assert all(r['owner']=='ours' and r['character']==chars[0] for r in response.json()['items'])
+            rows=(await client.get(root+'/resources/messages',params=dict(owner='ours',character=chars[0]))).json()['items']
+            assert len(rows)==27
+            filtered=(await client.get(root+'/resources/messages',params=dict(owner='ours',character=chars[0],q='fixture 26'))).json()['items'];assert len(filtered)==1 and filtered[0]['id']=='m26'
+            assert not (await client.get(root+'/resources/messages',params=dict(owner="ours' OR 1=1--"))).json()['items']
+            embeddings=await client.get(root+'/resources/reply_embeddings',params=dict(owner='ours',character=chars[0]));assert embeddings.status_code==200 and len(embeddings.json()['items'])==1 and 'never-return-a-vector' not in embeddings.text
+            profiles=(await client.get(root+'/resources/profiles',params=dict(character=chars[0]))).json()['items'];assert len(profiles)==1 and profiles[0]['id']==chars[0]
+            assert (await client.get(root+'/resources/config',params=dict(owner='ours'))).status_code==422
+            assert (await client.get(root+'/resources/voice_design_jobs',params=dict(owner='ours'))).status_code==422
+            assert (await client.get(root+'/relationships')).status_code==422
+            page=(await client.get(root+'/relationships',params=dict(character=chars[0]))).json();assert len(page['items'])==25 and page['next']
+            next_page=(await client.get(root+'/relationships',params=dict(character=chars[0],after=page['next']))).json()
+            pairs={(r['owner'],r['character']) for r in page['items']+next_page['items']};assert len(pairs)==29
+            assert any(r['owner']=='worker-only-00' and r['messages']==0 for r in page['items']+next_page['items'])
+            ours=next(r for r in page['items'] if r['owner']=='ours');assert ours['messages']==27 and ours['memories']==1
+            summary=(await client.get(root+'/entity-summary',params=dict(owner='ours',character=chars[0]))).json()
+            assert summary['messages']==27 and summary['memories']==1 and summary['ai_messages']==27 and summary['archive_counts_included'] is False
+            assert (await client.get(root+'/entity-summary')).status_code==422
+            assert (await client.get(root+'/relationships',params=dict(character=chars[1],after=page['next']))).status_code==422
+            assert (await client.get(root+'/relationships',params=dict(character=chars[0],after='not-a-cursor'))).status_code==422
+            assert (await client.get(root+'/relationships',headers={'Authorization':'Bearer wrong'},params=dict(owner='ours'))).status_code==401
+            for table in ('messages','requests','usage','records'):
+                plan=store.db.execute(f'EXPLAIN QUERY PLAN SELECT rowid FROM {table} WHERE character=? AND owner=? ORDER BY rowid LIMIT 51',(chars[0],'ours')).fetchall()
+                assert any('INDEX' in r['detail'] for r in plan),plan
+    finally:
+        store.db.close();await app.state.engine.provider.close()

@@ -17,7 +17,7 @@ try{
   await page.screenshot({path:path.join(output,'login-desktop.png'),fullPage:true,animations:'disabled'});
   await page.getByLabel('账号',{exact:true}).fill(process.env.ADMIN_TEST_USERNAME??'owner');
   await page.getByLabel('密码',{exact:true}).fill(password);
-  await page.getByRole('button',{name:'进入控制室'}).click();
+  await page.getByRole('button',{name:'进入控制室'}).click();await page.locator('.sidebar').getByRole('button',{name:'后台数据维度',exact:true}).click();await page.locator('.sidebar').getByRole('button',{name:'总览',exact:true}).click();
   await expect(page.getByRole('heading',{name:'照看每一次相遇'})).toBeVisible();
   await expect(page.getByText('服务连接正常',{exact:true})).toBeVisible();
   await page.screenshot({path:path.join(output,'dashboard-desktop.png'),fullPage:true,animations:'disabled'});

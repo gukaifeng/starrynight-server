@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { VoiceTimings } from "./VoiceTimings";
 import {
+  BackendIndex,
+  EntityExplorer,
+  type EntityScope,
+} from "./EntityExplorer";
+import {
   Dialog,
   DialogPanel,
   DialogTitle,
@@ -328,7 +333,15 @@ export default function App() {
   const [user, setUser] = useState<AdminUser | null>(null),
     [checking, setChecking] = useState(true),
     [resources, setResources] = useState<Resource[]>([]),
-    [view, setView] = useState("overview"),
+    [view, setView] = useState(() => {
+      try {
+        return (
+          decodeURIComponent(window.location.hash.slice(1)) || "directory:users"
+        );
+      } catch {
+        return "directory:users";
+      }
+    }),
     [overview, setOverview] = useState<Overview | null>(null),
     [error, setError] = useState(""),
     [toast, setToast] = useState(""),
@@ -342,7 +355,6 @@ export default function App() {
     const outcomes = await Promise.allSettled([
       api<Resource[]>("/resources"),
       api<Resource[]>("/ai/console/resources"),
-      api<Overview>("/overview"),
     ]);
     const base = outcomes[0];
     if (base.status === "rejected") throw base.reason;
@@ -352,7 +364,6 @@ export default function App() {
       all = all.concat(ai.value.map((r) => ({ ...r, ai: true })));
     else setError("AI 管理暂不可用；账户与内容管理可以继续使用。");
     setResources(all);
-    if (outcomes[2].status === "fulfilled") setOverview(outcomes[2].value);
   }, []);
   useEffect(() => {
     const expired = () => {
@@ -375,6 +386,34 @@ export default function App() {
     if (user) load().catch((e) => setError(e.message));
   }, [user, load, refresh]);
   useEffect(() => {
+    const change = () => {
+      try {
+        setView(
+          decodeURIComponent(window.location.hash.slice(1)) ||
+            "directory:users",
+        );
+      } catch {
+        setView("directory:users");
+      }
+      setNav(false);
+      setError("");
+    };
+    window.addEventListener("hashchange", change);
+    return () => window.removeEventListener("hashchange", change);
+  }, []);
+  useEffect(() => {
+    if (!user || view !== "overview") return;
+    const controller = new AbortController();
+    api<Overview>("/overview", { signal: controller.signal })
+      .then((data) => {
+        if (!controller.signal.aborted) setOverview(data);
+      })
+      .catch((e) => {
+        if (!controller.signal.aborted) setError(e.message);
+      });
+    return () => controller.abort();
+  }, [user, view, refresh]);
+  useEffect(() => {
     if (!toast) return;
     const id = setTimeout(() => setToast(""), 4500);
     return () => clearTimeout(id);
@@ -390,6 +429,7 @@ export default function App() {
   };
   const choose = (value: string) => {
     setView(value);
+    window.location.hash = encodeURIComponent(value);
     setNav(false);
     setError("");
   };
@@ -416,6 +456,15 @@ export default function App() {
     );
   if (!user) return <Login onLogin={setUser} />;
   const current = resources.find((r) => (r.ai ? "ai:" : "") + r.id === view);
+  const userDimension = view === "directory:users" || view.startsWith("user:");
+  const characterDimension =
+    view === "directory:characters" || view.startsWith("character:");
+  const backendDimension = !userDimension && !characterDimension;
+  const dimension = userDimension
+    ? "用户"
+    : characterDimension
+      ? "角色"
+      : "后台数据";
   return (
     <div className="app-shell">
       <aside className={"sidebar " + (nav ? "is-open" : "")}>
@@ -424,7 +473,7 @@ export default function App() {
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            choose("overview");
+            choose("directory:users");
           }}
         >
           <Mark />
@@ -434,74 +483,116 @@ export default function App() {
           </div>
         </a>
         <nav aria-label="管理导航">
-          <button
-            className={"nav-item " + (view === "overview" ? "active" : "")}
-            onClick={() => choose("overview")}
-          >
-            <Sparkles size={17} />
-            总览
-            <span className="nav-orbit" />
-          </button>
-          {groups.map((group) => {
-            const Icon = icons[group];
-            const list = resources.filter((r) => r.group === group);
-            return (
-              list.length > 0 && (
-                <div className="nav-group" key={group}>
+          <div className="primary-dimensions">
+            <button
+              aria-label="用户维度"
+              className={"nav-item " + (userDimension ? "active" : "")}
+              onClick={() => choose("directory:users")}
+            >
+              <Users size={17} />
+              用户
+              <span className="nav-orbit" />
+            </button>
+            <button
+              aria-label="角色维度"
+              className={"nav-item " + (characterDimension ? "active" : "")}
+              onClick={() => choose("directory:characters")}
+            >
+              <Layers size={17} />
+              角色
+              <span className="nav-orbit" />
+            </button>
+            <button
+              aria-label="后台数据维度"
+              className={"nav-item " + (backendDimension ? "active" : "")}
+              onClick={() => choose("backend")}
+            >
+              <Database size={17} />
+              后台数据
+              <span className="nav-orbit" />
+            </button>
+          </div>
+          <div className="nav-dimension-note">
+            {userDimension
+              ? "以账户组织资料与关系"
+              : characterDimension
+                ? "以角色组织内容与用户"
+                : "数据、推理与服务器管理"}
+          </div>
+          {backendDimension && (
+            <>
+              <button
+                className={"nav-item " + (view === "overview" ? "active" : "")}
+                onClick={() => choose("overview")}
+              >
+                <Sparkles size={17} />
+                总览
+                <span className="nav-orbit" />
+              </button>
+              {groups.map((group) => {
+                const Icon = icons[group];
+                const list = resources.filter((r) => r.group === group);
+                return (
+                  list.length > 0 && (
+                    <div className="nav-group" key={group}>
+                      <div className="nav-caption">
+                        <Icon size={13} />
+                        {group}
+                      </div>
+                      {list.map((r) => {
+                        const id = (r.ai ? "ai:" : "") + r.id;
+                        return (
+                          <button
+                            key={id}
+                            aria-label={r.name}
+                            className={
+                              "nav-resource " + (view === id ? "active" : "")
+                            }
+                            onClick={() => choose(id)}
+                          >
+                            {r.name}
+                            {r.id === "characters" && overview && (
+                              <small>{overview.counts.characters}</small>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )
+                );
+              })}
+              {user.role === "owner" && (
+                <div className="nav-group">
                   <div className="nav-caption">
-                    <Icon size={13} />
-                    {group}
+                    <Database size={13} />
+                    服务器管理
                   </div>
-                  {list.map((r) => {
-                    const id = (r.ai ? "ai:" : "") + r.id;
-                    return (
-                      <button
-                        key={id}
-                        aria-label={r.name}
-                        className={
-                          "nav-resource " + (view === id ? "active" : "")
-                        }
-                        onClick={() => choose(id)}
-                      >
-                        {r.name}
-                        {r.id === "characters" && overview && (
-                          <small>{overview.counts.characters}</small>
-                        )}
-                      </button>
-                    );
-                  })}
+                  {managementTools.map((t) => (
+                    <button
+                      key={t.id}
+                      aria-label={t.name}
+                      className={
+                        "nav-resource " +
+                        (view === "manage:" + t.id ? "active" : "")
+                      }
+                      onClick={() => choose("manage:" + t.id)}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
                 </div>
-              )
-            );
-          })}
-          {user.role === "owner" && (
-            <div className="nav-group">
-              <div className="nav-caption">
-                <Database size={13} />
-                服务器管理
-              </div>
-              {managementTools.map((t) => (
-                <button
-                  key={t.id}
-                  aria-label={t.name}
-                  className={
-                    "nav-resource " +
-                    (view === "manage:" + t.id ? "active" : "")
-                  }
-                  onClick={() => choose("manage:" + t.id)}
-                >
-                  {t.name}
-                </button>
-              ))}
-            </div>
+              )}
+              <button
+                className={
+                  "nav-item " + (view === "operations" ? "active" : "")
+                }
+                onClick={() => choose("operations")}
+              >
+                <Settings2 size={16} />
+                服务运行
+              </button>
+            </>
           )}
-          <button
-            className={"nav-item " + (view === "operations" ? "active" : "")}
-            onClick={() => choose("operations")}
-          >
-            <Settings2 size={16} />
-            服务运行
-          </button>
         </nav>
         <div className="operator">
           <span className="operator-avatar">
@@ -549,12 +640,18 @@ export default function App() {
           >
             <MenuIcon size={20} />
           </button>
-          <span>{current?.group ?? "星夜服务"}</span>
+          <span>{dimension}</span>
           <ChevronRight size={12} />
           <span>
             {current?.name ??
               managementTools.find((t) => "manage:" + t.id === view)?.name ??
-              (view === "operations" ? "运行状态" : "控制室")}
+              (view === "operations"
+                ? "运行状态"
+                : userDimension
+                  ? "账户与关系"
+                  : characterDimension
+                    ? "角色与用户"
+                    : "控制室")}
           </span>
           <div className="topline-right">
             <span className="live-dot" />
@@ -573,7 +670,40 @@ export default function App() {
         </header>
         {error && <ErrorNote text={error} />}
         <div className="page-content">
-          {view === "overview" ? (
+          {userDimension || characterDimension ? (
+            <EntityExplorer
+              key={userDimension ? "users" : "characters"}
+              kind={userDimension ? "users" : "characters"}
+              id={
+                view.startsWith("user:")
+                  ? view.slice(5)
+                  : view.startsWith("character:")
+                    ? view.slice(10)
+                    : undefined
+              }
+              resources={resources}
+              refresh={refresh}
+              navigate={choose}
+              renderResource={(r, scope) => (
+                <ResourceWorkspace
+                  key={(r.ai ? "ai:" : "") + r.id + JSON.stringify(scope)}
+                  resource={r}
+                  scope={scope}
+                  user={user}
+                  refresh={refresh}
+                  ask={ask}
+                  onChanged={changed}
+                />
+              )}
+            />
+          ) : view === "backend" ? (
+            <BackendIndex
+              resources={resources}
+              owner={user.role === "owner"}
+              tools={managementTools}
+              navigate={choose}
+            />
+          ) : view === "overview" ? (
             <Dashboard
               overview={overview}
               resources={resources}
@@ -815,12 +945,14 @@ function Dashboard({
 
 function ResourceWorkspace({
   resource: r,
+  scope,
   user,
   refresh,
   ask,
   onChanged,
 }: {
   resource: Resource;
+  scope?: EntityScope;
   user: AdminUser;
   refresh: number;
   ask: (c: Confirmation) => void;
@@ -836,6 +968,20 @@ function ResourceWorkspace({
     [create, setCreate] = useState(false);
   const seq = useRef(0);
   const cursor = cursors[cursors.length - 1];
+  const listPath =
+    scope && !r.ai ? "/directory/records/" + r.id : resourcePath(r);
+  const scopeQuery = scope
+    ? new URLSearchParams(
+        r.ai
+          ? {
+              ...(scope.user_id ? { owner: scope.user_id } : {}),
+              ...(scope.character_id ? { character: scope.character_id } : {}),
+            }
+          : (Object.fromEntries(
+              Object.entries(scope).filter(([, v]) => !!v),
+            ) as Record<string, string>),
+      ).toString()
+    : "";
   useEffect(() => {
     const id = setTimeout(() => {
       setQuery(q);
@@ -848,8 +994,10 @@ function ResourceWorkspace({
     setLoading(true);
     setError("");
     api<Page>(
-      resourcePath(r) +
-        "?q=" +
+      listPath +
+        "?" +
+        scopeQuery +
+        "&q=" +
         encodeURIComponent(query) +
         "&after=" +
         encodeURIComponent(cursor),
@@ -873,13 +1021,14 @@ function ResourceWorkspace({
       .finally(() => {
         if (generation === seq.current) setLoading(false);
       });
-  }, [r, query, cursor, refresh]);
+  }, [r, query, cursor, refresh, listPath, scopeQuery]);
   const canEdit =
     user.role !== "viewer" &&
     (!r.ai || user.role === "owner") &&
     (!["admin_users", "character_releases"].includes(r.id) ||
       user.role === "owner");
   const canCreate =
+    !scope &&
     user.role === "owner" &&
     !r.ai &&
     [
@@ -1087,7 +1236,9 @@ function ResourceWorkspace({
             )}
           </div>
           <div className="pagination">
-            <span>第 {cursors.length} 页 · 每页最多 50 条</span>
+            <span>
+              第 {cursors.length} 页 · 每页最多 {scope && !r.ai ? 25 : 50} 条
+            </span>
             <button
               className="icon-button"
               disabled={cursors.length === 1 || loading}

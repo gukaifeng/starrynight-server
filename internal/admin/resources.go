@@ -37,6 +37,7 @@ var Resources = []Resource{
 	{"goal_turns", "目标提交记录", "系统", "目标进度的幂等账本", []string{"user_id", "character_id", "request_id"}, []string{"user_id", "character_id", "request_id", "config_version", "created_at"}, nil, nil},
 	{"admin_users", "管理员", "管理", "独立权限与会话撤销；至少保留一名启用的 owner", []string{"id"}, []string{"id", "username", "role", "disabled", "session_epoch", "version", "created_at"}, []string{"role", "disabled"}, []string{"reset_password"}},
 	{"admin_audit", "操作记录", "管理", "不可修改的操作意图与执行结果", []string{"id"}, []string{"id", "actor_id", "actor_name", "action", "resource", "target", "outcome", "request_id", "occurred_at"}, nil, nil},
+	{"admin_conversation_stats", "会话消息统计", "对话", "当前账户归档的消息计数；事务内维护，不与 AI 上下文条数相加", []string{"user_id", "character_id"}, []string{"user_id", "character_id", "messages", "user_messages", "ai_messages"}, nil, nil},
 }
 
 func resource(id string) (Resource, bool) {

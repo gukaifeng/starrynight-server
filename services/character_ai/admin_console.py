@@ -3,7 +3,7 @@
 The browser authenticates with the independent Go console; the shared worker
 credential is never sent to it. No arbitrary SQL, paths or provider URLs.
 """
-import copy, hashlib, importlib, json, math, os, re
+import base64, copy, hashlib, importlib, json, math, os, re
 from fastapi import APIRouter, HTTPException, Request
 from .profiles import PROFILES, assets
 from . import prompts
@@ -85,10 +85,13 @@ def mount(app,settings,store,engine,admin):
         audio=settings.data_dir/'audio';files=list(audio.glob('*.pcm'))
         return dict(counts=counts,profiles=len(PROFILES),audio_files=len(files),audio_bytes=sum(p.stat().st_size for p in files if p.exists()),paid_enabled=settings.paid_enabled,models=config_data()['data'])
     @router.get('/resources/{resource}')
-    async def listing(resource:str,after:str='',q:str=''):
+    async def listing(resource:str,after:str='',q:str='',owner:str='',character:str=''):
         if len(q)>200:raise HTTPException(422,'搜索文字过长')
+        if len(owner)>200 or len(character)>160:raise HTTPException(422,'无效用户或角色范围')
+        if resource in ('prompts','config') and (owner or character):raise HTTPException(422,'这是全局数据，不能归入单个用户或角色')
+        if resource=='profiles' and owner:raise HTTPException(422,'角色设定不属于单个用户')
         if resource=='profiles':
-            items=[dict(id=k,name=v.get('name',k),data=copy.deepcopy(v),version=revision('admin_profile',k),capabilities=assets(k)) for k,v in sorted(PROFILES.items()) if k>after and (not q or q.lower() in (k+json.dumps(v,ensure_ascii=False)).lower())][:51]
+            items=[dict(id=k,name=v.get('name',k),data=copy.deepcopy(v),version=revision('admin_profile',k),capabilities=assets(k)) for k,v in sorted(PROFILES.items()) if k>after and (not character or k==character) and (not q or q.lower() in (k+json.dumps(v,ensure_ascii=False)).lower())][:51]
         elif resource=='prompts':items=[dict(id='global',data={k:getattr(prompts,k) for k in PROMPTS},version=revision('admin_prompts','global'))]
         elif resource=='config':items=[config_data()]
         elif resource in TABLES:
@@ -96,8 +99,15 @@ def mount(app,settings,store,engine,admin):
             except ValueError:raise HTTPException(422,'无效分页位置') from None
             fields=[r['name'] for r in store.db.execute(f'PRAGMA table_info({resource})') if r['name']!='vector']
             where='';args=[cursor]
+            for field,value in (('owner',owner),('character',character)):
+                if not value:continue
+                if field in fields:
+                    where+=f' AND {field}=?';args.append(value)
+                elif resource=='reply_embeddings':
+                    where+=f' AND EXISTS(SELECT 1 FROM messages scoped WHERE scoped.id=reply_embeddings.message AND scoped.{field}=?)';args.append(value)
+                else:raise HTTPException(422,'此数据不属于所选用户或角色')
             if q:
-                where=' AND ('+' OR '.join(f'CAST({f} AS TEXT) LIKE ? ESCAPE \'\\\'' for f in fields)+')'
+                where+=' AND ('+' OR '.join(f'CAST({f} AS TEXT) LIKE ? ESCAPE \'\\\'' for f in fields)+')'
                 pattern='%'+q.replace('\\','\\\\').replace('%','\\%').replace('_','\\_')+'%';args.extend([pattern]*len(fields))
             direction='DESC' if resource=='voice_traces' else 'ASC'
             comparison='<' if resource=='voice_traces' else '>'
@@ -112,6 +122,45 @@ def mount(app,settings,store,engine,admin):
             return dict(items=safe(items[:50]),next=str(items[49]['_rowid']) if len(items)>50 else '')
         else:raise HTTPException(404)
         return dict(items=safe(items[:50]),next=items[49]['id'] if len(items)>50 else '')
+
+    @router.get('/entity-summary')
+    async def entity_summary(owner:str='',character:str=''):
+        if not (owner or character) or len(owner)>200 or len(character)>160:raise HTTPException(422,'请指定有效用户或角色')
+        predicates=["owner!='system'"];args=[]
+        for field,value in (('owner',owner),('character',character)):
+            if value:predicates.append(f'{field}=?');args.append(value)
+        where=' AND '.join(predicates)
+        message=store.db.execute(f"SELECT count(*) messages,count(DISTINCT owner) users,count(DISTINCT character) characters,sum(role='assistant') ai_messages,max(created) last_message_at FROM messages WHERE {where}",args).fetchone()
+        counts={table:store.db.execute(f'SELECT count(*) FROM {table} WHERE {where}',args).fetchone()[0] for table in ('memories','requests','reaction_drafts','quick_reply_sets','asset_usage')}
+        usage=[dict(r) for r in store.db.execute(f'SELECT kind,status,count(*) calls,sum(units) units FROM usage WHERE {where} GROUP BY kind,status',args)]
+        return safe(dict(message)|counts|dict(usage=usage,source='AI worker',archive_counts_included=False))
+
+    @router.get('/relationships')
+    async def relationships(owner:str='',character:str='',after:str=''):
+        if not (owner or character) or len(owner)>200 or len(character)>160:raise HTTPException(422,'请指定有效用户或角色')
+        scope=[owner,character];args=[];predicates=["owner!='system'"]
+        for field,value in (('owner',owner),('character',character)):
+            if value:predicates.append(f'{field}=?');args.append(value)
+        condition=' AND '.join(predicates)
+        tables=('messages','memories','requests','records','reaction_drafts','quick_reply_sets','usage')
+        arms=[f'SELECT owner,character FROM {table} WHERE {condition}' for table in tables]
+        bindings=args*len(tables);tail=''
+        if after:
+            try:
+                cursor=json.loads(base64.urlsafe_b64decode(after+'='*(-len(after)%4)))
+                assert len(after)<=4096 and cursor['scope']==scope and len(cursor['keys'])==2
+                assert all(isinstance(k,str) and 0<len(k)<=200 for k in cursor['keys'])
+            except (ValueError,KeyError,AssertionError,TypeError):raise HTTPException(422,'无效分页位置') from None
+            tail=' WHERE (owner,character)>(?,?)';bindings+=cursor['keys']
+        rows=store.db.execute('WITH scopes AS ('+' UNION '.join(arms)+') SELECT owner,character FROM scopes'+tail+' ORDER BY owner,character LIMIT 26',bindings).fetchall()
+        items=[]
+        for row in rows[:25]:
+            pair=(row['owner'],row['character'])
+            counts=store.db.execute('SELECT count(*) AS messages,max(created) AS last_message_at FROM messages WHERE owner=? AND character=?',pair).fetchone()
+            memories=store.db.execute('SELECT count(*) FROM memories WHERE owner=? AND character=?',pair).fetchone()[0]
+            items.append(dict(row)|dict(counts)|dict(memories=memories))
+        cursor=base64.urlsafe_b64encode(json.dumps(dict(scope=scope,keys=[rows[24]['owner'],rows[24]['character']])).encode()).decode().rstrip('=') if len(rows)>25 else ''
+        return dict(items=safe(items),next=cursor)
 
     @router.post('/resources/{resource}/mutate')
     async def mutate(resource:str,request:Request):

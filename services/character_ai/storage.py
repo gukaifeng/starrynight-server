@@ -40,6 +40,12 @@ class Store:
         ''')
         if 'version' not in {row['name'] for row in self.db.execute('PRAGMA table_info(conversation_resets)')}:
             self.db.execute('ALTER TABLE conversation_resets ADD COLUMN version INTEGER NOT NULL DEFAULT 0')
+        # Exact operator scopes must use indexes too, including character-first
+        # browsing. Identifiers below are fixed, never supplied by a browser.
+        for table in ('records','voice_traces','messages','requests','memories','usage','asset_usage','reply_novelty','reaction_drafts','quick_reply_sets','conversation_resets'):
+            self.db.execute(f'CREATE INDEX IF NOT EXISTS admin_{table}_owner ON {table}(owner,character)')
+            self.db.execute(f'CREATE INDEX IF NOT EXISTS admin_{table}_character ON {table}(character,owner)')
+        self.db.execute('CREATE INDEX IF NOT EXISTS admin_voice_jobs_character ON voice_design_jobs(character)')
         self.db.commit()
         if not self.get('migration','system','reply-novelty-v1'):
             with self.db:

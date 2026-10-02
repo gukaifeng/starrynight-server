@@ -110,6 +110,7 @@ func New(cfg Config, db *store.Store, cache *redis.Client, prefix string) (*Serv
 	api.GET("/operations", s.operations)
 	api.POST("/operations/:unit/restart", s.restart)
 	s.managementRoutes(api)
+	s.directoryRoutes(api)
 	r.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, "/admin-api") || c.Request.Method != "GET" {
 			c.JSON(404, gin.H{"error": "接口不存在"})
@@ -262,6 +263,8 @@ func fail(c *gin.Context, e error) {
 	code, msg := 500, "操作失败，请刷新后重试"
 	var v store.ValidationError
 	switch {
+	case errors.Is(e, context.DeadlineExceeded):
+		code, msg = 503, "查询超时，请缩小搜索范围后重试"
 	case errors.Is(e, store.ErrConflict):
 		code, msg = 409, "数据已被修改，请刷新后再编辑"
 	case errors.Is(e, store.ErrNotFound), errors.Is(e, pgx.ErrNoRows):

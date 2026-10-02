@@ -125,6 +125,8 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	}
 	code, data := request(srv.URL, "GET", "/resources", nil, "", "")
 	assert(code, 401, data)
+	code, data = request(srv.URL, "GET", "/directory/users", nil, "", "")
+	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/avatar", nil, "", "")
 	assert(code, 401, data)
 	code, data = request(srv.URL, "POST", "/login", map[string]string{"username": ownerName, "password": password}, "https://evil.test", "")
@@ -203,6 +205,46 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer db.DeleteUser(ctx, u2.ID)
+	t.Run("entity directories and exact scopes", func(t *testing.T) {
+		testEntityDirectories(t, db, u2.ID, func(path string) (int, []byte) {
+			return request(srv.URL, "GET", path, nil, "", "")
+		})
+	})
+	t.Run("worker owners link only to real accounts", func(t *testing.T) {
+		unknown := uuid.NewString()
+		worker := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Header.Get("Authorization") != "Bearer private-cache-fixture" || r.URL.Path != "/v1/admin/console/relationships" || r.URL.Query().Get("character") != "anime-kipfel" {
+				t.Error("worker credential or exact scope missing")
+				w.WriteHeader(403)
+				return
+			}
+			json.NewEncoder(w).Encode(Page{Items: []map[string]any{{"owner": u2.ID, "character": "anime-kipfel", "messages": 3}, {"owner": unknown, "character": "anime-kipfel"}, {"owner": "legacy-owner", "character": "anime-kipfel"}}})
+		}))
+		defer worker.Close()
+		cfg := app.Config
+		cfg.AIURL = worker.URL
+		withAI, err := New(cfg, db, cache, prefix)
+		if err != nil {
+			t.Fatal(err)
+		}
+		gateway := httptest.NewServer(withAI.Router)
+		defer gateway.Close()
+		code, data := request(gateway.URL, "GET", "/directory/ai-relationships?character_id=anime-kipfel", nil, "", "")
+		assert(code, 200, data)
+		var page Page
+		if json.Unmarshal(data, &page) != nil || len(page.Items) != 3 {
+			t.Fatal("invalid worker relationships")
+		}
+		if page.Items[0]["account_exists"] != true || page.Items[0]["user_id"] != u2.ID || page.Items[0]["character_name"] == "" {
+			t.Fatal("known account not hydrated")
+		}
+		if page.Items[1]["account_exists"] != false || page.Items[2]["account_exists"] != false {
+			t.Fatal("legacy owner guessed to be an account")
+		}
+		if bytes.Contains(data, []byte("private-cache-fixture")) {
+			t.Fatal("worker credential exposed")
+		}
+	})
 	body := Mutation{Keys: map[string]string{"id": u2.ID}, Values: map[string]any{"profile": map[string]any{"display_name": "after"}}, Expected: u2.Version, Action: "edit"}
 	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, "")
 	assert(code, 403, data)
