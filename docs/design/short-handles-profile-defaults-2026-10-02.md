@@ -22,4 +22,4 @@ Go vet/race、构建和真实 PG/Redis 全部集成测试通过。新增迁移�
 
 测试隔离的两次问题已修复：pgx `ConnString()` 不序列化后改的 RuntimeParams，现改为显式 DSN `search_path` 并检查 `current_schema()`；隔离 schema 必须包含 public 以找到 `pg_trgm` 运算符，同时显式指定 Goose 版本表所在 schema，避免误用主测试 schema 的版本表。最终完整重跑通过，临时测试 PG/Redis已停止，不恢复 Mac 业务服务。
 
-生产部署与不调用付费 AI 的账户接口检查结果在部署后记录。
+生产已发布 `20261002T050956Z-0522e81428b1`，Goose 11 迁移前完成 PG 备份，readiness 正常，API/AI/edge 均 active。AI 源码相同，只重启 API，不重启 worker，不影响已有候选与语音缓存。云端一次性账户抽查确认小写短号唯一且不可修改、默认小星球、照片上传与取回及账户隔离、重新登录保留 UUID/星夜号。临时账户已删除；使用 `verify_cache_accounts.py` 未传 `--paid-cache`，没有付费 AI 调用。
