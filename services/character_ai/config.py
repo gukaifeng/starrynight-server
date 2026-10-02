@@ -13,6 +13,9 @@ class Settings:
     admin_token: str = field(default='', repr=False)
     host: str = 'https://dashscope.aliyuncs.com'
     character_model: str = 'qwen-plus-character'
+    # Prepared drafts are still role-play, but should finish before selection.
+    # Main cold user turns keep the existing character model independently.
+    preparation_model: str = 'qwen-flash-character'
     # Suggestions predict the user's next turn; they do not role-play the avatar.
     suggestions_model: str = 'qwen-turbo'
     # Animation control JSON is not role dialogue. Use the existing fast

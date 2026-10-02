@@ -20,6 +20,15 @@ def test_prediction_uses_fast_non_thinking_model_without_changing_character_answ
     assert override['model']=='configured-control-model'
 
 
+def test_preparation_has_its_own_character_model_without_rerouting_controls():
+    settings=Settings(preparation_model='qwen-flash-character')
+    messages=[dict(role='user',content='test')]
+    assert structured_payload(settings,'plan',messages,preparation=True)['model']=='qwen-flash-character'
+    assert structured_payload(settings,'plan',messages)['model']=='qwen-plus-character'
+    assert structured_payload(settings,'performance',messages,preparation=True)['model']=='qwen-turbo'
+    assert structured_payload(settings,'suggestions',messages,preparation=True)['model']=='qwen-turbo'
+
+
 def test_suggestion_schema_keeps_validation_and_can_be_decoded():
     messages = structured_messages('suggestions', SUGGESTIONS, {}, QuickReplyPlan)
     assert 'minItems' in messages[0]['content']

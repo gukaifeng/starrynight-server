@@ -41,7 +41,7 @@ def report(settings,engine,owner,request):
         dict(active_voice={k:voice[k] for k in ('voice_id','revision','approved','model') if k in voice},
              emotion_tags=EMOTIONS,delivery_instructions=DELIVERY,vocal_tags=VOCALS,
              recognition_hotwords=PROFILES[char]['hotwords']+([request.preferences['nickname']] if request.preferences.get('nickname') else [])))
-    fields=('character_model','suggestions_model','translation_model','tts_model','asr_model','narration_timeout_seconds','performance_timeout_seconds','reaction_pool_size','reaction_pool_ttl_seconds','entry_pool_ttl_seconds','paid_enabled','enforce_conversation_limits',
+    fields=('character_model','preparation_model','suggestions_model','performance_model','translation_model','tts_model','asr_model','narration_timeout_seconds','performance_timeout_seconds','reaction_pool_size','reaction_pool_ttl_seconds','entry_pool_ttl_seconds','paid_enabled','enforce_conversation_limits',
             'max_daily_calls','max_daily_tts_characters','max_daily_asr_seconds','max_voice_designs','enable_test_inspector','semantic_novelty')
     add('models','模型与运行参数','凭证、认证头和本机文件路径不属于角色调教，不在报告中返回。',{k:getattr(settings,k) for k in fields})
     add('translation-provider','翻译服务状态','专用 Qwen-MT 优先；只有快速模型确实可用时才临时回退。一小时后重新检查；两者均被拒绝时缩短为30秒后的下一次用户请求，不后台重试。',

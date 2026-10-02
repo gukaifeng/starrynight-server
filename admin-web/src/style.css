@@ -2080,6 +2080,13 @@
   justify-content: space-between;
   margin-bottom: 20px;
 }
+.voice-trace-detail-head {
+  flex-wrap: wrap;
+}
+.voice-trace-detail-head > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .voice-trace-search input,
 .voice-trace-id input {
   width: 100%;

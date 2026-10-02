@@ -12,6 +12,7 @@ from .roleplay import language
 from .diagnostics import record_request
 from .greetings import normalized
 from .planner_wire import CompactPlan, SpokenPlan, GoalCompactPlan, GoalSpokenPlan, wire_schema, wire_system, WIRE_SHAPE, SPOKEN_SHAPE
+from .schemas import GoalFeedback
 
 VOCALS = dict(gasp='[gasp]', sigh='[sighing]', throat_clear='[clears throat]',
               giggle='[giggles]', laugh='[laughing]', cough='[cough]', snort='[snorts]')
@@ -143,8 +144,8 @@ def structured_messages(purpose,system,context,schema):
         messages.append(dict(role='user',content='<app_event>'+dump(dict(event=context.get('trigger'),task=task))+'</app_event>'))
     return messages
 
-def structured_payload(settings,purpose,messages,attempt=0):
-    model=settings.performance_model if purpose=='performance' else settings.suggestions_model if purpose in ('suggestions','translation') else settings.character_model
+def structured_payload(settings,purpose,messages,attempt=0,*,preparation=False):
+    model=settings.performance_model if purpose=='performance' else settings.suggestions_model if purpose in ('suggestions','translation') else settings.preparation_model if purpose=='plan' and preparation else settings.character_model
     payload = dict(model=model,messages=messages,temperature=.95 if purpose=='plan' and attempt==0 else .7 if purpose=='performance' else .2,
                 presence_penalty=.8 if purpose=='plan' and attempt==0 else 0,
                 max_tokens=4096 if purpose=='translation' else 1900 if purpose=='plan' else 320 if purpose=='suggestions' else 600,response_format={'type':'json_object'})
@@ -167,7 +168,15 @@ def control_defaults(raw,schema,context):
     excerpt=context.get('user_message','').strip()[:100]
     if not excerpt:return raw,0
     supplied={key:0 for key in ('familiarity','trust','affection','task_progress') if key not in feedback}
-    if 'evidence' not in feedback:supplied['evidence']=excerpt
+    if 'evidence' not in feedback:
+        # An input excerpt is not proof of the model's proposed progress. Keep
+        # invalid controls for strict validation; valid unevidenced progress
+        # must be discarded, including milestones, rather than justified here.
+        try:GoalFeedback.model_validate(feedback)
+        except ValidationError:return raw,0
+        supplied.update({key:0 for key in ('familiarity','trust','affection','task_progress')})
+        if 'milestone' in feedback:supplied['milestone']=''
+        supplied['evidence']=excerpt
     if not supplied:return raw,0
     data['goal_feedback']={**feedback,**supplied}
     return dump(data),len(supplied)
@@ -266,7 +275,8 @@ class Provider:
                 usage = self.store.reserve(purpose, owner, character, 1, self.settings)
             started = time.monotonic()
             try:
-                payload=structured_payload(self.settings,purpose,messages,attempt)
+                payload=structured_payload(self.settings,purpose,messages,attempt,
+                    preparation=context.get('speculative_generation') is True)
                 record_request(self.settings,self.store,owner,character,purpose,payload)
                 headers={**self.headers,'x-dashscope-aca-session':session_cache_key(owner,character,purpose,payload['model'],system)}
                 with vt.span('model.'+purpose+'.http',attempt=attempt+1,model=payload['model']):

@@ -163,6 +163,9 @@ class ReactionPool:
                 trace=vt.current.get();trace.span('preparation.priority_queue',waiting,trace.ms(),priority=priority)
                 if not voice.get('approved') or not self.current(job):raise ValueError('DRAFT_NOT_APPLICABLE')
                 context=self.engine.context(owner,request,persist=False)
+                # Trusted server context only; this is not a public request
+                # option and cannot override operator-configured model names.
+                context['speculative_generation']=True
                 if job.kind in SCENARIOS:
                     context['scene']={k:v for k,v in context['scene'].items() if k!='time'}
                     if 'interaction_context' in context:context['interaction_context']['mood']=random.choice(['playful','serious'])

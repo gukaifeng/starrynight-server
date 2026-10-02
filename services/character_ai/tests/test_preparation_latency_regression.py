@@ -48,6 +48,7 @@ async def test_complete_pcm_is_ready_and_slot_is_free_while_optional_visuals_wai
     pool.slots=PreparationGate(1);visual_gate=asyncio.Event()
     original=provider.structured
     async def structured(*args):
+        if args[2]=='plan':assert args[4]['speculative_generation'] is True
         if args[2]=='performance':await visual_gate.wait()
         return await original(*args)
     provider.structured=structured
@@ -82,6 +83,21 @@ def test_missing_progress_controls_are_zero_not_another_role_generation():
     invalid=json.loads(raw);invalid['goal_feedback']=dict(familiarity=1,evidence='invented')
     corrected,_=control_defaults(json.dumps(invalid),GoalSpokenPlan,context)
     with pytest.raises(Exception):GoalSpokenPlan.model_validate_json(corrected)
+
+
+def test_missing_evidence_cannot_turn_a_default_excerpt_into_progress():
+    context=dict(user_message='Let us talk about flowers.')
+    raw=dict(focus='flowers',beats=[dict(say='Hmm… which flower?',asides=[['I wonder which one.','after']])],
+        goal_feedback=dict(familiarity=.02,affection=.03,milestone='date_agreed'))
+    corrected,_=control_defaults(json.dumps(raw),GoalSpokenPlan,context)
+    feedback=GoalSpokenPlan.model_validate_json(corrected).goal_feedback
+    assert not any(getattr(feedback,key) for key in ('familiarity','trust','affection','task_progress'))
+    assert feedback.milestone=='' and feedback.evidence==context['user_message']
+    for invalid in (dict(familiarity=1),dict(unknown='ignored?')):
+        raw['goal_feedback']=invalid
+        corrected,count=control_defaults(json.dumps(raw),GoalSpokenPlan,context)
+        assert count==0
+        with pytest.raises(Exception):GoalSpokenPlan.model_validate_json(corrected)
 
 @pytest.mark.asyncio
 async def test_chinese_embedding_never_rejects_english_dialogue(tmp_path):
