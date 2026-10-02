@@ -16,6 +16,7 @@ class Settings:
     # Prepared drafts are still role-play, but should finish before selection.
     # Main cold user turns keep the existing character model independently.
     preparation_model: str = 'qwen-flash-character'
+    streaming_core: bool = True
     # Suggestions predict the user's next turn; they do not role-play the avatar.
     suggestions_model: str = 'qwen-turbo'
     # Animation control JSON is not role dialogue. Use the existing fast

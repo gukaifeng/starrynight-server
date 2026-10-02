@@ -228,9 +228,11 @@ class Request(Strict):
 
 class PreparationRequest(Request):
     preparation_scope: Literal['active','entry'] = 'active'
+    cached_preparation_ids:list[str]=Field(default_factory=list,max_length=32)
 
 class QuickReplyRequest(Request):
     source_message_id: UUID
+    cached_preparation_ids:list[str]=Field(default_factory=list,max_length=32)
 
 class QuickReplyOption(Strict):
     text:str=Field(min_length=2,max_length=45)

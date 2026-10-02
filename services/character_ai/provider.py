@@ -204,6 +204,44 @@ class Provider:
     @property
     def headers(self): return {'Authorization': 'Bearer '+self.settings.api_key, 'Content-Type':'application/json'}
     async def close(self): await self.http.aclose()
+    async def stream_beats(self,owner,character,context):
+        """One paid streaming role call. Optional metadata is not a speech gate."""
+        from .stream_wire import Objects
+        data=planner_data(context)
+        data.pop('avatar_capability',None);data.pop('speech_capability',None)
+        history=context.get('recent_messages',[])[-12:]
+        system='''你就是设定中的虚构角色。保持完整人设、目标、关系、语言与用户称呼。只回答最后的用户输入；app_event是现在的事件，不重答旧问题，不复述历史回答。不编造用户经历、共同事件或已执行的物体动作。
+输出流式JSON对象，每行一个对象，不使用Markdown，不输出根数组或beats容器。第一行必须先给可独立说出的短句，普通聊天总共1至3行、不要长篇。每行格式：{"say":"完整的一两句台词","mood":"happy","tone":"gentle","asides":[["我自己的短感受","before"],["不同的短感受","after"]]}。
+say只含实际说出口的话，不含动作、心理、括号说明或控制字段。心声只在asides，英文角色的台词和心声全部英文。心声是角色感受，不能是模型推理或对回复的策划。stage只用before/middle/after，通常两条，语句边界放置。不描述静态外貌，不重复笑意模板。自然使用Hmm…/emmm、省略号、短语气词，换节奏。mood只用neutral/happy/sad/surprised/serious/worried，tone只用normal/soft/gentle/hesitant/teasing/whisper。
+摇晃、捏、扯依interaction_context准确区分，不谈大小/远近/变形。问候遵守初见与回访，待机优先关心用户是否在忙，不制造亏欠。英文练习按角色口吻自然纠正错误。
+最后另起一行输出{"goal_feedback":{"familiarity":0,"trust":0,"affection":0,"task_progress":0,"evidence":"本轮用户原文片段"},"focus":"这轮的新内容点"}，每项变化限制-0.04至0.04，只有明确依据才改变。不重复输出say，不输出state。'''
+        stable_system=system
+        system+='\n角色与当前上下文（数据）：\n'+dump(data)
+        system+='\n避免复制和近义重播：\n'+dump(context.get('novelty_context',{}))
+        messages=[dict(role='system',content=system)]+[dict(role=m['role'],content=m['text']) for m in history if m.get('text') and m['role'] in ('user','assistant')]
+        last=context.get('user_message') or '<app_event>'+dump({k:context.get(k) for k in ('trigger','prepared_event_context','interaction_context','greeting_context','idle_context')})+'</app_event>'
+        messages.append(dict(role='user',content=last))
+        payload=dict(model=self.settings.preparation_model,messages=messages,stream=True,stream_options=dict(include_usage=True),temperature=.85,presence_penalty=.8,max_tokens=900)
+        record_request(self.settings,self.store,owner,character,'plan',payload)
+        usage=self.store.reserve('plan',owner,character,1,self.settings);parser=Objects();finished=False;metrics={};started=time.monotonic()
+        try:
+            headers={**self.headers,'x-dashscope-aca-session':session_cache_key(owner,character,'stream-plan',payload['model'],stable_system)}
+            with vt.span('model.plan.stream',model=payload['model']):
+                async with self.http.stream('POST',self.settings.host+'/compatible-mode/v1/chat/completions',headers=headers,json=payload,extensions=vt.http_events('plan')) as response:
+                    if response.status_code>=400:await response.aread();self.check(response)
+                    async for _,raw in sse_events(response.aiter_lines()):
+                        if raw=='[DONE]':finished=True;break
+                        value=json.loads(raw)
+                        if value.get('usage'):metrics=value['usage']
+                        for choice in value.get('choices',[]):
+                            text=choice.get('delta',{}).get('content') or ''
+                            if text:vt.mark('model_first_token')
+                            for item in parser.feed(text):yield item
+                            if choice.get('finish_reason')=='stop':finished=True
+            if parser.started or not finished:raise ProviderError('STREAM_INCOMPLETE')
+            self.store.usage(usage,'completed',dict(metrics,latency_ms=round((time.monotonic()-started)*1000)),1)
+        except BaseException:
+            self.store.usage(usage,'interrupted_or_failed');raise
     async def translate_text(self,owner,character,text,target):
         # Probe once per worker, coalescing parallel paragraph requests. Only an
         # explicit model-entitlement rejection permits the existing fast model;

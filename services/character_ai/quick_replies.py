@@ -32,7 +32,8 @@ class QuickReplies:
         saved=self.saved(owner,request)
         task=self.tasks.get((owner,request.character_id))
         result=saved or dict(source_message_id=str(request.source_message_id),options=[])
-        return {**result,'preparing':bool(task and not task.done())}
+        kinds={'quick:'+o['id'] for o in result['options']}
+        return {**result,'preparing':bool(task and not task.done()),'prepared_clips':self.pool.clips(owner,request,kinds)}
 
     def prepare(self,owner,request):
         char=request.character_id;scope=(owner,char);source=str(request.source_message_id)

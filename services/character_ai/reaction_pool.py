@@ -95,7 +95,25 @@ class ReactionPool:
         key=self.context_key(owner,request);char=request.character_id
         counts={k:sum(self.has_audio(owner,char,json.loads(r['data'])['script']) for r in self.rows(owner,char,key,k)) for k in SCENARIOS}
         pending={k:self.find_job(owner,char,key,k) is not None for k in SCENARIOS}
-        return dict(capacity=self.capacity,ready=counts,pending=pending,preparing=any(pending.values()),kinds=SCENARIOS)
+        return dict(capacity=self.capacity,ready=counts,pending=pending,preparing=any(pending.values()),kinds=SCENARIOS,prepared_clips=self.clips(owner,request))
+
+    def clips(self,owner,request,kinds=None):
+        """Owner/context-scoped completed PCM; no consumption or provider calls."""
+        import base64
+        cached=set(getattr(request,'cached_preparation_ids',[]));result=[];total=0
+        for row in self.rows(owner,request.character_id,self.context_key(owner,request)):
+            if row['id'] in cached or (kinds is not None and row['kind'] not in kinds):continue
+            data=json.loads(row['data']);script=data['script']
+            if not self.has_audio(owner,request.character_id,script):continue
+            audio=[]
+            for b in script['beats']:
+                if not b.get('dialogue') and not b.get('vocal_events'):continue
+                path=self.settings.data_dir/'audio'/(audio_key(owner,request.character_id,data['voice_id'],script['message_id'],b['beat_id'])+'.pcm')
+                content=path.read_bytes();total+=len(content)
+                if total>4*1024*1024:return result
+                audio.append(dict(beat_id=b['beat_id'],data=base64.b64encode(content).decode()))
+            result.append(dict(id=row['id'],script=script,audio=audio))
+        return result
 
     def prepare(self,owner,request,*,renew_lease=True):
         char=request.character_id;scope=(owner,char);key=self.context_key(owner,request)
@@ -179,7 +197,7 @@ class ReactionPool:
                     async for item in output:
                         if not self.current(job):raise ValueError('DRAFT_CONTEXT_CHANGED')
                         if item['type']=='reaction.draft':job.plan=item['plan'];continue
-                        if item['type'] in ('reply.narration.ready','reply.visuals.updated'):
+                        if item['type'] in ('reply.narration.ready','reply.script.updated','reply.visuals.updated'):
                             job.script=item['script']
                             if item['type']=='reply.narration.ready':
                                 if not job.script['text']:raise ValueError('EMPTY_DRAFT')
@@ -272,9 +290,9 @@ class ReactionPool:
                         if attached_trace:attached_trace.span('preparation.inflight_text_wait',started,attached_trace.ms())
                         script=await self.publish(owner,request,context,claim,item['script'],job.plan)
                         item={**item,'script':script,'prepared':True,'preparation_inflight':waiting_core}
-                    elif item['type']=='reply.visuals.updated':
+                    elif item['type'] in ('reply.visuals.updated','reply.script.updated'):
                         from .aside_quality import review_script, recent
-                        script=review_script({**item['script'],'trigger':request.trigger},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))
+                        script=review_script({**item['script'],'trigger':request.trigger,'goal_state':goals.effective(self.store,owner,request)},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))
                         self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}
                     if not request.wants_audio and (item['type'].startswith('segment.audio.') or item['type'].startswith('audio.')):continue
                     if item['type']=='segment.audio.chunk' and attached_trace and 'inflight_audio' not in attached_trace.marks:

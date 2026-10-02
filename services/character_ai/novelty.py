@@ -36,10 +36,10 @@ def similar(left,right):
                 return 'copied_sentence'
     return None
 
-def match(store,owner,text,extra=()):
+def match(store,owner,text,extra=(),*,exclude_message=''):
     candidate=normalized(text)
     if not candidate:return None
-    exact=store.db.execute('SELECT text,character FROM reply_novelty WHERE owner=? AND canonical=? LIMIT 1',(owner,candidate)).fetchone()
+    exact=store.db.execute('SELECT text,character FROM reply_novelty WHERE owner=? AND canonical=? AND message!=? LIMIT 1',(owner,candidate,exclude_message)).fetchone()
     if exact:return dict(reason='exact',text=exact['text'],character=exact['character'])
     grams_ = sorted(grams(candidate))
     # Bound FTS query size even for a multi-beat story; the most recent 64
@@ -50,8 +50,8 @@ def match(store,owner,text,extra=()):
         query=' OR '.join('"'+g.replace('"','""')+'"' for g in sampled)
         rows=store.db.execute('''SELECT n.text,n.character FROM reply_novelty_search f
             JOIN reply_novelty n ON n.rowid=f.rowid WHERE reply_novelty_search MATCH ? AND n.owner=?
-            ORDER BY rank LIMIT 64''',(query,owner)).fetchall()
-    rows+=store.db.execute('SELECT text,character FROM reply_novelty WHERE owner=? ORDER BY created DESC LIMIT 64',(owner,)).fetchall()
+            AND n.message!=? ORDER BY rank LIMIT 64''',(query,owner,exclude_message)).fetchall()
+    rows+=store.db.execute('SELECT text,character FROM reply_novelty WHERE owner=? AND message!=? ORDER BY created DESC LIMIT 64',(owner,exclude_message)).fetchall()
     for row in rows+list(extra):
         if reason:=similar(text,row['text']):return dict(reason=reason,text=row['text'],character=row.get('character') if isinstance(row,dict) else row['character'])
     return None

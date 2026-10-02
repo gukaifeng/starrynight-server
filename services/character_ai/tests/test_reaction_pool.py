@@ -194,7 +194,7 @@ async def test_first_meeting_then_return_and_launch_are_distinct_and_used_only_a
     assert pool.status('u',entry)['ready']['first_meeting']==1
     assert not store.history('u',entry.character_id) and not store.get('greetings','u',entry.character_id)
     before=time.time()
-    incoming=Request(**entry.model_dump(exclude={'preparation_scope','request_id','trigger'}),request_id=uuid.uuid4(),trigger='firstLaunch')
+    incoming=Request(**entry.model_dump(exclude={'preparation_scope','cached_preparation_ids','request_id','trigger'}),request_id=uuid.uuid4(),trigger='firstLaunch')
     incoming.timeline_reply=True
     events=[e async for e in engine.reply('u',incoming)]
     assert events[0]['prepared'] and events[0]['script']['trigger']=='firstLaunch'

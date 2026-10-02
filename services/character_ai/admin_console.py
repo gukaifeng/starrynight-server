@@ -25,6 +25,7 @@ TABLES={
     'conversation_resets':('AI 重置记录','跨服务幂等重置收据，只读'),
 }
 CONFIG_FIELDS={
+    'streaming_core':bool,
     'character_model':str,'preparation_model':str,'suggestions_model':str,'performance_model':str,'translation_model':str,
     'tts_model':str,'asr_model':str,'paid_enabled':bool,
     'enforce_conversation_limits':bool,'enable_test_inspector':bool,

@@ -116,6 +116,14 @@ class Store:
         with self.db:self.db.execute('UPDATE requests SET status=?,result=? WHERE owner=? AND character=? AND id=?',('completed',dump(result),owner,character,id))
     def enrich_reply(self,owner,character,id,result):
         with self.db:
+            row=self.db.execute('SELECT rowid,text FROM reply_novelty WHERE message=? AND owner=? AND character=?',(result['message_id'],owner,character)).fetchone()
+            if row and row['text']!=result['text']:
+                if not self.db.in_transaction:self.db.execute('BEGIN IMMEDIATE')
+                from . import novelty
+                if novelty.match(self,owner,result['text'],exclude_message=result['message_id']):raise ValueError('REPLY_REPEATED')
+                self.db.execute('UPDATE reply_novelty SET text=?,canonical=? WHERE rowid=?',(result['text'],normalized(result['text']),row['rowid']))
+                self.db.execute('UPDATE reply_novelty_search SET grams=? WHERE rowid=?',(tokens(result['text']),row['rowid']))
+                self.db.execute('DELETE FROM reply_embeddings WHERE message=?',(result['message_id'],))
             self.db.execute("UPDATE messages SET data=? WHERE id=? AND owner=? AND character=? AND role='assistant'",(dump(result),result['message_id'],owner,character))
             self.db.execute("UPDATE requests SET result=? WHERE owner=? AND character=? AND id=? AND status='completed'",(dump(result),owner,character,id))
     def sync_memories(self,owner,character,memories):

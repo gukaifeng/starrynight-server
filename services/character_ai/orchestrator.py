@@ -266,7 +266,12 @@ class Orchestrator:
         try:
             if request.parallel_performance and request.timeline_reply and request.available_assets:
                 visuals=asyncio.create_task(parallel_performance.plan_performance(self,owner,request,context))
-            async with aclosing(self._planned_reply(owner,request,context,budget,visuals,draft=draft)) as source:
+            if self.settings.streaming_core and request.timeline_reply and request.parallel_performance and hasattr(self.provider,'stream_beats'):
+                from .streaming_reply import reply
+                if budget is not None:budget[0]-=1
+                output=reply(self,owner,request,context,visuals,draft=draft)
+            else:output=self._planned_reply(owner,request,context,budget,visuals,draft=draft)
+            async with aclosing(output) as source:
                 async for item in source:yield item
         finally:
             if visuals is not None:
