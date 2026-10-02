@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-01.2",
+  "revision": "2026-10-02-original-names-v1",
   "characters": [
     {
       "characterID": "anime-kipfel",
@@ -57,11 +57,6 @@
             {
               "kind": "thought",
               "text": "我想听听书页之外的故事。",
-              "at": 0.6197
-            },
-            {
-              "kind": "narration",
-              "text": "露出开心的表情",
               "at": 0.6197
             },
             {
@@ -255,11 +250,6 @@
           "duration": 18.0,
           "audioSHA256": "d60b6ac0a221acb95c9b91fc7d810bbbccb69be7096faf0fb854759662973fdf"
         }
-      ],
-      "initialReplies": [
-        "想听听书屋里的故事。",
-        "你找到的那片叶子呢？",
-        "我想和你聊聊今天。"
       ]
     },
     {
@@ -520,20 +510,15 @@
           "duration": 15.84,
           "audioSHA256": "e0aecb39c21483d92a0288e458025560149ec9b5c7fcd5b6181e250cb02e6fe2"
         }
-      ],
-      "initialReplies": [
-        "先说说面包房吧！",
-        "我们去找一个小冒险。",
-        "我想分享今天的开心事。"
       ]
     },
     {
       "characterID": "anime-chiffon",
       "variants": [
         {
-          "id": "anime-chiffon-v2-1",
-          "text": "嗯……你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
-          "audio": "Opening_anime_chiffon_v2_1",
+          "id": "anime-chiffon-v3-1",
+          "text": "嗯……你好，我是Chiffon，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
+          "audio": "Opening_anime_chiffon_v3_1",
           "language": "zh",
           "visuals": [
             {
@@ -569,29 +554,29 @@
             },
             {
               "kind": "dialogue",
-              "text": "嗯……你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。",
+              "text": "嗯……你好，我是Chiffon，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。",
               "at": 0.0
             },
             {
               "kind": "thought",
               "text": "我好奇你心里的颜色。",
-              "at": 0.6622
+              "at": 0.6835
             },
             {
               "kind": "dialogue",
               "text": "今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
-              "at": 0.6622
+              "at": 0.6835
             }
           ],
-          "readingDuration": 13.454545454545455,
+          "readingDuration": 14.363636363636363,
           "audioReady": true,
-          "duration": 18.24,
-          "audioSHA256": "c6c4c5f13682c23a44cf23ef94fe12bc8a7a3528c880cf4af881af8975ea39bb"
+          "duration": 16.8,
+          "audioSHA256": "413634f536abc0cd37c1b435cec37240f86742ff66b6f9f968720d8078875766"
         },
         {
-          "id": "anime-chiffon-v2-2",
-          "text": "你来得正好～我叫戚风，是花店的见习花艺师。我的小本子里有好多还没完成的花束草图。你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
-          "audio": "Opening_anime_chiffon_v2_2",
+          "id": "anime-chiffon-v3-2",
+          "text": "你来得正好～我叫Chiffon，是花店的见习花艺师。我的小本子里有好多还没完成的花束草图。你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
+          "audio": "Opening_anime_chiffon_v3_2",
           "language": "zh",
           "visuals": [
             {
@@ -622,28 +607,28 @@
             },
             {
               "kind": "dialogue",
-              "text": "你来得正好～我叫戚风，是花店的见习花艺师。",
+              "text": "你来得正好～我叫Chiffon，是花店的见习花艺师。",
               "at": 0.0
             },
             {
               "kind": "thought",
               "text": "我想听到不一样的灵感。",
-              "at": 0.3088
+              "at": 0.3562
             },
             {
               "kind": "dialogue",
               "text": "我的小本子里有好多还没完成的花束草图。",
-              "at": 0.3088
+              "at": 0.3562
             },
             {
               "kind": "narration",
               "text": "眼睛变得亮晶晶",
-              "at": 0.5882
+              "at": 0.6164
             },
             {
               "kind": "dialogue",
               "text": "你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
-              "at": 0.5882
+              "at": 0.6164
             },
             {
               "kind": "thought",
@@ -651,15 +636,15 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 12.363636363636363,
+          "readingDuration": 13.272727272727273,
           "audioReady": true,
-          "duration": 14.48,
-          "audioSHA256": "6b4e0b348730466b1fd925fd7d3a6c6e2439e80fbf07bbed651716ca6b0cd99e"
+          "duration": 16.8,
+          "audioSHA256": "6cb0eccc4dfe1aad088e7b4436b44debe7db0adbbb8f123747ca97b4eb737fbc"
         },
         {
-          "id": "anime-chiffon-v2-3",
-          "text": "初次见面……我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
-          "audio": "Opening_anime_chiffon_v2_3",
+          "id": "anime-chiffon-v3-3",
+          "text": "初次见面……我是Chiffon。我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
+          "audio": "Opening_anime_chiffon_v3_3",
           "language": "zh",
           "visuals": [
             {
@@ -695,18 +680,18 @@
             },
             {
               "kind": "dialogue",
-              "text": "初次见面……我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，",
+              "text": "初次见面……我是Chiffon。我喜欢观察花瓣，也喜欢把每天的小发现画下来，",
               "at": 0.0
             },
             {
               "kind": "narration",
               "text": "露出轻柔的笑意",
-              "at": 0.4583
+              "at": 0.4935
             },
             {
               "kind": "dialogue",
               "text": "话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
-              "at": 0.4583
+              "at": 0.4935
             },
             {
               "kind": "thought",
@@ -714,10 +699,10 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 13.090909090909092,
+          "readingDuration": 14.0,
           "audioReady": true,
-          "duration": 18.24,
-          "audioSHA256": "a03218ca6e5cf94def65b718d3577add7a3ae79787cd72eef25cac25b1aadfa6"
+          "duration": 17.28,
+          "audioSHA256": "07242a700c5adbb48da9556767b415b6de4774289fdd6631773722846a3d51ea"
         }
       ],
       "legacyVariants": [
@@ -753,12 +738,40 @@
           "audioReady": true,
           "duration": 19.28,
           "audioSHA256": "82d619a58209f395a4b3d96dc81da3865e64d129514b0b7d1c12c7b9307b2813"
+        },
+        {
+          "id": "anime-chiffon-v2-1",
+          "text": "嗯……你好，我是戚风，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
+          "audio": "Opening_anime_chiffon_v2_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.24,
+          "audioSHA256": "c6c4c5f13682c23a44cf23ef94fe12bc8a7a3528c880cf4af881af8975ea39bb"
+        },
+        {
+          "id": "anime-chiffon-v2-2",
+          "text": "你来得正好～我叫戚风，是花店的见习花艺师。我的小本子里有好多还没完成的花束草图。你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
+          "audio": "Opening_anime_chiffon_v2_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.48,
+          "audioSHA256": "6b4e0b348730466b1fd925fd7d3a6c6e2439e80fbf07bbed651716ca6b0cd99e"
+        },
+        {
+          "id": "anime-chiffon-v2-3",
+          "text": "初次见面……我是戚风。我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
+          "audio": "Opening_anime_chiffon_v2_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.24,
+          "audioSHA256": "a03218ca6e5cf94def65b718d3577add7a3ae79787cd72eef25cac25b1aadfa6"
         }
-      ],
-      "initialReplies": [
-        "陪我挑一束花吧。",
-        "你最喜欢什么季节？",
-        "我们聊聊今天的心情。"
       ]
     },
     {
@@ -988,11 +1001,6 @@
           "duration": 14.24,
           "audioSHA256": "dbfd87f31bc01a35c80732c0a6822d857ab00be82c7eb368ad723bf79fcbd725"
         }
-      ],
-      "initialReplies": [
-        "画一张明信片给我吧。",
-        "你最喜欢画什么？",
-        "我想先说说今天的事。"
       ]
     },
     {
@@ -1223,20 +1231,15 @@
           "duration": 16.24,
           "audioSHA256": "f3f16654ee1831e6a272d92c86d8c3c07c7811409682c9809a25a15c220e5053"
         }
-      ],
-      "initialReplies": [
-        "讲讲修理铺的谜题。",
-        "那个发条玩具怎么了？",
-        "我想先慢慢聊聊。"
       ]
     },
     {
       "characterID": "anime-ichigo",
       "variants": [
         {
-          "id": "anime-ichigo-v2-1",
-          "text": "你好～我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
-          "audio": "Opening_anime_ichigo_v2_1",
+          "id": "anime-ichigo-v3-1",
+          "text": "你好～我是Ichigo，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+          "audio": "Opening_anime_ichigo_v3_1",
           "language": "zh",
           "visuals": [
             {
@@ -1279,39 +1282,39 @@
             },
             {
               "kind": "dialogue",
-              "text": "你好～我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，",
+              "text": "你好～我是Ichigo，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，",
               "at": 0.0
             },
             {
               "kind": "narration",
               "text": "眼睛闪亮起来",
-              "at": 0.4737
+              "at": 0.5
             },
             {
               "kind": "dialogue",
-              "text": "夸得太敷衍可不算数。你偏爱清爽的酸甜，",
-              "at": 0.4737
+              "text": "夸得太敷衍可不算数。",
+              "at": 0.5
             },
             {
               "kind": "thought",
               "text": "我开始好奇你的口味了。",
-              "at": 0.7237
+              "at": 0.625
             },
             {
               "kind": "dialogue",
-              "text": "还是浓一点的巧克力？先让我认识你的口味吧。",
-              "at": 0.7237
+              "text": "你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+              "at": 0.625
             }
           ],
-          "readingDuration": 13.818181818181818,
+          "readingDuration": 14.545454545454545,
           "audioReady": true,
-          "duration": 16.96,
-          "audioSHA256": "d3f421b58651e4519006472ec75b05ee2b265b06319f79febc7b186b4e9967b6"
+          "duration": 16.48,
+          "audioSHA256": "3a8163dbcfb2156b08fb32400baaa9fa6d13beb8579711ed965813d490a2457a"
         },
         {
-          "id": "anime-ichigo-v2-2",
-          "text": "来得正好……我叫草莓。我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
-          "audio": "Opening_anime_ichigo_v2_2",
+          "id": "anime-ichigo-v3-2",
+          "text": "来得正好……我叫Ichigo。我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+          "audio": "Opening_anime_ichigo_v3_2",
           "language": "zh",
           "visuals": [
             {
@@ -1349,28 +1352,23 @@
             },
             {
               "kind": "dialogue",
-              "text": "来得正好……我叫草莓。我的甜品工坊正在研究一款招牌配方，",
+              "text": "来得正好……我叫Ichigo。我的甜品工坊正在研究一款招牌配方，",
               "at": 0.0
             },
             {
               "kind": "thought",
               "text": "我似乎找到有趣的搭档了。",
-              "at": 0.3944
-            },
-            {
-              "kind": "dialogue",
-              "text": "今天还没找到让我满意的答案。",
-              "at": 0.3944
+              "at": 0.4267
             },
             {
               "kind": "narration",
               "text": "脸上浮起一点羞意",
-              "at": 0.5915
+              "at": 0.4267
             },
             {
               "kind": "dialogue",
-              "text": "你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
-              "at": 0.5915
+              "text": "今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+              "at": 0.4267
             },
             {
               "kind": "thought",
@@ -1378,15 +1376,15 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 12.909090909090908,
+          "readingDuration": 13.636363636363637,
           "audioReady": true,
-          "duration": 14.4,
-          "audioSHA256": "c32677b8ea28bad06427a6fa8fbd2e1401c3f1377df51c94edd73b0a5926d97c"
+          "duration": 14.08,
+          "audioSHA256": "08ce8291973142a3aa6476bbe1f82bf13b42a0db21cc865aeb2d37880023da84"
         },
         {
-          "id": "anime-ichigo-v2-3",
-          "text": "初次见面～我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
-          "audio": "Opening_anime_ichigo_v2_3",
+          "id": "anime-ichigo-v3-3",
+          "text": "初次见面～我是Ichigo。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
+          "audio": "Opening_anime_ichigo_v3_3",
           "language": "zh",
           "visuals": [
             {
@@ -1429,18 +1427,18 @@
             },
             {
               "kind": "dialogue",
-              "text": "初次见面～我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。",
+              "text": "初次见面～我是Ichigo。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。",
               "at": 0.0
             },
             {
               "kind": "narration",
               "text": "眼睛闪亮起来",
-              "at": 0.473
+              "at": 0.5
             },
             {
               "kind": "dialogue",
               "text": "我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
-              "at": 0.473
+              "at": 0.5
             },
             {
               "kind": "thought",
@@ -1448,10 +1446,10 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 13.454545454545455,
+          "readingDuration": 14.181818181818182,
           "audioReady": true,
-          "duration": 14.96,
-          "audioSHA256": "04e43a1c539b5aeb814e438e7a3e781a017b008bbf115244e6214da92adc980b"
+          "duration": 15.6,
+          "audioSHA256": "d9e3172ad121ecc730682337779d5b106580910c9764144a80cad87a514942a0"
         }
       ],
       "legacyVariants": [
@@ -1487,12 +1485,40 @@
           "audioReady": true,
           "duration": 16.56,
           "audioSHA256": "ddc89261426404325548908f0f62284c213331204143535845b9b5a6f5c24cc4"
+        },
+        {
+          "id": "anime-ichigo-v2-1",
+          "text": "你好～我是草莓，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+          "audio": "Opening_anime_ichigo_v2_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.96,
+          "audioSHA256": "d3f421b58651e4519006472ec75b05ee2b265b06319f79febc7b186b4e9967b6"
+        },
+        {
+          "id": "anime-ichigo-v2-2",
+          "text": "来得正好……我叫草莓。我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
+          "audio": "Opening_anime_ichigo_v2_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.4,
+          "audioSHA256": "c32677b8ea28bad06427a6fa8fbd2e1401c3f1377df51c94edd73b0a5926d97c"
+        },
+        {
+          "id": "anime-ichigo-v2-3",
+          "text": "初次见面～我是草莓。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
+          "audio": "Opening_anime_ichigo_v2_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 14.96,
+          "audioSHA256": "04e43a1c539b5aeb814e438e7a3e781a017b008bbf115244e6214da92adc980b"
         }
-      ],
-      "initialReplies": [
-        "我想试试你的新甜点。",
-        "先聊聊招牌配方吧。",
-        "猜猜我喜欢什么口味？"
       ]
     },
     {
@@ -1708,20 +1734,15 @@
           "duration": 14.56,
           "audioSHA256": "ff3fdfc567f9b0e3b15d9773497a54a79d22261a3795a27a8cc96d17c353e2dc"
         }
-      ],
-      "initialReplies": [
-        "Tell me about your greenhouse.",
-        "Let's practice English together.",
-        "What are you growing today?"
       ]
     },
     {
       "characterID": "anime-mafuyu",
       "variants": [
         {
-          "id": "anime-mafuyu-v2-1",
-          "text": "你好……我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
-          "audio": "Opening_anime_mafuyu_v2_1",
+          "id": "anime-mafuyu-v3-1",
+          "text": "你好……我是Mafuyu，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
+          "audio": "Opening_anime_mafuyu_v3_1",
           "language": "zh",
           "visuals": [
             {
@@ -1757,29 +1778,29 @@
             },
             {
               "kind": "dialogue",
-              "text": "你好……我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，",
+              "text": "你好……我是Mafuyu，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，",
               "at": 0.0
             },
             {
               "kind": "thought",
               "text": "我想知道让你安心的事。",
-              "at": 0.64
+              "at": 0.6582
             },
             {
               "kind": "dialogue",
               "text": "你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
-              "at": 0.64
+              "at": 0.6582
             }
           ],
-          "readingDuration": 13.636363636363637,
+          "readingDuration": 14.363636363636363,
           "audioReady": true,
-          "duration": 18.4,
-          "audioSHA256": "2cedb8040ae267358c02c81c1b254a69e6a8586872473c15445771609296d302"
+          "duration": 20.4,
+          "audioSHA256": "ba0f63e5d7652483f50eeb7e4cd4db80b72a706dc55316b124d525e6c233dd69"
         },
         {
-          "id": "anime-mafuyu-v2-2",
-          "text": "欢迎～我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
-          "audio": "Opening_anime_mafuyu_v2_2",
+          "id": "anime-mafuyu-v3-2",
+          "text": "欢迎～我叫Mafuyu，负责雪间旅舍，也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+          "audio": "Opening_anime_mafuyu_v3_2",
           "language": "zh",
           "visuals": [
             {
@@ -1810,18 +1831,18 @@
             },
             {
               "kind": "dialogue",
-              "text": "欢迎～我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。",
+              "text": "欢迎～我叫Mafuyu，负责雪间旅舍，",
               "at": 0.0
             },
             {
               "kind": "thought",
               "text": "我不自觉期待起你的点子。",
-              "at": 0.3913
+              "at": 0.2603
             },
             {
               "kind": "dialogue",
-              "text": "最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
-              "at": 0.3913
+              "text": "也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+              "at": 0.2603
             },
             {
               "kind": "thought",
@@ -1829,15 +1850,15 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 12.545454545454545,
+          "readingDuration": 13.272727272727273,
           "audioReady": true,
-          "duration": 16.16,
-          "audioSHA256": "5e9c60a8153a0b4babef0e118406669496c9a1547c82f5d22d3d47a53fc46918"
+          "duration": 16.56,
+          "audioSHA256": "1106738c098156e8777eee78ad9df077cac860a1facbc0897d13fd81cacc1d4f"
         },
         {
-          "id": "anime-mafuyu-v2-3",
-          "text": "初次见面……我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
-          "audio": "Opening_anime_mafuyu_v2_3",
+          "id": "anime-mafuyu-v3-3",
+          "text": "初次见面……我是Mafuyu。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+          "audio": "Opening_anime_mafuyu_v3_3",
           "language": "zh",
           "visuals": [
             {
@@ -1873,7 +1894,7 @@
             },
             {
               "kind": "dialogue",
-              "text": "初次见面……我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+              "text": "初次见面……我是Mafuyu。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
               "at": 0.0
             },
             {
@@ -1882,10 +1903,10 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 13.636363636363637,
+          "readingDuration": 14.363636363636363,
           "audioReady": true,
-          "duration": 19.36,
-          "audioSHA256": "b6cc57049e5088b7c9877ebd5c32249dca87c764c4ed9e2c691b561c1859f995"
+          "duration": 18.88,
+          "audioSHA256": "6258701e8b30e06aaf2f528b2d38ef67009ab292f0c4d6659a92489182b308c9"
         }
       ],
       "legacyVariants": [
@@ -1921,12 +1942,40 @@
           "audioReady": true,
           "duration": 22.08,
           "audioSHA256": "ca176d3e4395c121544fc148d56fef71ad1df784770518743a0ca4ceddeefe0a"
+        },
+        {
+          "id": "anime-mafuyu-v2-1",
+          "text": "你好……我是真冬，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
+          "audio": "Opening_anime_mafuyu_v2_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.4,
+          "audioSHA256": "2cedb8040ae267358c02c81c1b254a69e6a8586872473c15445771609296d302"
+        },
+        {
+          "id": "anime-mafuyu-v2-2",
+          "text": "欢迎～我叫真冬，负责雪间旅舍，也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
+          "audio": "Opening_anime_mafuyu_v2_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.16,
+          "audioSHA256": "5e9c60a8153a0b4babef0e118406669496c9a1547c82f5d22d3d47a53fc46918"
+        },
+        {
+          "id": "anime-mafuyu-v2-3",
+          "text": "初次见面……我是真冬。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+          "audio": "Opening_anime_mafuyu_v2_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 19.36,
+          "audioSHA256": "b6cc57049e5088b7c9877ebd5c32249dca87c764c4ed9e2c691b561c1859f995"
         }
-      ],
-      "initialReplies": [
-        "旅舍最近有什么故事？",
-        "一起想想冬日茶单吧。",
-        "我想先聊聊今天。"
       ]
     },
     {
@@ -2142,11 +2191,6 @@
           "duration": 15.76,
           "audioSHA256": "6c3117e1b02566078b45f329bf4c0a540e4eb2a214eee2b89726acfe3510ebe6"
         }
-      ],
-      "initialReplies": [
-        "Tell me a star story.",
-        "What can we see tonight?",
-        "Let's practice English together."
       ]
     },
     {
@@ -2376,20 +2420,15 @@
           "duration": 17.76,
           "audioSHA256": "1e0696a45bc00c703009424368e770fb435b8e260f8ce4718e411cc3f8eec203"
         }
-      ],
-      "initialReplies": [
-        "一起看看那封信吧。",
-        "你发现了什么线索？",
-        "我想讲一件想留住的事。"
       ]
     },
     {
       "characterID": "anime-plum",
       "variants": [
         {
-          "id": "anime-plum-v2-1",
-          "text": "你好呀～我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
-          "audio": "Opening_anime_plum_v2_1",
+          "id": "anime-plum-v3-1",
+          "text": "你好呀～我是Plum，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
+          "audio": "Opening_anime_plum_v3_1",
           "language": "zh",
           "visuals": [
             {
@@ -2432,29 +2471,29 @@
             },
             {
               "kind": "dialogue",
-              "text": "你好呀～我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。",
+              "text": "你好呀～我是Plum，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。",
               "at": 0.0
             },
             {
               "kind": "thought",
               "text": "我想知道咱们喜欢的香气。",
-              "at": 0.6622
+              "at": 0.6711
             },
             {
               "kind": "dialogue",
               "text": "你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
-              "at": 0.6622
+              "at": 0.6711
             }
           ],
-          "readingDuration": 13.454545454545455,
+          "readingDuration": 13.818181818181818,
           "audioReady": true,
-          "duration": 16.8,
-          "audioSHA256": "bfe116ae7c0affd9190bc66dcbbb283853382929a5319135e0e796632c94cdc6"
+          "duration": 16.72,
+          "audioSHA256": "f0ace14856a4da17f302bb5d97c8c2caf244a617c189af20a1c9138285122b66"
         },
         {
-          "id": "anime-plum-v2-2",
-          "text": "你来啦……我叫小梅。茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
-          "audio": "Opening_anime_plum_v2_2",
+          "id": "anime-plum-v3-2",
+          "text": "你来啦……我叫Plum。茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
+          "audio": "Opening_anime_plum_v3_2",
           "language": "zh",
           "visuals": [
             {
@@ -2492,18 +2531,18 @@
             },
             {
               "kind": "dialogue",
-              "text": "你来啦……我叫小梅。茶屋窗边能看到很漂亮的晚霞，",
+              "text": "你来啦……我叫Plum。茶屋窗边能看到很漂亮的晚霞，",
               "at": 0.0
             },
             {
               "kind": "thought",
               "text": "我很愿意分享这些小发现。",
-              "at": 0.3243
+              "at": 0.3421
             },
             {
               "kind": "dialogue",
               "text": "我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
-              "at": 0.3243
+              "at": 0.3421
             },
             {
               "kind": "thought",
@@ -2511,15 +2550,15 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 13.454545454545455,
+          "readingDuration": 13.818181818181818,
           "audioReady": true,
-          "duration": 17.92,
-          "audioSHA256": "bfcbe760706ff980e5abb0c272357e37e5f140b979dc2169c09b545590108983"
+          "duration": 17.76,
+          "audioSHA256": "7a258d2e5793722e30bcd063fa17500d876a329950ed7e7f67d80574273cc4cb"
         },
         {
-          "id": "anime-plum-v2-3",
-          "text": "嗯……初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
-          "audio": "Opening_anime_plum_v2_3",
+          "id": "anime-plum-v3-3",
+          "text": "嗯……初次见面，我是Plum。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+          "audio": "Opening_anime_plum_v3_3",
           "language": "zh",
           "visuals": [
             {
@@ -2562,7 +2601,7 @@
             },
             {
               "kind": "dialogue",
-              "text": "嗯……初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+              "text": "嗯……初次见面，我是Plum。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
               "at": 0.0
             },
             {
@@ -2571,10 +2610,10 @@
               "at": 1.0
             }
           ],
-          "readingDuration": 13.090909090909092,
+          "readingDuration": 13.454545454545455,
           "audioReady": true,
-          "duration": 18.56,
-          "audioSHA256": "28eedcf644a99427d54c505fabadb3f3dcc7aa74306a1f9af2845123ac3a0d4a"
+          "duration": 16.16,
+          "audioSHA256": "e1098a5bf0ae4b920d4ef97a21477b7b3d9cfa5a7e269c37fc42a80ee5e285b4"
         }
       ],
       "legacyVariants": [
@@ -2610,12 +2649,40 @@
           "audioReady": true,
           "duration": 17.2,
           "audioSHA256": "4a9c9d4bbe11e94b200cbaeb622c7996670060d7a65dc6e4cd55f7518c1f49f2"
+        },
+        {
+          "id": "anime-plum-v2-1",
+          "text": "你好呀～我是小梅，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
+          "audio": "Opening_anime_plum_v2_1",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 16.8,
+          "audioSHA256": "bfe116ae7c0affd9190bc66dcbbb283853382929a5319135e0e796632c94cdc6"
+        },
+        {
+          "id": "anime-plum-v2-2",
+          "text": "你来啦……我叫小梅。茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
+          "audio": "Opening_anime_plum_v2_2",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 17.92,
+          "audioSHA256": "bfcbe760706ff980e5abb0c272357e37e5f140b979dc2169c09b545590108983"
+        },
+        {
+          "id": "anime-plum-v2-3",
+          "text": "嗯……初次见面，我是小梅。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+          "audio": "Opening_anime_plum_v2_3",
+          "language": "zh",
+          "visuals": [],
+          "legacy": true,
+          "audioReady": true,
+          "duration": 18.56,
+          "audioSHA256": "28eedcf644a99427d54c505fabadb3f3dcc7aa74306a1f9af2845123ac3a0d4a"
         }
-      ],
-      "initialReplies": [
-        "先陪我挑一杯茶吧。",
-        "庭院最近有什么变化？",
-        "我想和你聊聊今天。"
       ]
     }
   ]

@@ -40,7 +40,10 @@ def test_all_openings_match_roster_language_and_real_performances():
                 assert original['speech_compatible'] and original['automatic']
                 assert visual['group']==original['group']
                 assert 0<visual['durationMs']<=4000 and visual['offsetMs']>=0
-        assert len(role['legacyVariants'])==3
+        expected_legacy=6 if role['characterID'] in ('anime-chiffon','anime-ichigo','anime-mafuyu','anime-plum') else 3
+        assert len(role['legacyVariants'])==expected_legacy
+        ids=[v['id'] for v in variants+role['legacyVariants']]
+        assert len(ids)==len(set(ids))
         assert not {v['id'] for v in variants}&{v['id'] for v in role['legacyVariants']}
 
 @pytest.mark.asyncio

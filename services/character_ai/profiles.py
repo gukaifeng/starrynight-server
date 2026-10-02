@@ -78,6 +78,27 @@ def _load_scenarios():
 
 _load_scenarios()
 
+# Stable character IDs keep voices, memories and scenarios. The source name is
+# the current identity even when older conversation history used a translation.
+ORIGINAL_NAMES = {
+    'anime-chiffon': ('戚风', 'Chiffon'),
+    'anime-ichigo': ('草莓', 'Ichigo'),
+    'anime-lime': ('青柠', 'Lime'),
+    'anime-mafuyu': ('真冬', 'Mafuyu'),
+    'anime-plum': ('小梅', 'Plum'),
+}
+
+def _rename_identity(value, old, new):
+    if isinstance(value, str): return value.replace(old, new)
+    if isinstance(value, list): return [_rename_identity(v, old, new) for v in value]
+    if isinstance(value, dict): return {k:_rename_identity(v, old, new) for k,v in value.items()}
+    return value
+
+for _character, (_old, _original) in ORIGINAL_NAMES.items():
+    PROFILES[_character] = _rename_identity(PROFILES[_character], _old, _original)
+    PROFILES[_character]['name'] = _original
+    PROFILES[_character]['profile_revision'] = '2026-10-02-original-names-v1'
+
 def reviewed_assets(character):
     if character not in PROFILES: raise ValueError('UNKNOWN_CHARACTER')
     if character not in ('anime-kipfel','anime-mamehinata'):return [] # portable packages carry reviewed option.ai hints

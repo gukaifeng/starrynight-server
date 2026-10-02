@@ -42,7 +42,7 @@ def compile_catalog():
         variants = []
         for index, entry in enumerate(entries):
             text=entry if isinstance(entry,str) else entry['text']
-            version=recipes.get('contentVersion',1)
+            version=recipes.get('contentVersions',{}).get(role,recipes.get('contentVersion',1))
             key = role + (f'-v{version}' if version>1 else '') + '-' + str(index + 1)
             visual = []
             cues=((0,faces),(900,gestures),(6500,faces)) if faces else ((0,gestures),(6500,gestures))
