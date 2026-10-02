@@ -52,7 +52,8 @@ def compile_catalog():
                 item = pool[(index + (offset > 1000)) % len(pool)]
                 visual.append(dict(assetId=item['asset_id'], group=item['group'], durationMs=min(4000, item['duration_ms']),
                                    grounding=item['observable_effects'][0], offsetMs=offset))
-            language='en' if role in ('anime-lime','anime-nozomi') else 'zh'
+            from services.character_ai.roleplay import language as role_language
+            language=role_language(role)
             variant=dict(id=key,text=text,audio='Opening_'+key.replace('-','_'),language=language,visuals=visual)
             if isinstance(entry,dict):
                 asides=[SimpleNamespace(text=a['text'],stage=a.get('stage','middle'),visibility=a.get('visibility','visible'),after_text=a.get('after_text','')) for a in entry['asides']]
@@ -65,7 +66,7 @@ def compile_catalog():
             for index,text in enumerate(edition['characters'].get(role,[])):
                 v=edition['version'];key=role+(f'-v{v}' if v>1 else '')+'-'+str(index+1)
                 legacy.append(dict(id=key,text=text,audio='Opening_'+key.replace('-','_'),language=language,visuals=[],legacy=True))
-        packages.append(dict(characterID=role, variants=variants,legacyVariants=legacy))
+        packages.append(dict(characterID=role, variants=variants,legacyVariants=legacy,initialReplies=recipes.get('initialReplies',{}).get(role,[])))
     return dict(schemaVersion=1, revision=recipes['revision'], characters=packages)
 
 def main():
@@ -73,7 +74,11 @@ def main():
     parser.add_argument('--synthesize', action='store_true')
     parser.add_argument('--check', action='store_true')
     parser.add_argument('--limit', type=int, default=33, help='maximum NEW paid requests this run')
+    parser.add_argument('--voices-file',type=Path,help='Explicit private export of approved system voices; no local service/database required')
+    parser.add_argument('--only',nargs='+',help='Synthesize only this explicit role batch; compile and verify the whole roster')
+    parser.add_argument('--audio-only',action='store_true',help='Prepare independent role audio only; a final serial compilation writes both catalogs')
     args = parser.parse_args()
+    if args.audio_only and (not args.synthesize or args.check or not args.only):parser.error('--audio-only requires --synthesize --only and cannot use --check')
     RESOURCE.mkdir(parents=True, exist_ok=True)
     catalog = compile_catalog()
     receipts = ROOT / '.local/character-openings'
@@ -84,8 +89,11 @@ def main():
         settings = Settings.load()
         assert settings.api_key and settings.paid_enabled, 'Paid generation is disabled/unconfigured'
         # Read only: provisioning must not migrate or alter live service state.
-        with sqlite3.connect(f'file:{settings.data_dir / "state.sqlite3"}?mode=ro', uri=True) as db:
-            voices = {r[0]: json.loads(r[1]) for r in db.execute("SELECT character,data FROM records WHERE kind='voice' AND owner='system'")}
+        if args.voices_file:
+            voices=json.loads(args.voices_file.read_text())
+        else:
+            with sqlite3.connect(f'file:{settings.data_dir / "state.sqlite3"}?mode=ro', uri=True) as db:
+                voices = {r[0]: json.loads(r[1]) for r in db.execute("SELECT character,data FROM records WHERE kind='voice' AND owner='system'")}
     calls = 0
     missing = []
     for character in catalog['characters']:
@@ -96,7 +104,7 @@ def main():
             text_hash = digest(variant['text'].encode())
             receipt = json.loads(receipt_path.read_text()) if receipt_path.exists() else {}
             valid = target.exists() and receipt.get('textSHA256') == text_hash and receipt.get('sha256') == digest(target.read_bytes())
-            if args.synthesize and not variant.get('legacy'):
+            if args.synthesize and not variant.get('legacy') and (not args.only or role in args.only):
                 from services.character_ai.profiles import PROFILES
                 from services.character_ai.provider import speech_input
                 instruction = PROFILES[role].get('voice_delivery', '')
@@ -137,12 +145,13 @@ def main():
             else:
                 missing.append(variant['id'])
     compiled=json.dumps(catalog, ensure_ascii=False, indent=2) + '\n'
-    for path in (RESOURCE / 'CharacterOpenings.json', ROOT / 'services/character_ai/opening_catalog.json'):
+    for path in (() if args.audio_only else (RESOURCE / 'CharacterOpenings.json', ROOT / 'services/character_ai/opening_catalog.json')):
         if args.check:
             if not path.exists() or path.read_text()!=compiled:raise SystemExit('Opening catalog is stale: '+str(path))
         else:path.write_text(compiled)
     total=sum(len(c['variants'])+len(c.get('legacyVariants',[])) for c in catalog['characters'])
-    print(f'Opening packages: {len(catalog["characters"])} roles / 33 current variants; verified audio including legacy: {total-len(missing)}/{total}; new paid calls: {calls}')
+    current=sum(len(c['variants']) for c in catalog['characters'])
+    print(f'Opening packages: {len(catalog["characters"])} roles / {current} current variants; verified audio including legacy: {total-len(missing)}/{total}; new paid calls: {calls}')
     if args.check and missing:
         raise SystemExit('Release check failed: missing verified opening audio: ' + ', '.join(missing))
 

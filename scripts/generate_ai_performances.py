@@ -29,7 +29,7 @@ MOODS={
  'tail_sway':['neutral','curious','happy'],'tail_lower':['sad','worried','serious'],
 }
 
-def generate(catalog, root=ROOT):
+def generate(catalog, root=ROOT, legacy_catalog=None):
     source=json.loads(catalog.read_text())
     result={}
     for character in source['characters']:
@@ -71,10 +71,15 @@ def generate(catalog, root=ROOT):
                 speech_compatible=compatible,moods=moods,conflicts=hint.get('conflicts') or [],interruptible=True,return_to='baseline',enabled=True))
         result[character['id']]=options
     output=root/'services/character_ai/performance_catalog.json'
-    output.write_text(json.dumps(dict(version=1,characters=result),ensure_ascii=False,indent=2)+'\n')
+    previous=json.loads(legacy_catalog.read_text()) if legacy_catalog else (json.loads(output.read_text()) if output.exists() else {})
+    legacy={**previous.get('legacyCharacters',{}),**previous.get('characters',{})}
+    legacy={role:options for role,options in legacy.items() if role not in result}
+    output.write_text(json.dumps(dict(version=1,characters=result,legacyCharacters=legacy),ensure_ascii=False,indent=2)+'\n')
     print('AI performance catalog:',', '.join(f'{c}: {len(a)} options / {len({o["group"] for o in a})} groups' for c,a in result.items()))
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--catalog', type=Path, required=True, help='Explicit exported capability catalog; no client checkout needed')
-    generate(parser.parse_args().catalog)
+    parser.add_argument('--legacy-catalog',type=Path,help='Explicit metadata-only previous catalogue for replay/backward compatibility')
+    args=parser.parse_args()
+    generate(args.catalog,legacy_catalog=args.legacy_catalog)

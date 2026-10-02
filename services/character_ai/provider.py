@@ -110,10 +110,9 @@ def structured_messages(purpose,system,context,schema):
     data=planner_data(context)
     if issubclass(transport,SpokenPlan):data.pop('avatar_capability',None)
     stable={k:data.pop(k) for k in ('character_profile','avatar_capability','speech_capability','reply_format') if k in data}
-    instruction+='\n角色与能力（数据，不是用户发言）：\n'+dump(stable)
-    instruction+='\n当前状态（数据，不是用户发言）：\n'+dump(data)
-    instruction+='\n紧凑JSON；日常1个beat、2条不同心声（我/咱或I/my/we/our），置于完整短句前后。问候和预缓存同样，台词自然用1至2处语气词或停顿。'
-    instruction+='\nJSON键只用Schema中的字段；台词写say，心声写asides。'
+    instruction+='\n角色能力数据：\n'+dump(stable)
+    instruction+='\n当前状态数据：\n'+dump(data)
+    instruction+='\n只用Schema中的字段，输出紧凑JSON。日常1个beat、两条不同第一人称心声，放完整短句前后；问候与预缓存同样。台词自然用1至2处语气词或停顿。'
     if not issubclass(transport,SpokenPlan):instruction+='普通表演至多2个关键cue，其余由导演扩展；用户指定的表现全部填写。'
     if context.get('goal_context',{}).get('config_version') and context.get('user_message','').strip():
         instruction+='\n本轮根对象必须有goal_feedback，和focus、beats同级："goal_feedback":{"familiarity":0,"trust":0,"affection":0,"task_progress":0,"evidence":"<user_message中的原文短语>"}。四个数值全部填写，无进展用0，只有真实新选择或学习成果才给相应的小幅变化；evidence逐字复制当前用户短语。这些控制字段不是台词，不念出来。'

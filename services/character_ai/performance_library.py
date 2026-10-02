@@ -10,7 +10,9 @@ from pathlib import Path
 @lru_cache(maxsize=1)
 def _catalogue():
     path=Path(__file__).with_name('performance_catalog.json')
-    return json.loads(path.read_text())['characters'] if path.exists() else {}
+    if not path.exists():return {}
+    data=json.loads(path.read_text())
+    return {**data.get('legacyCharacters',{}),**data['characters']}
 
 def catalogue(character,fallback):
     return _catalogue().get(character,fallback)

@@ -22,4 +22,9 @@ def public_profile(character):
                 profileRevision=p.get('profile_revision','2026-09-30-base-v1'))
 
 def public_catalog():
-    return dict(version=1,characters=[public_profile(c) for c in PROFILES])
+    # Historical personas remain readable for old conversations, but discovery
+    # and client exports follow the explicit current release roster.
+    import json
+    from pathlib import Path
+    roster=json.loads((Path(__file__).resolve().parents[2]/'authoring/active-roster.json').read_text())['characters']
+    return dict(version=1,characters=[public_profile(c) for c in roster])

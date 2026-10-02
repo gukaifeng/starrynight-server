@@ -28,8 +28,8 @@ def test_catalog_has_only_role_owned_public_hooks_not_story_solutions():
             ids.append(route['id'])
         serialized=json.dumps(card,ensure_ascii=False)
         for secret in PROFILES[card['id']]['secrets']:assert secret not in serialized
-    assert len(ids)==len(set(ids))==18
-    assert {p['id'] for p in catalog if p['dialogueLanguage']=='en'}=={'anime-lime','anime-nozomi'}
+    assert len(ids)==len(set(ids))==44
+    assert {p['id'] for p in catalog if p['dialogueLanguage']=='en'}=={'anime-lime','anime-fiona'}
 
 
 def test_selected_route_is_not_shared_with_other_characters_and_pause_is_explicit(tmp_path):

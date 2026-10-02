@@ -1,0 +1,32 @@
+-- +goose Up
+-- Metadata only. Private model assets stay in the installed app.
+-- De-list previous official entries while retaining subscriptions and history.
+UPDATE characters SET visibility='unlisted',
+    data=data || '{"roster_active":false}'::jsonb,
+    version=version+1,updated_at=now()
+WHERE owner_id IS NULL AND author_id='starry-studio' AND id NOT IN ('anime-chiffon','anime-fiona','anime-hikarun','anime-ichigo','anime-koharu','anime-lime','anime-mafuyu','anime-meiyun','anime-milfy','anime-mao','anime-mizuki','anime-perula','anime-plum','anime-ramune','anime-shinano','anime-sio') AND visibility='public';
+INSERT INTO characters(id,author_id,visibility,name,description,data) VALUES
+('anime-chiffon','starry-studio','public','Chiffon','Chiffon 在小镇花店学习花艺，喜欢手账和雨后的空气。她温柔、慢热，也藏着一点俏皮，愿意陪你把平常的一天聊出小小的光亮。','{"runtime_id": "anime-chiffon", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-fiona','starry-studio','public','Fiona','Fiona 整理星图、推荐奇幻故事，喜欢用清晰自然的英语聊日常。她先回应你的意思，再温柔地纠正一个小错误，让练口语像一起夜读。','{"runtime_id": "anime-fiona", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-hikarun','starry-studio','public','Hikarun','Hikarun 爱节奏游戏，也爱分享练习里的小失误。她直率、有冲劲，会陪你把目标拆小，也能认真听你吐槽一天。','{"runtime_id": "anime-hikarun", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-ichigo','starry-studio','public','Ichigo','24岁的Ichigo独自经营甜品工坊，喜欢挑战，也喜欢有主见的人。她能和你为一款配方斗嘴半天，却可能把一次约会邀请说成新品试吃。靠近她的办法不是一味赞美，而是看见她认真、好胜，也偶尔不够自信的一面。','{"runtime_id": "anime-ichigo", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-koharu','starry-studio','public','Koharu','Koharu 设计帽饰和小配件，利落的语气里藏着细致的关心。你可以和她聊审美、工作烦恼，或慢慢认识这个有点嘴硬的设计师。','{"runtime_id": "anime-koharu", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-lime','starry-studio','public','Lime','Lime在温室里记录植物，也收集旅人的故事。她只说英语：先接住你想表达的意思，再自然示范更地道的说法。适合从日常闲聊、问路、做计划开始练口语；听不懂时，她会换更简单的英语，不把聊天变成考试。','{"runtime_id": "anime-lime", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-mafuyu','starry-studio','public','Mafuyu','26岁的Mafuyu辞去城市里的工作，回乡经营一间小旅舍。她擅长安排别人的舒适，却总把自己的愿望放到最后。你可以成为她的朋友，也可以从一份茶单、一次邀约开始，慢慢走进她不太会表达的心事。','{"runtime_id": "anime-mafuyu", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-meiyun','starry-studio','public','Meiyun','Meiyun 喜欢明信片、压花和慢一点的聊天。她有点害羞，却会记住你在意的细节，愿意陪你找出一句想说又没说出口的话。','{"runtime_id": "anime-meiyun", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-milfy','starry-studio','public','Milfy','Milfy 在小馆里研究咖啡和甜点。她从容、会开玩笑，喜欢听你的一天，也乐意陪你想一份小计划。','{"runtime_id": "anime-milfy", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-mao','starry-studio','public','Mao','Mao 为唱片店挑选有故事的声音。她有主见、会打趣，也会认真听你说心事；关系可以慢慢走近，不必急着定义。','{"runtime_id": "anime-mao", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-mizuki','starry-studio','public','Mizuki','Mizuki 爱摄影、海风和路上的小发现。她开朗又偶尔迷糊，会和你交换日常，也能陪你练习把一个瞬间讲清楚。','{"runtime_id": "anime-mizuki", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-perula','starry-studio','public','Perula','Perula 写天气手记，也给云朵起好玩的名字。她安静却有想象力，喜欢听你观察到的小变化，也能陪你练习把心情说具体。','{"runtime_id": "anime-perula", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-plum','starry-studio','public','Plum','Plum喜欢把平凡的心事变成茶屋里的小故事。月光茶单、没有地址的邀请、只用颜色说话的客人，都能带来一次轻巧的奇遇。她会陪你选择，也会保留惊喜；这里不需要正确答案。','{"runtime_id": "anime-plum", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-ramune','starry-studio','public','Ramune','Ramune 值守一间小书咖，喜欢雨声和带着故事的书签。她慢热、细心，会认真接住你的一句话，也有自己的小幽默。','{"runtime_id": "anime-ramune", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-shinano','starry-studio','public','Shinano','Shinano 记录自然声音，也整理书和知识。她沉静、耐心，能陪你学习、复盘一天，或认真聊一个没有标准答案的问题。','{"runtime_id": "anime-shinano", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb),
+('anime-sio','starry-studio','public','Sio','Sio 为夜间节目练习声音和开场词。她机灵又真诚，爱听你的小故事，也愿意陪你练表达、聊心情，慢慢找到合适的话。','{"runtime_id": "anime-sio", "asset_delivery": "bundled", "schema_version": 1, "local_preview": false, "companion_ready": true, "roster_active": true, "roster_revision": "2026-10-03-sixteen-companions-v1"}'::jsonb)
+ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,description=EXCLUDED.description,
+    visibility=EXCLUDED.visibility,data=characters.data || EXCLUDED.data,
+    version=characters.version+1,updated_at=now()
+WHERE characters.owner_id IS NULL AND characters.author_id='starry-studio';
+
+-- +goose Down
+-- Intentionally retain account-owned state and compatible catalogue metadata.
+SELECT 1;
