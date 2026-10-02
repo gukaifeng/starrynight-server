@@ -26,8 +26,8 @@ def main():
             session=call('POST','/v1/auth/register',body={'username':'cache_'+secrets.token_hex(8),'password':password,'display_name':'Cache verification'})
             accounts.append((session,password))
         a,b=accounts[0][0],accounts[1][0];token=a['token'];user=a['user']
-        assert len(user['starry_id'])==14 and user['starry_id'].startswith('XY') and user['starry_id'][2:].isdigit()
-        assert user['starry_id']!=b['user']['starry_id'] and user['profile']['avatar']=='starry-cat-v1'
+        assert user['starry_id'].startswith('xy') and user['starry_id'][2:].isdigit() and not user['starry_id'][2:].startswith('0')
+        assert user['starry_id']!=b['user']['starry_id'] and user['profile']['avatar']=='starry-orbit-v1'
         call('PATCH','/v1/me',token,dict(expected_version=user['version'],patch=dict(starry_id=b['user']['starry_id'])),422)
         uploaded=call('PUT','/v1/me/avatar',token,dict(expected_version=user['version'],image=base64.b64encode(image()).decode()))
         avatar=call('GET','/v1/me/avatar',token);assert uploaded['data']['avatar']=='upload:'+avatar['sha256']

@@ -37,7 +37,7 @@ func (s *Store) CreateUser(ctx context.Context, username, hash, name string, gue
 		nameArg = nil
 		hashArg = nil
 	}
-	u, e = scanUser(tx.QueryRow(ctx, `INSERT INTO users(id,username,password_hash,guest,profile) VALUES($1,$2,$3,$4,$5) RETURNING `+userColumns, id, nameArg, hashArg, guest, map[string]any{"display_name": name, "avatar": "starry-cat-v1"}))
+	u, e = scanUser(tx.QueryRow(ctx, `INSERT INTO users(id,username,password_hash,guest,profile) VALUES($1,$2,$3,$4,$5) RETURNING `+userColumns, id, nameArg, hashArg, guest, map[string]any{"display_name": name, "avatar": "starry-orbit-v1", "bio": "在星夜，遇见温柔。"}))
 	if e != nil {
 		return u, e
 	}
@@ -65,7 +65,7 @@ func (s *Store) CreateUser(ctx context.Context, username, hash, name string, gue
 	return u, tx.Commit(ctx)
 }
 func createAuthor(ctx context.Context, tx pgx.Tx, id, name string) error {
-	a := Author{ID: "author-" + NewID(), Version: 1, Data: map[string]any{"name": name, "bio": "把想象中的伙伴，带到你身边。", "avatar": "moon"}}
+	a := Author{ID: "author-" + NewID(), Version: 1, Data: map[string]any{"name": name, "bio": "在星夜，遇见温柔。", "avatar": "moon"}}
 	result, e := tx.Exec(ctx, `INSERT INTO authors(id,user_id,data) VALUES($1,$2,$3) ON CONFLICT(user_id) DO NOTHING`, a.ID, id, a.Data)
 	if e != nil {
 		return e

@@ -16,10 +16,10 @@ import (
 func TestPublicHandlesAndPrivateAvatarPersistence(t *testing.T) {
 	s := setup(t)
 	a, b := s.register(), s.register()
-	if !regexp.MustCompile(`^XY[0-9]{12}$`).MatchString(a.User.StarryID) || a.User.StarryID == b.User.StarryID {
+	if !regexp.MustCompile(`^xy[1-9][0-9]*$`).MatchString(a.User.StarryID) || a.User.StarryID == b.User.StarryID {
 		t.Fatal("invalid public handles")
 	}
-	if a.User.Profile["avatar"] != "starry-cat-v1" {
+	if a.User.Profile["avatar"] != "starry-orbit-v1" || a.User.Profile["bio"] != "在星夜，遇见温柔。" {
 		t.Fatal("default avatar missing")
 	}
 	s.call("PATCH", "/v1/me", a.Token, map[string]any{"expected_version": a.User.Version, "patch": map[string]any{"starry_id": b.User.StarryID}}, 422)
