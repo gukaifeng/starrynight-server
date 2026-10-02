@@ -2,6 +2,7 @@
 build:
 	go build -trimpath -o bin/starry-api ./cmd/api
 	go build -trimpath -o bin/starry-migrate ./cmd/migrate
+	go build -trimpath -o bin/starry-publish-release ./cmd/publish-release
 test:
 	go test -race ./...
 integration:

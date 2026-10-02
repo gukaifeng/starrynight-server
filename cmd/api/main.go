@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"github.com/gin-gonic/gin"
 	"github.com/gukaifeng/starrynight-server/internal/api"
 	"github.com/gukaifeng/starrynight-server/internal/config"
 	"github.com/gukaifeng/starrynight-server/internal/store"
@@ -23,6 +24,7 @@ func main() {
 	}
 }
 func run() error {
+	gin.SetMode(gin.ReleaseMode)
 	schema := flag.String("openapi", "", "write OpenAPI and exit (no network or database required)")
 	flag.Parse()
 	if *schema != "" {

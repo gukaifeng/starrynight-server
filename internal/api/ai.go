@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -118,7 +119,7 @@ func (s *Server) aiRoutes() {
 	transport.ResponseHeaderTimeout = 20 * time.Second
 	transport.MaxIdleConnsPerHost = 32
 	proxy := newAIProxy(target, s.Config.AIServiceToken, transport)
-	s.Router.With(s.session).Handle("/v1/ai/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	s.Router.Any("/v1/ai/*path", gin.WrapH(s.session(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if principal(r.Context()).ID == "" {
 			http.Error(w, "sign in required", 401)
 			return
@@ -144,5 +145,5 @@ func (s *Server) aiRoutes() {
 		_ = http.NewResponseController(w).SetWriteDeadline(time.Now().Add(180 * time.Second))
 		r.Body = http.MaxBytesReader(w, r.Body, 8<<20)
 		proxy.ServeHTTP(w, r.WithContext(ctx))
-	}))
+	}))))
 }

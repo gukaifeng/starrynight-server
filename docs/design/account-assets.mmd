@@ -1,0 +1,13 @@
+flowchart LR
+    app["📱 iOS App"] -->|"HTTPS · 登录会话"| edge["🔒 Caddy"]
+    edge --> api["⚙️ Gin + Huma API"]
+    api --> pg["🗃️ PostgreSQL · 账户与权限"]
+    api --> redis["🗝️ Redis · 会话与限流"]
+    api --> worker["💬 私有 AI Worker"]
+    api -.->|"签发短期下载地址"| oss["📦 私有 OSS · 待配置"]
+    app -.->|"获授权后直连下载"| oss
+    worker --> models["☁️ 百炼"]
+    classDef implemented fill:#182538,stroke:#7cc9c1,color:#ffffff
+    classDef future fill:#322f27,stroke:#e4c783,color:#ffffff,stroke-dasharray:5 4
+    class app,edge,api,pg,redis,worker,models implemented
+    class oss future

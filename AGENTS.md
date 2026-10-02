@@ -4,6 +4,9 @@ This repository owns all StarryNight server code and deployment tools. The
 sibling `starrynight` repository owns the clients. The 2026-10-01 migration
 preserves the existing chi/Huma + PostgreSQL + Redis + Python architecture;
 the uncommitted Gin replacement was discarded at the user's explicit request.
+On 2026-10-02 the user explicitly requested a new Gin upgrade. The current
+implementation is Gin/Huma with compatible sessions and API contracts; see
+docs/design/account-and-assets-2026-10-02.md. This does not undo the prior cutover.
 
 - The user explicitly authorized cutover on 2026-10-01. Production is now
   active at https://39.105.116.74:8443; the old Mac API, AI, PostgreSQL and

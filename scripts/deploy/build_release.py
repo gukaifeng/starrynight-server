@@ -30,7 +30,7 @@ def main():
         shutil.copy2(source, target)
     (output / 'bin').mkdir()
     env = os.environ | {'CGO_ENABLED': '0', 'GOOS': 'linux', 'GOARCH': 'amd64'}
-    for name in ('api', 'migrate'):
+    for name in ('api', 'migrate', 'publish-release'):
         subprocess.run(['go', 'build', '-trimpath', '-ldflags=-s -w', '-o', str(output / 'bin' / ('starry-' + name)), './cmd/' + name], cwd=root, env=env, check=True)
     manifest = {'release': release, 'source_commit': commit, 'target': 'linux/amd64', 'files': {}}
     for path in sorted(output.rglob('*')):

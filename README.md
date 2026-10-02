@@ -2,7 +2,7 @@
 
 账户 API、AI 服务和部署工具的独立仓库。客户端位于另一个 `starrynight` 仓库；本项目构建、测试和运行不需要 iOS、Xcode、Unity 或角色二进制资源。
 
-本次为原实现迁移：Go + chi/Huma、PostgreSQL、Redis，以及 Python AI worker。没有改成 Gin，也没有替换会话存储或对话协议。来源为客户端仓库 `04d15b7de9af2c6e7fe32dec713790dbd1416e07` 的服务端代码；Go module 改为本仓库地址。
+当前架构为 Go + Gin/Huma、PostgreSQL、Redis、Caddy 与独立 Python AI worker。2026-10-01 的迁移保留原实现；2026-10-02 按新的需求升级为 Gin，保留会话与对话协议，并增加账户安全、反馈及私有 OSS 下载授权。详见 [账户与内容交付设计](docs/design/account-and-assets-2026-10-02.md)。
 
 | 目录 | 内容 |
 | --- | --- |

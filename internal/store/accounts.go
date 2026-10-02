@@ -119,6 +119,11 @@ func (s *Store) DeleteUser(ctx context.Context, id string) error {
 	})
 }
 func (s *Store) Profile(ctx context.Context, id string, expected int64, patch map[string]any) (Document, error) {
+	for _, key := range []string{"id", "user_id", "username", "guest", "version", "session_epoch"} {
+		if _, exists := patch[key]; exists {
+			return Document{}, invalid("account identity fields are not profile fields")
+		}
+	}
 	var out Document
 	e := s.write(ctx, id, func(tx pgx.Tx) error {
 		var current map[string]any
@@ -143,6 +148,36 @@ func (s *Store) Profile(ctx context.Context, id string, expected int64, patch ma
 		return event(ctx, tx, id, "profile", id, false, out)
 	})
 	return out, e
+}
+
+// Login names are editable; the UUID primary key and all ownership links stay fixed.
+func (s *Store) ChangeUsername(ctx context.Context, id, oldHash, username string, expected int64) (User, error) {
+	var out User
+	err := s.write(ctx, id, func(tx pgx.Tx) error {
+		var err error
+		out, err = scanUser(tx.QueryRow(ctx, `UPDATE users SET username=$2,version=version+1,session_epoch=session_epoch+1 WHERE id=$1 AND version=$3 AND password_hash=$4 AND NOT guest RETURNING `+userColumns, id, username, expected, oldHash))
+		if err != nil {
+			if err == ErrNotFound {
+				return ErrConflict
+			}
+			return err
+		}
+		return event(ctx, tx, id, "account", id, false, out)
+	})
+	return out, err
+}
+
+func (s *Store) RevokeSessions(ctx context.Context, id, currentHash string) (User, error) {
+	var out User
+	err := s.write(ctx, id, func(tx pgx.Tx) error {
+		var err error
+		out, err = scanUser(tx.QueryRow(ctx, `UPDATE users SET session_epoch=session_epoch+1 WHERE id=$1 AND password_hash=$2 AND NOT guest RETURNING `+userColumns, id, currentHash))
+		if err == ErrNotFound {
+			return ErrConflict
+		}
+		return err
+	})
+	return out, err
 }
 
 // Export returns individually paged sync events. The HTTP streaming export uses

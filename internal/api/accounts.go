@@ -100,6 +100,62 @@ func (s *Server) limitLogin(ctx context.Context, name string) error {
 	return nil
 }
 func (s *Server) accountRoutes() {
+	type RenameInput struct {
+		Body struct {
+			Username        string `json:"username" minLength:"3" maxLength:"32" pattern:"^[a-zA-Z0-9_]+$"`
+			Password        string `json:"password" minLength:"1" maxLength:"128"`
+			ExpectedVersion int64  `json:"expected_version" minimum:"1"`
+		}
+	}
+	register(s, "POST", "/v1/me/username", "change-login-name", true, func(ctx context.Context, in *RenameInput) (*Output[identity.Session], error) {
+		u := principal(ctx)
+		if u.Guest {
+			return nil, huma.Error403Forbidden("register first")
+		}
+		if err := s.limitLogin(ctx, u.Username); err != nil {
+			return nil, err
+		}
+		_, hash, err := s.Store.Credential(ctx, u.Username)
+		if err != nil {
+			return nil, problem(err)
+		}
+		if err = s.Identity.Verify(ctx, in.Body.Password, hash); err != nil {
+			return nil, problem(err)
+		}
+		u, err = s.Store.ChangeUsername(ctx, u.ID, hash, strings.ToLower(in.Body.Username), in.Body.ExpectedVersion)
+		if err != nil {
+			return nil, problem(err)
+		}
+		v, err := s.Identity.Issue(ctx, u)
+		return output(v, err)
+	})
+	type RevokeInput struct {
+		Body struct {
+			Password string `json:"password" minLength:"1" maxLength:"128"`
+		}
+	}
+	register(s, "POST", "/v1/me/sessions/revoke", "revoke-other-sessions", true, func(ctx context.Context, in *RevokeInput) (*Output[identity.Session], error) {
+		u := principal(ctx)
+		if u.Guest {
+			return nil, huma.Error403Forbidden("register first")
+		}
+		if err := s.limitLogin(ctx, u.Username); err != nil {
+			return nil, err
+		}
+		_, hash, err := s.Store.Credential(ctx, u.Username)
+		if err != nil {
+			return nil, problem(err)
+		}
+		if err := s.Identity.Verify(ctx, in.Body.Password, hash); err != nil {
+			return nil, problem(err)
+		}
+		u, err = s.Store.RevokeSessions(ctx, u.ID, hash)
+		if err != nil {
+			return nil, problem(err)
+		}
+		v, err := s.Identity.Issue(ctx, u)
+		return output(v, err)
+	})
 	register(s, "GET", "/v1/me", "get-account", true, func(ctx context.Context, _ *Empty) (*Output[store.User], error) { return output(principal(ctx), nil) })
 	register(s, "PATCH", "/v1/me", "update-profile", true, func(ctx context.Context, in *PatchInput) (*Output[store.Document], error) {
 		v, e := s.Store.Profile(ctx, principal(ctx).ID, in.Body.ExpectedVersion, in.Body.Patch)

@@ -38,6 +38,14 @@ func merge(current, patch map[string]any) (map[string]any, error) {
 	return out, e
 }
 func validateProfile(value map[string]any, author bool) error {
+	if !author {
+		if v, ok := value["gender"]; ok {
+			g, ok := v.(string)
+			if !ok || (g != "unspecified" && g != "female" && g != "male" && g != "other") {
+				return invalid("invalid gender")
+			}
+		}
+	}
 	nameKey := "display_name"
 	if author {
 		nameKey = "name"

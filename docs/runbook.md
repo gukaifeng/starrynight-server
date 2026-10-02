@@ -64,3 +64,11 @@ python3 ~/starrynight-server/current/scripts/deploy/verify_linux.py \
 `generate_ai_performances.py --catalog /path/to/CharacterCatalog.json` 读取明确的能力导出；`generate_character_public_profiles.py` 默认导出 `.local/exports/CharacterPublicProfiles.json`；`prepare_character_openings.py` 使用 `authoring/` 文本，音频与客户端 JSON 输出到 `.local/exports/openings/`。已有音频和校验收据应从私有备份恢复，避免重新付费合成。
 
 `install_character_ai_agent.py` 仅用于独立 Mac 开发，采用 `com.starrynight.server.character-ai`、`Application Support/StarryNightServer/CharacterAI` 与 18766，不操作旧 Mac 服务。本次云迁移无需运行它。
+
+## 2026-10-02 账户与内容交付升级
+
+当前 Web 框架是 Gin + Huma，SCS、Redis、PG 和 AI 流协议保持兼容。生产不公开 OpenAPI/Docs；合约仍在仓库 api/openapi.json。新增 OSS_REGION、OSS_BUCKET、OSS_ENDPOINT（可选 HTTPS origin）与 OSS_CREDENTIAL_SOURCE（默认 ecs）。没有配置 OSS 不阻止账户与 AI 服务启动，但不会签发模型下载凭证。
+
+active 上线只更新 Go API 可用 `python3 scripts/deploy/upgrade_active_api.py --release ~/starrynight-server/releases/<release>`。先用 --check-only 验证。该脚本要求已审查的不可变发布目录、active 标记与未变的 AI 源码，备份 PG 后运行增量迁移；仅重启 API，保留 worker、Redis 和数据。失败恢复旧链接，不执行 Goose down。原 standby 工具仍不允许对 active 主机操作。
+
+资源上传、RAM Role/私有 OSS 桶及分发许可需要独立配置。成品发布使用 bin/starry-publish-release，且必须明确 --confirm-distribution-rights；没有合法分发资格的本机角色不能因为进了名册就上传。当前 App 仍用内置 Resources，未来内容加载适配范围见设计文档。

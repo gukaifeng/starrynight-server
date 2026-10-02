@@ -6,16 +6,18 @@ import (
 	"errors"
 	"fmt"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/danielgtaylor/huma/v2/adapters/humachi"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	"github.com/danielgtaylor/huma/v2/adapters/humagin"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis_rate/v10"
+	"github.com/google/uuid"
+	"github.com/gukaifeng/starrynight-server/internal/assets"
 	"github.com/gukaifeng/starrynight-server/internal/config"
 	"github.com/gukaifeng/starrynight-server/internal/identity"
 	"github.com/gukaifeng/starrynight-server/internal/store"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
+	"io"
 	"log/slog"
 	"math"
 	"net"
@@ -26,14 +28,16 @@ import (
 )
 
 type actorKey struct{}
+type clientIPKey struct{}
 type Server struct {
 	Config   config.Config
 	Store    *store.Store
 	Redis    *redis.Client
 	Identity *identity.Service
-	Router   *chi.Mux
+	Router   *gin.Engine
 	API      huma.API
 	Limiter  *redis_rate.Limiter
+	Assets   *assets.Signer
 }
 type Output[T any] struct{ Body T }
 type Mutation struct {
@@ -85,56 +89,76 @@ func New(c config.Config, db *store.Store, r *redis.Client) (*Server, error) {
 	if e != nil {
 		return nil, e
 	}
-	router := chi.NewRouter()
+	router := gin.New()
+	if err := router.SetTrustedProxies([]string{"127.0.0.1/32", "::1/128"}); err != nil {
+		return nil, err
+	}
 	s := &Server{Config: c, Store: db, Redis: r, Identity: auth, Router: router, Limiter: redis_rate.NewLimiter(r)}
+	s.Assets, e = assets.NewSigner(c.OSSRegion, c.OSSBucket, c.OSSEndpoint, c.OSSCredentialSource)
+	if e != nil {
+		return nil, e
+	}
 	registry := prometheus.NewRegistry()
 	durations := prometheus.NewHistogramVec(prometheus.HistogramOpts{Name: "starry_http_duration_seconds", Help: "HTTP latency by route and result", Buckets: prometheus.DefBuckets}, []string{"method", "route", "status"})
 	registry.MustRegister(durations, prometheus.NewGoCollector(), prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}))
-	router.Use(middleware.RequestID, middleware.Recoverer)
-	router.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			w.Header().Set("X-Request-ID", middleware.GetReqID(req.Context()))
-			w.Header().Set("X-Content-Type-Options", "nosniff")
-			w.Header().Set("Cache-Control", "no-store")
-			wrapped := middleware.NewWrapResponseWriter(w, req.ProtoMajor)
-			start := time.Now()
-			next.ServeHTTP(wrapped, req)
-			route := chi.RouteContext(req.Context()).RoutePattern()
-			if route == "" {
-				route = "unmatched"
-			}
-			durations.WithLabelValues(req.Method, route, strconv.Itoa(wrapped.Status())).Observe(time.Since(start).Seconds())
-		})
+	router.Use(gin.CustomRecoveryWithWriter(io.Discard, func(c *gin.Context, _ any) { c.AbortWithStatus(http.StatusInternalServerError) }))
+	router.Use(func(c *gin.Context) {
+		c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), clientIPKey{}, c.ClientIP()))
+		c.Header("X-Request-ID", uuid.NewString())
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("Cache-Control", "no-store")
+		start := time.Now()
+		c.Next()
+		route := c.FullPath()
+		if route == "" {
+			route = "unmatched"
+		}
+		durations.WithLabelValues(c.Request.Method, route, strconv.Itoa(c.Writer.Status())).Observe(time.Since(start).Seconds())
 	})
-	router.Get("/health/live", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"status":"ok"}`))
-	})
-	router.Get("/health/ready", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		ctx, cancel := context.WithTimeout(req.Context(), time.Second)
+	router.GET("/health/live", func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
+	router.GET("/health/ready", func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second)
 		defer cancel()
 		if db.Pool.Ping(ctx) != nil || r.Ping(ctx).Err() != nil {
-			http.Error(w, "not ready", 503)
+			c.AbortWithStatus(503)
 			return
 		}
-		w.Write([]byte(`{"status":"ready"}`))
+		c.JSON(200, gin.H{"status": "ready"})
 	})
 	// Bind metrics to a private listener in production via the reverse proxy.
-	router.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
+	router.GET("/metrics", gin.WrapH(promhttp.HandlerFor(registry, promhttp.HandlerOpts{})))
 	s.aiRoutes()
-	router.Group(func(routes chi.Router) {
-		routes.Use(middleware.Timeout(15*time.Second), middleware.RequestSize(256*1024), s.session)
-		cfg := huma.DefaultConfig("StarryNight Platform", "1.0.0")
-		cfg.Components.SecuritySchemes = map[string]*huma.SecurityScheme{"session": {Type: "http", Scheme: "bearer", Description: "Revocable SCS session; store token in the OS keychain"}}
-		s.API = humachi.New(routes, cfg)
-		s.authRoutes()
-		s.accountRoutes()
-		s.catalogRoutes()
-		s.journalRoutes()
-		s.syncRoutes()
-		s.documentAIRoutes()
+	routes := router.Group("")
+	routes.Use(func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
+		defer cancel()
+		c.Request = c.Request.WithContext(ctx)
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 256*1024)
+		continued := false
+		s.session(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+			continued = true
+			c.Request = r
+			c.Next()
+		})).ServeHTTP(c.Writer, c.Request)
+		if !continued {
+			c.Abort()
+		}
 	})
+	cfg := huma.DefaultConfig("StarryNight Platform", "1.0.0")
+	if c.Environment == "production" {
+		cfg.OpenAPIPath = ""
+		cfg.DocsPath = ""
+		cfg.SchemasPath = ""
+	}
+	cfg.Components.SecuritySchemes = map[string]*huma.SecurityScheme{"session": {Type: "http", Scheme: "bearer", Description: "Revocable SCS session; store token in the OS keychain"}}
+	s.API = humagin.NewWithGroup(router, routes, cfg)
+	s.authRoutes()
+	s.accountRoutes()
+	s.assetsSupportRoutes()
+	s.catalogRoutes()
+	s.journalRoutes()
+	s.syncRoutes()
+	s.documentAIRoutes()
 	return s, nil
 }
 func (s *Server) session(next http.Handler) http.Handler {
@@ -170,6 +194,9 @@ func (s *Server) session(next http.Handler) http.Handler {
 			}
 		}
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+		if verified, ok := r.Context().Value(clientIPKey{}).(string); ok && verified != "" {
+			ip = verified
+		}
 		key := ip
 		if u.ID != "" {
 			key = u.ID
