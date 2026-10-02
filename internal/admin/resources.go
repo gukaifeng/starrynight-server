@@ -30,7 +30,7 @@ var Resources = []Resource{
 	{"support_tickets", "反馈工单", "运营", "查看反馈并标记处理状态", []string{"id"}, []string{"id", "user_id", "category", "content", "state", "created_at", "version"}, []string{"state"}, nil},
 	{"identities", "登录身份", "系统", "身份关联，只读；不显示认证令牌", []string{"provider", "subject"}, []string{"provider", "subject", "user_id", "verified_at"}, nil, nil},
 	{"account_handles", "星夜号历史", "系统", "永久保留分配历史与唯一性", []string{"handle"}, []string{"handle", "user_id", "assigned_at", "retired_at"}, nil, nil},
-	{"account_avatars", "头像存储", "系统", "仅显示格式、版本和校验信息，不返回二进制", []string{"user_id"}, []string{"user_id", "content_type", "sha256", "updated_at"}, nil, nil},
+	{"account_avatars", "头像存储", "系统", "预览当前账户头像及格式、版本与校验信息", []string{"user_id"}, []string{"user_id", "content_type", "sha256", "updated_at"}, nil, nil},
 	{"account_clocks", "同步时钟", "系统", "每账户已提交的变更位置", []string{"user_id"}, []string{"user_id", "revision"}, nil, nil},
 	{"changes", "同步变更", "系统", "只读；直接删除会破坏离线同步", []string{"user_id", "revision"}, []string{"user_id", "revision", "kind", "resource_id", "deleted", "data", "occurred_at"}, nil, nil},
 	{"conversation_resets", "重置收据", "系统", "阻止旧设备恢复已删除内容", []string{"user_id", "character_id", "reset_id"}, []string{"user_id", "character_id", "reset_id", "version", "cleared_at"}, nil, nil},

@@ -105,6 +105,7 @@ func New(cfg Config, db *store.Store, cache *redis.Client, prefix string) (*Serv
 	api.POST("/create/:resource", s.create)
 	api.GET("/users/:id/avatar", s.avatar)
 	api.POST("/users/:id/avatar", s.replaceAvatar)
+	api.GET("/record-images/:kind/:id/:variant", s.recordImage)
 	api.Any("/ai/*path", s.ai)
 	api.GET("/operations", s.operations)
 	api.POST("/operations/:unit/restart", s.restart)

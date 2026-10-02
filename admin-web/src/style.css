@@ -1837,3 +1837,226 @@
   margin: 0;
   flex: none;
 }
+
+/* Identity portraits connect account, catalog and conversation records. */
+.table-panel .identity-column {
+  width: 34%;
+}
+.record-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-mist);
+  border: 1px solid rgba(87, 147, 154, 0.18);
+}
+.record-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.avatar-fallback {
+  color: var(--color-tide);
+  font-family: var(--font-display);
+}
+.record-identity,
+.record-reference {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.record-identity > span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.record-identity strong {
+  font-size: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.record-identity small {
+  font-size: 10px;
+  color: var(--color-tide);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.record-reference {
+  gap: 7px;
+}
+.record-reference .record-avatar {
+  width: 24px;
+  height: 24px;
+}
+.record-reference > span.mono {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.detail-facts .record-reference > span.mono {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.detail-avatar {
+  width: 46px;
+  height: 46px;
+}
+.record-gallery {
+  margin: 18px 0 22px;
+}
+.record-gallery.has-cover {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px;
+  gap: 12px;
+  align-items: start;
+}
+.record-artwork .artwork-open {
+  width: 100%;
+  display: block;
+  border: 1px solid rgba(20, 44, 63, 0.09);
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  position: relative;
+  background: var(--color-mist);
+  transition: border-color 0.2s;
+}
+.record-artwork.cover .artwork-open {
+  height: 240px;
+}
+.record-artwork.avatar {
+  width: 84px;
+}
+.record-artwork.avatar .artwork-open {
+  height: 84px;
+  border-radius: 50%;
+}
+.record-artwork .artwork-open img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.record-artwork.avatar .artwork-open img {
+  object-fit: cover;
+}
+.record-artwork .artwork-open:hover {
+  border-color: var(--color-tide);
+}
+.artwork-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  position: absolute;
+  bottom: 7px;
+  left: 7px;
+  right: 7px;
+  padding: 5px 7px;
+  border-radius: 7px;
+  color: white;
+  background: rgba(20, 44, 63, 0.68);
+  font-size: 10px;
+}
+.record-artwork.avatar .artwork-expand {
+  opacity: 0;
+  bottom: 14px;
+}
+.record-artwork.avatar .artwork-open:hover .artwork-expand,
+.record-artwork.avatar .artwork-open:focus-visible .artwork-expand {
+  opacity: 1;
+}
+.artwork-caption {
+  display: block;
+  color: var(--color-tide);
+  font-size: 10px;
+  margin-top: 8px;
+  text-align: center;
+}
+.artwork-missing {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--color-tide);
+}
+.image-dialog {
+  position: relative;
+  z-index: 100;
+}
+.image-dialog-shade {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 23, 33, 0.8);
+  backdrop-filter: blur(7px);
+}
+.image-dialog-position {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: auto;
+}
+.image-dialog-panel {
+  width: min(920px, 100%);
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--color-moon);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+.image-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.image-dialog-header h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+.image-original {
+  display: block;
+  width: 100%;
+  max-height: 72dvh;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--color-mist);
+}
+.image-dialog-panel p {
+  font-size: 11px;
+  color: var(--color-tide);
+  margin-top: 12px;
+}
+@media (max-width: 600px) {
+  .table-panel .identity-column {
+    width: 40%;
+  }
+  .record-identity {
+    gap: 7px;
+  }
+  .record-identity .record-avatar {
+    width: 30px;
+    height: 30px;
+  }
+  .image-dialog-position {
+    padding: 14px;
+  }
+  .image-dialog-panel {
+    padding: 14px;
+  }
+  .image-original {
+    max-height: 68dvh;
+  }
+}

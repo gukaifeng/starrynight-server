@@ -50,6 +50,12 @@ import {
 } from "./api";
 
 import { Management, tools as managementTools } from "./Management";
+import {
+  RecordAvatar,
+  RecordGallery,
+  RecordReference,
+  recordIdentity,
+} from "./RecordImages";
 
 const labels: Record<string, string> = {
   appearance_facts: "外观事实",
@@ -130,6 +136,10 @@ const labels: Record<string, string> = {
   progress: "关系进度",
   password: "新密码",
   display_name: "显示名称",
+  avatar: "头像",
+  cover: "封面",
+  bio: "简介",
+  content_type: "文件格式",
   category: "分类",
   release_id: "发布 ID",
   capabilities: "模型能力",
@@ -880,31 +890,33 @@ function ResourceWorkspace({
     ].includes(r.id);
   const preferred =
     r.id === "users"
-      ? ["starry_id", "profile", "username", "guest"]
+      ? ["profile", "starry_id", "username", "guest"]
       : r.id === "characters"
         ? ["name", "id", "visibility", "version"]
-        : r.id === "profiles"
-          ? ["name", "id", "version"]
-          : r.id === "admin_audit"
-            ? ["actor_name", "action", "resource", "outcome", "occurred_at"]
-            : r.id === "messages"
-              ? ["character_id", "role", "text", "created_at"]
-              : r.id === "usage"
-                ? ["kind", "status", "units", "created"]
-                : r.fields
-                    .filter(
-                      (k) =>
-                        ![
-                          "data",
-                          "manifest",
-                          "config",
-                          "progress",
-                          "result",
-                          "metrics",
-                          "capabilities",
-                        ].includes(k),
-                    )
-                    .slice(0, 4);
+        : r.id === "authors"
+          ? ["data", "id", "user_id", "version"]
+          : r.id === "profiles"
+            ? ["name", "id", "version"]
+            : r.id === "admin_audit"
+              ? ["actor_name", "action", "resource", "outcome", "occurred_at"]
+              : r.id === "messages"
+                ? ["character_id", "role", "text", "created_at"]
+                : r.id === "usage"
+                  ? ["kind", "status", "units", "created"]
+                  : r.fields
+                      .filter(
+                        (k) =>
+                          ![
+                            "data",
+                            "manifest",
+                            "config",
+                            "progress",
+                            "result",
+                            "metrics",
+                            "capabilities",
+                          ].includes(k),
+                      )
+                      .slice(0, 4);
   return (
     <>
       <div className="page-heading">
@@ -946,8 +958,20 @@ function ResourceWorkspace({
             <table>
               <thead>
                 <tr>
-                  {preferred.map((k) => (
-                    <th key={k}>{labels[k] ?? k}</th>
+                  {preferred.map((k, index) => (
+                    <th
+                      key={k}
+                      className={
+                        index === 0 &&
+                        ["users", "characters", "profiles", "authors"].includes(
+                          r.id,
+                        )
+                          ? "identity-column"
+                          : ""
+                      }
+                    >
+                      {labels[k] ?? k}
+                    </th>
                   ))}
                   <th aria-label="查看详情" />
                 </tr>
@@ -955,6 +979,7 @@ function ResourceWorkspace({
               <tbody>
                 {page.items.map((row) => {
                   const key = JSON.stringify(keysOf(r, row));
+                  const identity = recordIdentity(r, row);
                   return (
                     <tr
                       key={key}
@@ -977,13 +1002,51 @@ function ResourceWorkspace({
                     >
                       {preferred.map((k, i) => (
                         <td key={k} className={i === 0 ? "primary-cell" : ""}>
-                          {[
-                            "visibility",
-                            "state",
-                            "status",
-                            "role",
-                            "outcome",
-                          ].includes(k) ? (
+                          {i === 0 && identity ? (
+                            <div className="record-identity">
+                              <RecordAvatar
+                                identity={identity}
+                                revision={`${row.version ?? row.updated_at ?? ""}:${refresh}`}
+                              />
+                              <span>
+                                <strong>{identity.name}</strong>
+                                <small>
+                                  {compact(row[k]) !== identity.name
+                                    ? compact(row[k])
+                                    : identity.kind === "character"
+                                      ? "角色"
+                                      : identity.kind === "author"
+                                        ? "作者"
+                                        : "账户"}
+                                </small>
+                              </span>
+                            </div>
+                          ) : [
+                              "character_id",
+                              "user_id",
+                              "author_id",
+                              "owner_id",
+                            ].includes(k) &&
+                            typeof row[k] === "string" &&
+                            row[k] ? (
+                            <RecordReference
+                              kind={
+                                k === "character_id"
+                                  ? "character"
+                                  : k === "author_id"
+                                    ? "author"
+                                    : "user"
+                              }
+                              id={String(row[k])}
+                              revision={refresh}
+                            />
+                          ) : [
+                              "visibility",
+                              "state",
+                              "status",
+                              "role",
+                              "outcome",
+                            ].includes(k) ? (
                             <Tag
                               good={[
                                 "public",
@@ -1046,6 +1109,7 @@ function ResourceWorkspace({
               key={JSON.stringify(selected)}
               r={r}
               row={selected}
+              refresh={refresh}
               canEdit={canEdit}
               ask={ask}
               onClose={() => setSelected(null)}
@@ -1122,6 +1186,7 @@ function JSONField({
 function Detail({
   r,
   row,
+  refresh,
   canEdit,
   ask,
   onClose,
@@ -1129,6 +1194,7 @@ function Detail({
 }: {
   r: Resource;
   row: Row;
+  refresh: number;
   canEdit: boolean;
   ask: (c: Confirmation) => void;
   onClose: () => void;
@@ -1173,6 +1239,7 @@ function Detail({
   const name = compact(
     row.name ??
       (row.profile as Row)?.display_name ??
+      (r.id === "authors" ? (row.data as Row)?.name : undefined) ??
       row.starry_id ??
       row.id ??
       row._rowid,
@@ -1186,7 +1253,15 @@ function Detail({
         </button>
       </div>
       <div className="detail-title">
-        <span className="record-mark">{name.slice(0, 1)}</span>
+        {recordIdentity(r, row) ? (
+          <RecordAvatar
+            className="detail-avatar"
+            identity={recordIdentity(r, row)!}
+            revision={`${row.version ?? row.updated_at ?? ""}:${refresh}`}
+          />
+        ) : (
+          <span className="record-mark">{name.slice(0, 1)}</span>
+        )}
         <div>
           <h2>{name}</h2>
           <small>{r.name}</small>
@@ -1200,6 +1275,11 @@ function Detail({
         </TabList>
         <TabPanels>
           <TabPanel>
+            <RecordGallery
+              resource={r}
+              row={row}
+              revision={`${row.version ?? row.updated_at ?? ""}:${refresh}`}
+            />
             <dl className="detail-facts">
               {r.fields
                 .filter(
@@ -1218,7 +1298,26 @@ function Detail({
                   <div key={k}>
                     <dt>{labels[k] ?? k}</dt>
                     <dd>
-                      {typeof row[k] === "object" ? (
+                      {[
+                        "character_id",
+                        "user_id",
+                        "author_id",
+                        "owner_id",
+                      ].includes(k) &&
+                      typeof row[k] === "string" &&
+                      row[k] ? (
+                        <RecordReference
+                          kind={
+                            k === "character_id"
+                              ? "character"
+                              : k === "author_id"
+                                ? "author"
+                                : "user"
+                          }
+                          id={String(row[k])}
+                          revision={refresh}
+                        />
+                      ) : typeof row[k] === "object" ? (
                         <pre>{JSON.stringify(row[k], null, 2)}</pre>
                       ) : (
                         compact(row[k])

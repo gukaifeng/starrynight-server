@@ -83,7 +83,9 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 		db.Pool.Exec(ctx, "DELETE FROM admin_audit WHERE actor_id IN ($1,$2)", owner, viewer)
 		db.Pool.Exec(ctx, "DELETE FROM admin_users WHERE id IN ($1,$2)", owner, viewer)
 	}()
-	app, e := New(Config{AIToken: "private-cache-fixture", Origin: "http://127.0.0.1:18100", WebRoot: t.TempDir()}, db, cache, prefix)
+	artworkRoot := t.TempDir()
+	artwork := installArtworkFixture(t, artworkRoot)
+	app, e := New(Config{AIToken: "private-cache-fixture", Origin: "http://127.0.0.1:18100", WebRoot: t.TempDir(), RuntimeRoot: artworkRoot}, db, cache, prefix)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -123,6 +125,8 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	}
 	code, data := request(srv.URL, "GET", "/resources", nil, "", "")
 	assert(code, 401, data)
+	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/avatar", nil, "", "")
+	assert(code, 401, data)
 	code, data = request(srv.URL, "POST", "/login", map[string]string{"username": ownerName, "password": password}, "https://evil.test", "")
 	assert(code, 403, data)
 	code, data = request(srv.URL, "POST", "/login", map[string]string{"username": ownerName, "password": password}, app.Config.Origin, "")
@@ -132,6 +136,13 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	}
 	json.Unmarshal(data, &session)
 	csrf = session.CSRF
+	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/cover", nil, "", "")
+	assert(code, 200, data)
+	if !bytes.Equal(data, artwork) {
+		t.Fatal("wrong character artwork served")
+	}
+	code, data = request(srv.URL, "GET", "/record-images/character/missing/avatar", nil, "", "")
+	assert(code, 404, data)
 
 	// Inspector handles never expose a bearer key or JSON credentials.
 	cacheKey := prefix + "config:fixture"
@@ -210,6 +221,42 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	assert(code, 409, data)
 	code, data = request(srv.URL, "POST", "/resources/users/mutate", Mutation{Keys: body.Keys, Values: map[string]any{"starry_id": "xy100000000"}, Expected: updated.Version}, app.Config.Origin, csrf)
 	assert(code, 400, data)
+	code, data = request(srv.URL, "GET", "/record-images/user/"+u2.ID+"/avatar", nil, "", "")
+	assert(code, 200, data)
+	if !bytes.Equal(data, defaultAvatar) {
+		t.Fatal("default avatar missing")
+	}
+	if _, e := db.ReplaceAvatar(ctx, u2.ID, updated.Version, artwork); e != nil {
+		t.Fatal(e)
+	}
+	photo, e := db.Avatar(ctx, u2.ID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	code, data = request(srv.URL, "GET", "/record-images/user/"+u2.ID+"/avatar", nil, "", "")
+	assert(code, 200, data)
+	if !bytes.Equal(data, photo.Image) {
+		t.Fatal("uploaded avatar not used")
+	}
+	var authorID string
+	if e = db.Pool.QueryRow(ctx, "SELECT id FROM authors WHERE user_id=$1", u2.ID).Scan(&authorID); e != nil {
+		t.Fatal(e)
+	}
+	code, data = request(srv.URL, "GET", "/record-images/author/"+authorID+"/avatar", nil, "", "")
+	assert(code, 200, data)
+	if !bytes.Equal(data, photo.Image) {
+		t.Fatal("author did not inherit account avatar")
+	}
+	child := "image-child-" + uuid.NewString()
+	if _, e = db.Pool.Exec(ctx, "INSERT INTO characters(id,author_id,base_id,visibility,name,data) VALUES($1,'starry-studio','anime-kipfel','private','image-child','{}')", child); e != nil {
+		t.Fatal(e)
+	}
+	defer db.Pool.Exec(ctx, "DELETE FROM characters WHERE id=$1", child)
+	code, data = request(srv.URL, "GET", "/record-images/character/"+child+"/avatar", nil, "", "")
+	assert(code, 200, data)
+	if !bytes.Equal(data, artwork) {
+		t.Fatal("base character artwork not inherited")
+	}
 	// A worker outage after PostgreSQL reset must be retryable with the same
 	// receipt, even though the conversation version advanced in the first try.
 	var calls int
