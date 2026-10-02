@@ -84,8 +84,8 @@ def create_app(settings=None,provider=None):
         return public_profile(character)
     @app.post('/v1/testing/characters/{character}/inspector')
     async def inspector(character:str,body:Request,request:HTTPRequest):
-        if not settings.enable_test_inspector:raise HTTPException(404)
         who=owner(request.headers)
+        if not settings.inspection_enabled_for(who):raise HTTPException(404)
         if isinstance(body,Request):goals.attach(body,request.headers,store,who)
         if character!=body.character_id:raise HTTPException(400,'CHARACTER_MISMATCH')
         if request.headers.get('x-starry-reply-mode')=='timeline-v2':body.timeline_reply=True

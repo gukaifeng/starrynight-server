@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-import json, os
+import json, os, hmac, hashlib
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -43,8 +43,19 @@ class Settings:
     # Testing deployments explicitly opt in; public deployments expose no
     # authored prompts, private persona, memory or provider request inspector.
     enable_test_inspector: bool = False
+    # Private operator provisioning; never writable by the App or admin UI.
+    # Production keeps the general test switch off and grants this per owner.
+    developer_inspector_accounts: list[str] = field(default_factory=list)
     # Provision with scripts/prepare_reply_novelty.py; no runtime downloads.
     semantic_novelty: bool = False
+
+    def inspection_enabled_for(self, owner: str) -> bool:
+        if self.enable_test_inspector:return True
+        if not owner or not self.client_token:return False
+        # The gateway sets installation=account UUID; the worker scopes all
+        # persistence to this HMAC, not the public UUID or a request-body field.
+        return any(hmac.compare_digest(owner,hmac.new(self.client_token.encode(),(account+'|'+account).encode(),hashlib.sha256).hexdigest())
+                   for account in self.developer_inspector_accounts)
 
     @classmethod
     def load(cls):

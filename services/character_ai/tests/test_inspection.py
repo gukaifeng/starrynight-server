@@ -1,4 +1,4 @@
-import json,uuid
+import json,uuid,hmac,hashlib
 import httpx
 import pytest
 from services.character_ai.app import create_app
@@ -12,6 +12,32 @@ from services.character_ai.provider import Provider,structured_messages,structur
 from services.character_ai.public_profiles import public_catalog
 from services.character_ai.schemas import Plan,Request
 from services.character_ai.storage import Store
+
+@pytest.mark.asyncio
+async def test_production_developer_inspector_is_per_account_and_read_only(tmp_path):
+    developer,ordinary=str(uuid.uuid4()),str(uuid.uuid4())
+    settings=Settings(data_dir=tmp_path,client_token='fixture-private-token',paid_enabled=False,developer_inspector_accounts=[developer])
+    app=create_app(settings)
+    headers={'Authorization':'Bearer fixture-private-token','X-Starry-Account':developer,'X-Starry-Installation':developer}
+    def owner(account):return hmac.new(settings.client_token.encode(),(account+'|'+account).encode(),hashlib.sha256).hexdigest()
+    body=dict(request_id=str(uuid.uuid4()),character_id='anime-kipfel',trigger='idle',wants_audio=False)
+    path='/v1/testing/characters/anime-kipfel/inspector'
+    before=list(app.state.store.db.iterdump())
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://test') as client:
+        result=await client.post(path,json=body,headers=headers)
+        assert result.status_code==200
+        sections={s['id']:s['content'] for s in result.json()['sections']}
+        assert 'voice_prompt' in sections['persona'] and json.loads(sections['prompts'])['planner']==PLANNER
+        assert sections['persona']!=sections['prompts']!=sections['context']
+        assert (await client.post(path,json=body,headers={**headers,'X-Starry-Account':ordinary,'X-Starry-Installation':ordinary})).status_code==404
+        assert (await client.post(path,json=body)).status_code==401
+    assert list(app.state.store.db.iterdump())==before
+    assert not settings.enable_test_inspector
+    record_request(settings,app.state.store,owner(ordinary),'anime-kipfel','plan',{'private':'ordinary'})
+    assert app.state.store.get('inspection_requests',owner(ordinary),'anime-kipfel',[])==[]
+    record_request(settings,app.state.store,owner(developer),'anime-kipfel','plan',{'private':'developer'})
+    assert len(app.state.store.get('inspection_requests',owner(developer),'anime-kipfel',[]))==1
+    await app.state.engine.provider.close();app.state.store.db.close()
 
 
 def test_public_cards_are_a_separate_explicit_allowlist():

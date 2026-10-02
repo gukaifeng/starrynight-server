@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"net/url"
 	"os"
 	"strconv"
@@ -16,6 +17,7 @@ type Config struct {
 	SessionLifetime                                         time.Duration
 	AuthRate, RequestRate                                   int
 	AIUpstream, AIServiceToken                              string
+	AIInspectorAccounts                                     []string
 	OSSRegion, OSSBucket, OSSEndpoint, OSSCredentialSource  string
 }
 
@@ -24,6 +26,11 @@ func Load() (Config, error) {
 		DatabaseURL: os.Getenv("DATABASE_URL"), RedisURL: env("REDIS_URL", "redis://127.0.0.1:56379/0"), RedisPrefix: env("REDIS_PREFIX", "starry:"),
 		AllowGuest: os.Getenv("ALLOW_TEST_GUEST") == "true", PoolSize: 16, SessionLifetime: 30 * 24 * time.Hour, AuthRate: 20, RequestRate: 600}
 	c.AIUpstream, c.AIServiceToken = os.Getenv("AI_UPSTREAM_URL"), os.Getenv("AI_SERVICE_TOKEN")
+	for _, account := range strings.Split(os.Getenv("AI_INSPECTOR_ACCOUNT_IDS"), ",") {
+		if account = strings.TrimSpace(account); account != "" {
+			c.AIInspectorAccounts = append(c.AIInspectorAccounts, account)
+		}
+	}
 	c.OSSRegion, c.OSSBucket, c.OSSEndpoint = os.Getenv("OSS_REGION"), os.Getenv("OSS_BUCKET"), os.Getenv("OSS_ENDPOINT")
 	c.OSSCredentialSource = env("OSS_CREDENTIAL_SOURCE", "ecs")
 	if value := os.Getenv("DB_POOL_SIZE"); value != "" {
@@ -36,6 +43,12 @@ func Load() (Config, error) {
 	return c, c.Validate()
 }
 func (c Config) Validate() error {
+	for _, account := range c.AIInspectorAccounts {
+		id, err := uuid.Parse(account)
+		if err != nil || id == uuid.Nil || id.String() != account {
+			return fmt.Errorf("AI_INSPECTOR_ACCOUNT_IDS must contain canonical account UUIDs")
+		}
+	}
 	if (c.OSSRegion == "") != (c.OSSBucket == "") {
 		return fmt.Errorf("OSS_REGION and OSS_BUCKET must be configured together")
 	}
@@ -73,6 +86,17 @@ func (c Config) Validate() error {
 		}
 	}
 	return nil
+}
+func (c Config) CanInspectAI(account string) bool {
+	if account == "" {
+		return false
+	}
+	for _, allowed := range c.AIInspectorAccounts {
+		if account == allowed {
+			return true
+		}
+	}
+	return false
 }
 func env(k, d string) string {
 	if v := os.Getenv(k); v != "" {

@@ -24,7 +24,7 @@ async def plan_performance(engine,owner,request,context):
     try:
         async with asyncio.timeout(engine.settings.performance_timeout_seconds):
             result=await engine.provider.structured(owner,char,'performance',PERFORMER,performance_context(context),PerformancePlan)
-        if engine.settings.enable_test_inspector:
+        if engine.settings.inspection_enabled_for(owner):
             engine.store.put('performance_review',owner,char,dict(status='ready',elapsed_ms=round((time.monotonic()-start)*1000),plan=result.model_dump()))
         return result
     except Exception as error:

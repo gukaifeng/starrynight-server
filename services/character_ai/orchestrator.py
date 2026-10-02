@@ -190,7 +190,7 @@ class Orchestrator:
             revise=bool(content_problem or duplicate or (related and related['score']>=.86))
             reviews.append(dict(text=text,duplicate=duplicate,semantic_hint=related,interaction_mismatch=wrong_gesture,language_mismatch=language_problem,revised=revise,
                 generation_ms=round((generated-started)*1000),review_ms=round((time.monotonic()-generated)*1000)))
-            if self.settings.enable_test_inspector:
+            if self.settings.inspection_enabled_for(owner):
                 self.store.put('novelty_review',owner,char,dict(attempts=reviews,accepted=not revise,remaining=budget[0]))
             if not revise:return plan
             correction=dict(rejected_text=text,reason=content_problem or (duplicate or related)['reason'],preserve_dialogue=bool(aside_problem and not wrong_gesture and not language_problem and not duplicate and not related),
@@ -332,7 +332,7 @@ class Orchestrator:
                 beats[-1]['reading_duration']=duration_hint(beats[-1]['dialogue']['text'] if beats[-1]['dialogue'] else '')
         text='\n'.join(b['dialogue']['text'] for b in beats if b['dialogue'])
         for b in beats:b['language']=goals.spoken_language(char,context['goal_context'])
-        if request.timeline_reply and self.settings.enable_test_inspector:
+        if request.timeline_reply and self.settings.inspection_enabled_for(owner):
             self.store.put('reply_flow_review',owner,char,dict(beats=[dict(beat_id=b.beat_id,
                 thought=b.thought.model_dump() if b.thought else None,asides=[a.model_dump() for a in b.asides],parts=wire.get('parts',[]))
                 for b,wire in zip(plan.beats,beats)]))

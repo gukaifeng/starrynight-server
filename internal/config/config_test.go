@@ -2,6 +2,23 @@ package config
 
 import "testing"
 
+func TestInspectorProvisioningIsExplicitAndCanonical(t *testing.T) {
+	const id = "01a0f7f1-4f42-741f-bae9-7037480cbfd5"
+	c := Config{Environment: "production", DatabaseURL: "postgres://db/platform?sslmode=verify-full", RedisURL: "rediss://cache", AIInspectorAccounts: []string{id}}
+	if err := c.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	if !c.CanInspectAI(id) || c.CanInspectAI("") || c.CanInspectAI("another-account") {
+		t.Fatal("inspector grant not account scoped")
+	}
+	for _, bad := range []string{"*", "all", "", "00000000-0000-0000-0000-000000000000"} {
+		c.AIInspectorAccounts = []string{bad}
+		if c.Validate() == nil {
+			t.Fatal("unsafe developer grant accepted")
+		}
+	}
+}
+
 func TestProductionCannotEnableTestAccess(t *testing.T) {
 	c := Config{Environment: "production", DatabaseURL: "postgres://db/platform?sslmode=verify-full", RedisURL: "rediss://cache", AllowGuest: true}
 	if c.Validate() == nil {

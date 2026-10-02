@@ -22,12 +22,13 @@ Python 环境按根 README 创建。单元测试不调用付费供应商。`STAR
 | `DB_POOL_SIZE` | 2..200，默认 16；当前小型云主机设为 8 |
 | `ALLOW_TEST_GUEST` | 仅开发/测试；生产必须 false |
 | `AI_UPSTREAM_URL`、`AI_SERVICE_TOKEN` | 同时设置；令牌只保存在服务端 |
+| `AI_INSPECTOR_ACCOUNT_IDS` | 可选，规范 UUID 逗号列表；仅这些已登录开发账号可访问只读 AI 设定检查，worker 也需配置相同账号。见 [开发账号检查](developer-inspector-2026-10-03.md) |
 | `STARRY_AI_CONFIG` | 私有 AI settings.json 路径 |
 | `TEST_DATABASE_URL`、`TEST_REDIS_URL` | 专用测试存储，PG 名称必须以 _test 结尾 |
 
 `make migrate` 或 `bin/starry-migrate` 是显式发布操作；API 启动不会自行迁移。会话仍存 Redis，需启用 AOF 和 noeviction。数据库或会话存储不可用时拒绝绕过认证。
 
-`/health/live` 检查进程，`/health/ready` 检查 PG/Redis；`/metrics` 只在内部采集。AI 路由保留 SSE 立即刷新、WebSocket 升级及客户端取消；生产禁止游客、测试 inspector 和 AI 管理代理。完整账户合约在 `api/openapi.json`，流式协议仍由原 Python worker 实现。
+`/health/live` 检查进程，`/health/ready` 检查 PG/Redis；`/metrics` 只在内部采集。AI 路由保留 SSE 立即刷新、WebSocket 升级及客户端取消；生产禁止游客、通用测试 inspector 和 AI 管理代理。只读设定检查可双重配置指定开发账号，默认无授权。完整账户合约在 `api/openapi.json`，流式协议仍由原 Python worker 实现。
 
 ## Linux 生产部署
 

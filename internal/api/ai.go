@@ -61,11 +61,23 @@ func aiRoute(method, path, environment string) (character string, allowed bool) 
 	return "", false
 }
 
+// Production developers are explicitly provisioned accounts, never a client
+// flag/header. All other testing/admin routes remain excluded in production.
+func (s *Server) aiRouteForAccount(method, path, account string) (string, bool) {
+	character, allowed := aiRoute(method, path, s.Config.Environment)
+	if !allowed && method == http.MethodPost && s.Config.CanInspectAI(account) {
+		if match := aiInspector.FindStringSubmatch(path); match != nil {
+			return match[1], true
+		}
+	}
+	return character, allowed
+}
+
 func (s *Server) documentAIRoutes() {
 	for _, route := range []struct{ method, path, id, description string }{
 		{"GET", "/v1/ai/status", "ai-status", "Private worker readiness; does not invoke a paid provider."},
 		{"GET", "/v1/ai/characters/{character}/profile", "ai-public-profile", "Explicit public persona fields only."},
-		{"POST", "/v1/ai/testing/characters/{character}/inspector", "ai-test-inspector", "Read-only owner-scoped configuration inspection. Available only in development/test environments with worker inspection explicitly enabled; otherwise 404. Never invokes a paid provider."},
+		{"POST", "/v1/ai/testing/characters/{character}/inspector", "ai-test-inspector", "Read-only owner-scoped configuration inspection. Development/test opt-in, or explicitly provisioned developer accounts in production with worker opt-in for the same account. Other production accounts receive 404. Never invokes a paid provider."},
 		{"POST", "/v1/ai/conversations/{character}/messages", "ai-reply", "SSE reply/audio events. Existing worker request schema; account identity is supplied by this gateway."},
 		{"POST", "/v1/ai/conversations/{character}/reactions/prepare", "ai-prepare-reactions", "Prepare one real AI draft per eligible gesture, idle or entry scenario. preparation_scope=entry warms only the upcoming introduction/return; active warms the current role. Unused drafts are not conversation history."},
 		{"POST", "/v1/ai/conversations/{character}/suggestions/prepare", "ai-prepare-suggestions", "Generate three ranked user replies to source_message_id, then prepare one answer per option in rank order. Nothing is published until the exact option is chosen with quick_reply_id."},
@@ -152,7 +164,7 @@ func (s *Server) aiRoutes() {
 			http.Error(w, "sign in required", 401)
 			return
 		}
-		character, allowed := aiRoute(r.Method, r.URL.Path, s.Config.Environment)
+		character, allowed := s.aiRouteForAccount(r.Method, r.URL.Path, principal(r.Context()).ID)
 		if !allowed {
 			http.NotFound(w, r)
 			return
@@ -178,7 +190,7 @@ func (s *Server) aiRoutes() {
 				http.Error(w, "goal context unavailable", 503)
 				return
 			}
-			if goals.Version == 0 && r.Method == http.MethodPost {
+			if goals.Version == 0 && r.Method == http.MethodPost && !aiInspector.MatchString(r.URL.Path) {
 				goals, err = s.Store.EnsureGoals(ctx, principal(ctx).ID, character)
 				if err != nil {
 					goals, err = s.Store.Goals(ctx, principal(ctx).ID, character)

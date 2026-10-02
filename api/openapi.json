@@ -2212,7 +2212,7 @@
     },
     "/v1/ai/testing/characters/{character}/inspector": {
       "post": {
-        "description": "Read-only owner-scoped configuration inspection. Available only in development/test environments with worker inspection explicitly enabled; otherwise 404. Never invokes a paid provider.",
+        "description": "Read-only owner-scoped configuration inspection. Development/test opt-in, or explicitly provisioned developer accounts in production with worker opt-in for the same account. Other production accounts receive 404. Never invokes a paid provider.",
         "operationId": "ai-test-inspector",
         "parameters": [
           {

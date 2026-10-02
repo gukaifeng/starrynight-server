@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"github.com/gukaifeng/starrynight-server/internal/config"
 	"github.com/gukaifeng/starrynight-server/internal/store"
 	"io"
 	"net/http"
@@ -10,6 +11,25 @@ import (
 	"strings"
 	"testing"
 )
+
+func TestProductionInspectorOnlyAcceptsProvisionedPrincipal(t *testing.T) {
+	s := Server{Config: config.Config{Environment: "production", AIInspectorAccounts: []string{"developer"}}}
+	path := "/v1/ai/testing/characters/anime-kipfel/inspector"
+	for _, account := range []string{"", "ordinary", "developer"} {
+		character, allowed := s.aiRouteForAccount("POST", path, account)
+		if allowed != (account == "developer") || allowed && character != "anime-kipfel" {
+			t.Fatal("developer access leaked")
+		}
+	}
+	for _, path := range []string{"/v1/ai/admin/settings", "/v1/ai/testing/characters/../inspector", "/v1/ai/testing/anything"} {
+		if _, allowed := s.aiRouteForAccount("POST", path, "developer"); allowed {
+			t.Fatal("developer grant widened route allowlist")
+		}
+	}
+	if _, allowed := s.aiRouteForAccount("GET", "/v1/ai/testing/characters/anime-kipfel/inspector", "developer"); allowed {
+		t.Fatal("invalid inspector method accepted")
+	}
+}
 
 type fixtureTransport func(*http.Request) (*http.Response, error)
 
