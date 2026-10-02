@@ -40,8 +40,10 @@ func (s *Server) directoryAIRelationships(c *gin.Context) {
 	q := url.Values{"owner": {user}, "character": {char}, "after": {c.Query("after")}}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 5*time.Second)
 	defer cancel()
+	originalRequest := c.Request
 	c.Request = c.Request.WithContext(ctx)
 	response, e := s.workerRequest(c, http.MethodGet, "relationships?"+q.Encode(), nil)
+	c.Request = originalRequest
 	if e != nil {
 		fail(c, e)
 		return
