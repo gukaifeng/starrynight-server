@@ -38,4 +38,6 @@ def test_real_goal_turn_requires_evidence_but_events_remain_compatible():
     assert wire_schema('plan',CoreTimelinePlan,context) is GoalSpokenPlan
     with pytest.raises(Exception):GoalSpokenPlan(focus='约会',beats=[])
     with pytest.raises(Exception):GoalSpokenPlan(focus='约会',beats=[],goal_feedback={})
+    with pytest.raises(Exception):GoalSpokenPlan(focus='约会',beats=[],goal_feedback={'evidence':'一起喝茶'})
+    assert GoalSpokenPlan(focus='约会',beats=[],goal_feedback=dict(evidence='一起喝茶',familiarity=.01,trust=0,affection=.02,task_progress=0)).goal_feedback.affection==.02
     assert wire_schema('plan',CoreTimelinePlan,{**context,'trigger':'idle','user_message':''}) is SpokenPlan

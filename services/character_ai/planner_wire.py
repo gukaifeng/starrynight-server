@@ -55,6 +55,10 @@ class SpokenPlan(CompactPlan):
     beats: list[SpokenBeat] = Field(default_factory=list,max_length=3)
 
 class GroundedGoalFeedback(GoalFeedback):
+    familiarity: float = Field(ge=-.04,le=.04)
+    trust: float = Field(ge=-.04,le=.04)
+    affection: float = Field(ge=-.04,le=.04)
+    task_progress: float = Field(ge=-.04,le=.04)
     evidence: str = Field(min_length=1,max_length=100)
 
 class GoalCompactPlan(CompactPlan):
