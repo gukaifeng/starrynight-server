@@ -177,14 +177,16 @@ class Orchestrator:
             wrong_gesture=interaction_mismatch(request,text)
             language_problem=('English-only character: rewrite all dialogue and visible asides in English. Do not translate or quote Chinese. Keep the same new content and role.' if wrong_language('anime-lime' if context['goal_context']['config'].get('mode')=='task' and context['goal_context']['config'].get('task')=='english' else char,plan) else None)
             aside_problem=aside_quality.plan_problem(plan,context.get('recent_asides_to_avoid',[]))
-            content_problem=wrong_gesture or language_problem or aside_problem
+            # Optional prose is filtered by compile_parts/review_script. Never
+            # regenerate otherwise valid dialogue/TTS just to replace an aside.
+            if aside_problem:vt.flag('optional_asides_filtered',True)
+            content_problem=wrong_gesture or language_problem
             duplicate=novelty.match(self.store,owner,text,extra)
             with vt.span('plan.quality_review',attempt=len(reviews)+1):
                 related=await self.semantic.match(owner,text,request.trigger) if not duplicate and not content_problem else None
-            # BGE is a retrieval model, not an equivalence judge. One semantic
-            # suggestion may steer a new draft; it cannot reject a succession
-            # of otherwise distinct answers merely sharing a topic or event.
-            revise=bool(content_problem or duplicate or (related and (related['score']>=.86 or (correction is None and budget[0]>0))))
+            # Low-confidence topic retrieval is not equivalent meaning and
+            # must not trigger a paid rewrite of a distinct, valid answer.
+            revise=bool(content_problem or duplicate or (related and related['score']>=.86))
             reviews.append(dict(text=text,duplicate=duplicate,semantic_hint=related,interaction_mismatch=wrong_gesture,language_mismatch=language_problem,revised=revise,
                 generation_ms=round((generated-started)*1000),review_ms=round((time.monotonic()-generated)*1000)))
             if self.settings.enable_test_inspector:

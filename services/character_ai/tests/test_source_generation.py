@@ -72,13 +72,13 @@ async def test_two_revisions_are_invisible_and_only_fresh_final_reply_is_stored_
     assert replay[0]['cached'] and replay[0]['script']==scripts[0] and len(provider.calls)==3
 
 @pytest.mark.asyncio
-async def test_semantic_relatedness_alone_cannot_reject_a_distinct_revised_answer(tmp_path):
+async def test_semantic_relatedness_alone_does_not_bill_a_second_distinct_answer(tmp_path):
     store,provider,engine,req=setup(tmp_path,'我喜欢这幅画里安静的感觉。',NEW)
     async def same_topic(*args):return dict(reason='meaning',score=.68,text=OLD)
     engine.semantic.match=same_topic
     events=[e async for e in engine.reply('owner',req)]
-    assert next(e['script']['text'] for e in events if e['type']=='reply.narration.ready')==NEW
-    assert len(provider.calls)==2
+    assert next(e['script']['text'] for e in events if e['type']=='reply.narration.ready')=='我喜欢这幅画里安静的感觉。'
+    assert len(provider.calls)==1
     review=store.get('novelty_review','owner',req.character_id)
     assert review['accepted'] and review['attempts'][-1]['semantic_hint'] and not review['attempts'][-1]['duplicate']
 

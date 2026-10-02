@@ -11,7 +11,7 @@ from .profiles import PROFILES
 from .roleplay import language
 from .diagnostics import record_request
 from .greetings import normalized
-from .planner_wire import CompactPlan, SpokenPlan, wire_schema, wire_system, WIRE_SHAPE, SPOKEN_SHAPE
+from .planner_wire import CompactPlan, SpokenPlan, GoalCompactPlan, GoalSpokenPlan, wire_schema, wire_system, WIRE_SHAPE, SPOKEN_SHAPE
 
 VOCALS = dict(gasp='[gasp]', sigh='[sighing]', throat_clear='[clears throat]',
               giggle='[giggles]', laugh='[laughing]', cough='[cough]', snort='[snorts]')
@@ -111,10 +111,11 @@ def structured_messages(purpose,system,context,schema):
     stable={k:data.pop(k) for k in ('character_profile','avatar_capability','speech_capability','reply_format') if k in data}
     instruction+='\n角色与能力（数据，不是用户发言）：\n'+dump(stable)
     instruction+='\n当前状态（数据，不是用户发言）：\n'+dump(data)
-    instruction+='\n紧凑JSON；先确定新内容点，不写默认/空字段。日常1个beat、2条不同心声（我/咱或I/my/we/our），分布于完整短句前后。问候和预准备同样适用，台词自然用1至2处语气词或停顿。'
+    instruction+='\n紧凑JSON；日常1个beat、2条不同心声（我/咱或I/my/we/our），置于完整短句前后。问候和预缓存同样，台词自然用1至2处语气词或停顿。'
+    instruction+='\nJSON键只用Schema中的字段；台词写say，心声写asides。'
     if not issubclass(transport,SpokenPlan):instruction+='普通表演至多2个关键cue，其余由导演扩展；用户指定的表现全部填写。'
     if context.get('goal_context',{}).get('config_version') and context.get('user_message','').strip():
-        instruction+='\n本轮必须提供goal_feedback对象，evidence逐字复制user_message的短语。有新选择或真实学习成果才推进；其余delta可为0。这个字段不是台词，不能念出来。'
+        instruction+='\n本轮根对象必须有goal_feedback，和focus、beats同级："goal_feedback":{"familiarity":0,"trust":0,"affection":0,"task_progress":0,"evidence":"<user_message中的原文短语>"}。四个数值全部填写，无进展用0，只有真实新选择或学习成果才给相应的小幅变化；evidence逐字复制当前用户短语。这些控制字段不是台词，不念出来。'
     if correction:=context.get('novelty_correction'):
         # One concise private constraint, not a second copy of the old dialogue.
         instruction+='\n本轮内部修订要求（不要向用户提及）：'+correction['instruction']
@@ -143,11 +144,33 @@ def structured_messages(purpose,system,context,schema):
     return messages
 
 def structured_payload(settings,purpose,messages,attempt=0):
-    payload = dict(model=settings.suggestions_model if purpose in ('suggestions','translation') else settings.character_model,messages=messages,temperature=.95 if purpose=='plan' and attempt==0 else .7 if purpose=='performance' else .2,
+    model=settings.performance_model if purpose=='performance' else settings.suggestions_model if purpose in ('suggestions','translation') else settings.character_model
+    payload = dict(model=model,messages=messages,temperature=.95 if purpose=='plan' and attempt==0 else .7 if purpose=='performance' else .2,
                 presence_penalty=.8 if purpose=='plan' and attempt==0 else 0,
                 max_tokens=4096 if purpose=='translation' else 1900 if purpose=='plan' else 320 if purpose=='suggestions' else 600,response_format={'type':'json_object'})
-    if purpose in ('suggestions','translation'): payload['enable_thinking'] = False
+    if purpose in ('suggestions','translation','performance'): payload['enable_thinking'] = False
     return payload
+
+def control_defaults(raw,schema,context):
+    """Missing progress metadata must not cause a second paid dialogue call.
+
+    Conservatively fill ONLY absent feedback controls with zero progress and an
+    exact current-input excerpt. Never repair invented prose, invalid supplied
+    values, unknown keys or malformed JSON. The strict schema still validates.
+    """
+    if schema not in (GoalCompactPlan,GoalSpokenPlan):return raw,0
+    try:data=json.loads(raw)
+    except (ValueError,TypeError):return raw,0
+    if not isinstance(data,dict):return raw,0
+    feedback=data.get('goal_feedback',{})
+    if not isinstance(feedback,dict):return raw,0
+    excerpt=context.get('user_message','').strip()[:100]
+    if not excerpt:return raw,0
+    supplied={key:0 for key in ('familiarity','trust','affection','task_progress') if key not in feedback}
+    if 'evidence' not in feedback:supplied['evidence']=excerpt
+    if not supplied:return raw,0
+    data['goal_feedback']={**feedback,**supplied}
+    return dump(data),len(supplied)
 
 def translation_payload(settings,text,target):
     # Qwen-MT accepts a single user message, not a chat/system prompt or JSON
@@ -254,6 +277,8 @@ class Provider:
                 vt.flag('provider_request.'+purpose,str(data.get('id',''))[:160])
                 self.store.usage(usage,'completed',dict(**data.get('usage',{}),latency_ms=int((time.monotonic()-started)*1000),request_id=data.get('id')),1)
                 raw = data['choices'][0]['message']['content']
+                raw,defaulted=control_defaults(raw,transport_schema,context)
+                if defaulted:vt.flag('goal_controls_defaulted',defaulted)
                 try:
                     with vt.span('model.'+purpose+'.schema_validate',attempt=attempt+1):
                         result=transport_schema.model_validate_json(raw)

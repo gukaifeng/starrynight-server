@@ -3,11 +3,12 @@
 The model is provisioned separately, never downloaded on a conversation request.
 SQLite caches vectors per message and model; only this account's recent replies
 are compared. CPU inference is bounded and runs off the HTTP event loop.
-Low-score retrieval is a suggestion, not proof of equivalent meaning; the
-orchestrator permits one revision for it, never endless topic-based rejection.
+Low-score retrieval is a suggestion, not proof of equivalent meaning and does
+not trigger paid rewriting. English uses the language-independent copy checks.
 """
 import asyncio
 import json
+import re
 from pathlib import Path
 
 MODEL='BAAI/bge-small-zh-v1.5'
@@ -37,6 +38,10 @@ class SemanticNovelty:
                 await asyncio.to_thread(self.embed,['预热'])
     async def match(self,owner,text,trigger='user_message'):
         if not self.settings.semantic_novelty or len(text.strip())<10:return None
+        # This deployed embedding is Chinese. English topic similarity is not
+        # reliable evidence for a paid rewrite. Exact/near-copy checks still
+        # cover every language; no claim of universal semantic equivalence.
+        if not re.search(r'[\u3400-\u9fff]',text):return None
         import numpy as np
         rows=self.store.db.execute('''SELECT n.message,n.text,n.character,e.vector,json_extract(m.data,'$.trigger') trigger FROM reply_novelty n
             JOIN messages m ON m.id=n.message

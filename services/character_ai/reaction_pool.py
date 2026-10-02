@@ -1,6 +1,6 @@
 """Single-use real AI event drafts, including handoff of an in-flight stream."""
 import asyncio,hashlib,json,random,time,uuid
-from contextlib import aclosing
+from contextlib import aclosing,AsyncExitStack
 from . import novelty,goals
 from .schemas import ModelInteraction,Plan
 from .speech_text import audio_key
@@ -26,7 +26,7 @@ class ReactionPool:
     def __init__(self,engine):
         self.engine=engine;self.store=engine.store;self.settings=engine.settings
         self.tasks={};self.jobs={};self.active={};self.leases={};self.backoff={}
-        self.slots=PreparationGate(4)
+        self.slots=PreparationGate(4,quick_reserve=2)
         from .quick_replies import QuickReplies
         self.quick=QuickReplies(self)
         with self.store.db:self.store.db.execute("UPDATE reaction_drafts SET status='expired' WHERE status='preparing'")
@@ -158,7 +158,8 @@ class ReactionPool:
         try:
             priority=0 if job.kind.startswith('quick:') else 1 if job.kind in ('first_meeting','app_launch','return') else 2 if job.kind in REACTIONS else 3
             waiting=vt.current.get().ms()
-            async with self.slots.acquire(priority):
+            async with AsyncExitStack() as slot:
+                await slot.enter_async_context(self.slots.acquire(-1 if job.claimed else priority,key=job.id))
                 trace=vt.current.get();trace.span('preparation.priority_queue',waiting,trace.ms(),priority=priority)
                 if not voice.get('approved') or not self.current(job):raise ValueError('DRAFT_NOT_APPLICABLE')
                 context=self.engine.context(owner,request,persist=False)
@@ -185,6 +186,12 @@ class ReactionPool:
                                 with self.store.db:self.store.db.execute('INSERT INTO reaction_drafts VALUES(?,?,?,?,?,?,?,?,?)',(job.id,owner,char,job.kind,job.key,'preparing',dump(dict(script=job.script,plan=job.plan,voice_id=voice['voice_id'])),time.time(),time.time()+ttl))
                         if item.get('script'):vt.flag('message_id',item['script'].get('message_id',''))
                         if item['type']=='segment.audio.chunk':vt.mark('first_audio_ready')
+                        if item['type']=='audio.completed' and job.script and self.has_audio(owner,char,job.script):
+                            # Optional visual planning must not keep completed
+                            # PCM labelled "preparing" or occupy a core slot.
+                            with self.store.db:self.store.db.execute("UPDATE reaction_drafts SET data=?,status=CASE WHEN status='preparing' THEN 'ready' ELSE status END WHERE id=?",(dump(dict(script=job.script,plan=job.plan,voice_id=voice['voice_id'])),job.id))
+                            vt.mark('cache_audio_ready')
+                            await slot.aclose()
                         job.append(item)
                         await asyncio.sleep(0) # Attached foreground consumers get the first PCM promptly.
                 if not job.script or not self.has_audio(owner,char,job.script):raise ValueError('DRAFT_AUDIO_FAILED')
@@ -206,11 +213,21 @@ class ReactionPool:
             if not self.has_audio(owner,char,candidate['script']) or novelty.match(self.store,owner,candidate['script']['text']):
                 with self.store.db:self.store.db.execute("UPDATE reaction_drafts SET status='expired' WHERE id=?",(row['id'],))
                 continue
+            job=self.jobs.get(row['id'])
+            if job and not job.done and not job.claimed and not job.task.cancelling():
+                job.claimed=True;self.slots.promote(job.id)
+                return dict(id=job.id,kind=kind,job=job,audio_ready=True)
             return dict(id=row['id'],kind=kind,candidate=candidate)
         job=self.find_job(owner,char,key,kind)
         if job is None and kind.startswith('quick:'):job=self.ensure_job(owner,request,key,kind,source=self.quick.latest(owner,char))
         if job:
-            job.claimed=True;return dict(id=job.id,kind=kind,job=job)
+            job.claimed=True;self.slots.promote(job.id)
+            if kind.startswith('quick:'):
+                # Selection is known now; do not wait for text publication to
+                # release the two speculative alternatives' provider work.
+                for other in list(self.jobs.values()):
+                    if other.owner==owner and other.request.character_id==char and other.kind.startswith('quick:') and other.id!=job.id and not other.claimed:other.task.cancel()
+            return dict(id=job.id,kind=kind,job=job)
         self.store.put('reaction_pool_review',owner,char,dict(status='miss',kind=kind));return None
 
     async def publish(self,owner,request,context,claim,script,plan):
@@ -242,14 +259,16 @@ class ReactionPool:
                 yield dict(type='audio.completed',message_id=script['message_id'])
             yield dict(type='reply.completed',message_id=script['message_id']);return
         job=claim['job'];completed=False
-        attached_trace=vt.current.get();vt.flag('preparation_inflight',True)
+        waiting_core=not claim.get('audio_ready',False)
+        attached_trace=vt.current.get();vt.flag('preparation_inflight',waiting_core)
+        vt.flag('preparation_audio_ready',not waiting_core)
         try:
             async with aclosing(job.stream()) as stream:
                 async for item in stream:
                     if item['type']=='reply.narration.ready':
                         if attached_trace:attached_trace.span('preparation.inflight_text_wait',started,attached_trace.ms())
                         script=await self.publish(owner,request,context,claim,item['script'],job.plan)
-                        item={**item,'script':script,'prepared':True,'preparation_inflight':True}
+                        item={**item,'script':script,'prepared':True,'preparation_inflight':waiting_core}
                     elif item['type']=='reply.visuals.updated':
                         from .aside_quality import review_script, recent
                         script=review_script({**item['script'],'trigger':request.trigger},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))

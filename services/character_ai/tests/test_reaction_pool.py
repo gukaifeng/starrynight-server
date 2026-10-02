@@ -149,7 +149,8 @@ async def test_pause_cancels_children_and_old_lease_cannot_cancel_new_session(tm
     await pool.pause('u',request.character_id,lease=str(request.request_id))
     assert pool.status('u',newer)['preparing']
     await pool.pause('u',request.character_id,lease=str(newer.request_id))
-    assert provider.closed==4 and not pool.status('u',newer)['preparing']
+    assert provider.closed==provider.calls.count('plan')==2 and not pool.status('u',newer)['preparing']
+    assert pool.slots.used==pool.slots.low_used==0
     assert not store.history('u',request.character_id)
     await pool.close();store.db.close()
 
@@ -224,7 +225,8 @@ async def test_foreground_preempts_speculation_without_touching_another_account(
     await pool.yield_to_reply('other')
     assert pool.status('u',request)['preparing']
     await pool.yield_to_reply('u')
-    assert provider.closed==4 and not pool.status('u',request)['preparing']
+    assert provider.closed==provider.calls.count('plan')==2 and not pool.status('u',request)['preparing']
+    assert pool.slots.used==pool.slots.low_used==0
     assert not store.history('u',request.character_id)
     await pool.close();store.db.close()
 

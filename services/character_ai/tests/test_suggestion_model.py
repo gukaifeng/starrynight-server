@@ -11,10 +11,13 @@ def test_prediction_uses_fast_non_thinking_model_without_changing_character_answ
     assert prediction['model'] == 'qwen-turbo'
     assert prediction['enable_thinking'] is False
     assert prediction['max_tokens'] == 320
-    for purpose in ('plan', 'performance'):
-        answer = structured_payload(settings, purpose, messages)
-        assert answer['model'] == 'qwen-plus-character'
-        assert 'enable_thinking' not in answer
+    answer = structured_payload(settings, 'plan', messages)
+    assert answer['model'] == 'qwen-plus-character'
+    assert 'enable_thinking' not in answer
+    performance=structured_payload(settings,'performance',messages)
+    assert performance['model']=='qwen-turbo' and performance['enable_thinking'] is False
+    override=structured_payload(Settings(performance_model='configured-control-model'),'performance',messages)
+    assert override['model']=='configured-control-model'
 
 
 def test_suggestion_schema_keeps_validation_and_can_be_decoded():
