@@ -30,4 +30,16 @@
 - 真实 PostgreSQL/Redis 集成通过。新增生产模式下的完整 Gin/SCS→worker 验证：授权账号 200，普通账号伪造开发账号头仍为 404，未登录为 401；只读检查前后关系目标版本不变。
 - 复用先前测试数据库第一次运行遇到旧 marketplace fixture 主键残留。没有清除旧库，改用新建独立 `settings_inspector_test` 数据库完成全部集成测试。测试结束后停止临时本机服务。
 
-云端配置、发布及实际检查结果完成后追加。测试均不调用付费 AI 或生成图片。
+测试均不调用付费 AI 或生成图片。
+
+## 云端发布与实际验收
+
+源码提交 `ffcf235f20e4ca5d8b100d5a5c9d824a5564cf54`，发布 `20261002T223022Z-ffcf235f20e4`。升级器更新 API 与 AI，重启后 ready。私有配置修改前备份，原子写入并保持 0600 权限；仅将主开发账号 `xy100000001` 对应的固定 UUID 加入两边列表，全局 `enable_test_inspector` 保持 false。账户 UUID、密钥和完整用户报告不进入公开记录。
+
+实际通过 worker 的原有认证与账户 owner 派生链路检查 16 个发布角色：chiffon、fiona、hikarun、ichigo、koharu、lime、mafuyu、meiyun、milfy、mao、mizuki、perula、plum、ramune、shinano、sio。全部返回 200，每个报告 50 个独立分区。逐一验证角色 ID、分区 ID 唯一、persona/prompts/context 内容不同，且包含请求、记忆、预缓存、灵动接话与语音执行规则；报告不包含实际服务令牌或 API 密钥。请求均为只读检查，没有调用生成模型。
+
+云端普通 owner 仍返回 404，公开 Go 网关匿名请求返回 401。授权登录账号经过公开网关的行为由真实 Gin/SCS/PostgreSQL/Redis 集成覆盖；本轮没有复制主用户的客户端会话令牌执行云端外部请求，也没有将 worker 验收写成手机页面验收。客户端真实 Unity 模拟器检查导航、本机降级可读性已通过；手机更新安装成功，远程启动被锁屏保护拒绝。
+
+发布包首次解压时误形成同名嵌套目录，check-only 因找不到部署脚本失败。修正解压目标后 check-only 通过；仅在确认重复目录内 source_commit 等于本次发布提交后删除本次创建的重复目录，没有动已有发布或用户数据。
+
+升级前程序备份位于服务器私有 `~/app/backups/before-api-20261002T223022Z-ffcf235f20e4`，配置备份位于同一私有 backups 根目录下的 `developer-inspector-*`。无需数据库迁移。源码与测试可公开，带用户设定的完整响应、配置与认证资料只留私有路径。
