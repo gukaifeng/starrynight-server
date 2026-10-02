@@ -60,4 +60,4 @@ python3 ~/starrynight-server/releases/<版本>/scripts/deploy/activate_standby_r
 
 独立管理入口为 **https://39.105.116.74:8444**，管理员与 App 用户隔离。管理台支持全部业务资源、AI 设定与运行数据，并提供资源及模型预览、声音试听与回收、会话撤销、备份恢复、配置应用、版本和证书维护。使用已有管理员登录；新环境首次 owner 通过专用 bootstrap 从 stdin 创建，不内置默认密码。
 
-见 [控制室设计](docs/design/admin-console-2026-10-02.md)、[完整管理工作区](docs/design/admin-complete-management-2026-10-02.md)。前端代码在 `admin-web/`，服务及受限维护操作在 `internal/admin/` 与 `scripts/deploy/admin_ops.py`。镜像和部署版本均包含构建结果，运行时不需要 Node。
+见 [控制室设计](docs/design/admin-console-2026-10-02.md)、[完整管理工作区](docs/design/admin-complete-management-2026-10-02.md)、[完整管理交付与线上验证](docs/admin-complete-release-2026-10-02.md)。前端代码在 `admin-web/`，服务及受限维护操作在 `internal/admin/` 与 `scripts/deploy/admin_ops.py`。镜像和部署版本均包含构建结果，运行时不需要 Node。
