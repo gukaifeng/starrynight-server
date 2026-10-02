@@ -12,6 +12,7 @@ import anyio
 from fastapi import HTTPException
 from starlette.responses import StreamingResponse
 from .storage import dump
+from . import voice_trace as vt
 
 
 class StreamJob:
@@ -27,7 +28,10 @@ class StreamJob:
                 async with aclosing(source):
                     async with asyncio.timeout(150):
                         async for item in source:
-                            await self.sender.send(item)
+                            with vt.span('stream.json_encode',event=item.get('type','')):
+                                encoded='data: ' + dump(item) + '\n\n'
+                            with vt.span('stream.backpressure',event=item.get('type','')):
+                                await self.sender.send(encoded)
             except asyncio.CancelledError:
                 raise
             except Exception as error:
@@ -35,7 +39,7 @@ class StreamJob:
                     str(error) if isinstance(error, ValueError) else getattr(error, 'code', 'CONNECTION_FAILED'))
                 safe = code if re.fullmatch(r'[A-Za-z0-9_-]{1,100}', code) else 'CONNECTION_FAILED'
                 if safe in ('REPLY_REPEATED','GREETING_REPEATED'):safe='REPLY_UNAVAILABLE'
-                await self.sender.send(dict(type='reply.error', code=safe))
+                await self.sender.send('data: '+dump(dict(type='reply.error',code=safe))+'\n\n')
 
     def finished(self, callback):
         # Also runs if a task was cancelled before its first coroutine step.
@@ -55,7 +59,7 @@ class StreamJob:
     async def events(self):
         async with self.receiver:
             async for item in self.receiver:
-                yield 'data: ' + dump(item) + '\n\n'
+                yield item
 
 
 class TurnStreams:

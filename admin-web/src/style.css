@@ -2060,3 +2060,168 @@
     max-height: 68dvh;
   }
 }
+
+.voice-trace-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.7fr);
+  gap: 22px;
+  align-items: start;
+}
+.voice-trace-list,
+.voice-trace-detail {
+  padding: 22px;
+  min-width: 0;
+}
+.voice-trace-search,
+.voice-trace-detail-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.voice-trace-search input,
+.voice-trace-id input {
+  width: 100%;
+  min-width: 0;
+  background: var(--color-mist);
+  border: 0;
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--color-orbit);
+}
+.voice-trace-item {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-mist);
+  padding: 14px 8px;
+  font-size: 12px;
+  color: var(--color-orbit);
+  cursor: pointer;
+}
+.voice-trace-item.selected {
+  background: var(--color-mist);
+  border-radius: 8px;
+}
+.voice-trace-item small,
+.voice-span small {
+  display: block;
+  color: var(--color-tide);
+  font-size: 10px;
+  margin-top: 5px;
+}
+.voice-trace-id {
+  display: block;
+  color: var(--color-tide);
+  font-size: 11px;
+}
+.voice-trace-id input {
+  margin-top: 6px;
+  font-family: monospace;
+}
+.voice-milestones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 24px 0;
+}
+.voice-milestones small {
+  display: block;
+  font-size: 10px;
+  color: var(--color-tide);
+}
+.voice-milestones strong {
+  display: block;
+  margin-top: 6px;
+  font: 18px monospace;
+}
+.voice-longest,
+.voice-explanation,
+.voice-empty {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--color-tide);
+}
+.voice-longest {
+  border-left: 3px solid var(--color-tide);
+  padding-left: 10px;
+}
+.voice-fact {
+  display: contents;
+}
+.voice-show-all {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  align-items: center;
+  margin: 22px 0;
+}
+.voice-show-all input {
+  width: 14px;
+  flex: 0 0 14px;
+  margin: 0;
+}
+.voice-trace-search input {
+  flex: 1;
+}
+.voice-trace-search button {
+  flex-shrink: 0;
+}
+.voice-trace-layout .quiet-button,
+.voice-workspace .quiet-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: auto;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px;
+  background: transparent;
+  color: var(--color-orbit);
+}
+.voice-waterfall {
+  max-height: 680px;
+  overflow: auto;
+}
+.voice-span {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.9fr) minmax(70px, 1fr) 75px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-mist);
+  font-size: 11px;
+}
+.voice-span-track {
+  position: relative;
+  background: var(--color-mist);
+  height: 12px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.voice-span-track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--color-tide);
+  min-width: 2px;
+  border-radius: 3px;
+}
+@media (max-width: 900px) {
+  .voice-trace-layout {
+    grid-template-columns: 1fr;
+  }
+  .voice-trace-list {
+    max-height: 320px;
+    overflow: auto;
+  }
+  .voice-span {
+    grid-template-columns: minmax(90px, 1fr) minmax(45px, 0.8fr) 65px;
+  }
+}

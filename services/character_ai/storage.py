@@ -17,6 +17,9 @@ class Store:
         self.db.execute('PRAGMA journal_mode=WAL')
         self.db.executescript('''
         CREATE TABLE IF NOT EXISTS records(kind TEXT,owner TEXT,character TEXT,data TEXT,updated REAL,PRIMARY KEY(kind,owner,character));
+        CREATE TABLE IF NOT EXISTS voice_traces(id TEXT,owner TEXT,character TEXT,kind TEXT,data TEXT,created REAL,PRIMARY KEY(owner,id));
+        CREATE INDEX IF NOT EXISTS voice_traces_scope ON voice_traces(owner,character,created DESC);
+        CREATE INDEX IF NOT EXISTS voice_traces_created ON voice_traces(created DESC);
         CREATE TABLE IF NOT EXISTS messages(id TEXT PRIMARY KEY,owner TEXT,character TEXT,request TEXT,role TEXT,data TEXT,created REAL);
         CREATE INDEX IF NOT EXISTS messages_scope ON messages(owner,character,created);
         CREATE TABLE IF NOT EXISTS requests(owner TEXT,character TEXT,id TEXT,payload_hash TEXT,status TEXT,result TEXT,created REAL,PRIMARY KEY(owner,character,id));

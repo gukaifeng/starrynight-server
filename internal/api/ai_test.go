@@ -60,6 +60,9 @@ func TestAIAllowlistAndTrustedIdentity(t *testing.T) {
 		if r.Header.Get("Authorization") != "Bearer worker-only-fixture" || r.Header.Get("Cookie") != "" || r.Header.Get("X-Forwarded-For") != "" {
 			t.Fatal("credential/header boundary failed")
 		}
+		if r.Header.Get("X-Starry-Gateway-Timing") != "" || r.Header.Get("X-Starry-Voice-Trace") == "forged" || r.Header.Get("X-Starry-Voice-Trace") == "" {
+			t.Fatal("voice diagnostics trusted-header boundary failed")
+		}
 		if r.Context().Value(actorKey{}).(store.User).ID != "account-from-session" {
 			t.Fatal("context lost")
 		}
@@ -71,6 +74,8 @@ func TestAIAllowlistAndTrustedIdentity(t *testing.T) {
 	request.Header.Set("X-Starry-Installation", "spoofed")
 	request.Header.Set("Cookie", "secret=fixture")
 	request.Header.Set("X-Forwarded-For", "spoofed")
+	request.Header.Set("X-Starry-Gateway-Timing", `{"authorization_ms":123}`)
+	request.Header.Set("X-Starry-Voice-Trace", "forged")
 	request = request.WithContext(context.WithValue(request.Context(), actorKey{}, store.User{ID: "account-from-session"}))
 	recorder := httptest.NewRecorder()
 	proxy.ServeHTTP(recorder, request)

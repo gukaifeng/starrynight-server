@@ -5,6 +5,7 @@ from functools import lru_cache
 from pydantic import ValidationError,BaseModel,ConfigDict,Field
 from .storage import dump
 from .speech_text import spoken_text
+from . import voice_trace as vt
 from .prompts import PLAN_SHAPE, REPLY_LENGTH
 from .profiles import PROFILES
 from .roleplay import language
@@ -230,6 +231,7 @@ class Provider:
             try: code = response.json().get('code') or response.json().get('error', {}).get('code')
             except Exception: code = None
             raise ProviderError('PROVIDER_'+str(response.status_code)+'_'+str(code or 'ERROR')[:60])
+    @vt.timed('model.structured')
     async def structured(self, owner, character, purpose, system, context, schema):
         transport_schema=wire_schema(purpose,schema,context)
         shape = (SPOKEN_SHAPE if issubclass(transport_schema,SpokenPlan) else WIRE_SHAPE if issubclass(transport_schema,CompactPlan) else PLAN_SHAPE) if purpose == 'plan' else ''
@@ -237,19 +239,24 @@ class Provider:
         # Exactly one schema correction; network/timeouts are never blindly retried.
         attempts=1 if purpose in ('performance','suggestions','translation') else 2
         for attempt in range(attempts):
-            usage = self.store.reserve(purpose, owner, character, 1, self.settings)
+            with vt.span('billing.reserve',purpose=purpose,attempt=attempt+1):
+                usage = self.store.reserve(purpose, owner, character, 1, self.settings)
             started = time.monotonic()
             try:
                 payload=structured_payload(self.settings,purpose,messages,attempt)
                 record_request(self.settings,self.store,owner,character,purpose,payload)
                 headers={**self.headers,'x-dashscope-aca-session':session_cache_key(owner,character,purpose,payload['model'],system)}
-                response = await self.http.post(self.settings.host+'/compatible-mode/v1/chat/completions', headers=headers,
-                    json=payload)
-                self.check(response); data = response.json()
+                with vt.span('model.'+purpose+'.http',attempt=attempt+1,model=payload['model']):
+                    response = await self.http.post(self.settings.host+'/compatible-mode/v1/chat/completions', headers=headers,
+                        json=payload,extensions=vt.http_events(purpose,attempt=attempt+1))
+                with vt.span('model.'+purpose+'.json_decode',attempt=attempt+1):
+                    self.check(response); data = response.json()
+                vt.flag('provider_request.'+purpose,str(data.get('id',''))[:160])
                 self.store.usage(usage,'completed',dict(**data.get('usage',{}),latency_ms=int((time.monotonic()-started)*1000),request_id=data.get('id')),1)
                 raw = data['choices'][0]['message']['content']
                 try:
-                    result=transport_schema.model_validate_json(raw)
+                    with vt.span('model.'+purpose+'.schema_validate',attempt=attempt+1):
+                        result=transport_schema.model_validate_json(raw)
                     return result.expand(schema) if isinstance(result,CompactPlan) else result
                 except (ValidationError,ValueError) as invalid:
                     errors=invalid.errors(include_input=False,include_url=False,include_context=False) if isinstance(invalid,ValidationError) else [{'type':'invalid_json'}]
@@ -264,29 +271,38 @@ class Provider:
     async def synthesize(self, owner, character, beat, voice):
         text, _ = speech_input(beat)
         if not text: return
-        usage = self.store.reserve('tts',owner,character,len(text),self.settings)
+        with vt.span('tts.billing_reserve',beat_id=beat['beat_id'],characters=len(text)):
+            usage = self.store.reserve('tts',owner,character,len(text),self.settings)
+        vt.flag('tts_usage.'+beat['beat_id'],str(usage))
         total = 0; metrics = {}; finished = False; started=time.monotonic()
+        trace=vt.current.get();trace_started=trace.ms() if trace else 0
         try:
             payload=speech_payload(self.settings,character,beat,voice)
             record_request(self.settings,self.store,owner,character,'tts',payload)
             async with self.http.stream('POST', self.settings.host+'/api/v1/services/audio/tts/SpeechSynthesizer',
-                headers={**self.headers,'X-DashScope-SSE':'enable'}, json=payload) as response:
+                headers={**self.headers,'X-DashScope-SSE':'enable'}, json=payload,extensions=vt.http_events('tts',beat_id=beat['beat_id'])) as response:
+                if trace:trace.mark('tts.'+beat['beat_id']+'.headers')
                 if response.status_code>=400: await response.aread(); self.check(response)
                 async for kind,raw in sse_events(response.aiter_lines()):
                     raw=raw.strip()
                     if not raw or raw=='[DONE]': continue
-                    try:data=json.loads(raw)
+                    try:
+                        with vt.span('tts.event_decode',beat_id=beat['beat_id']):data=json.loads(raw)
                     except json.JSONDecodeError:
                         self.store.put('protocol_failure',owner,character,dict(kind=kind,length=len(raw),prefix=raw[:100]))
                         raise ProviderError('TTS_STREAM_FORMAT')
                     if data.get('code'): raise ProviderError('TTS_'+str(data['code'])[:60])
                     output=data.get('output',{})
                     metrics.update(data.get('usage') or {})
-                    if data.get('request_id'): metrics['request_id']=data['request_id']
+                    if data.get('request_id'):
+                        metrics['request_id']=data['request_id']
+                        vt.flag('tts_provider_request.'+beat['beat_id'],str(data['request_id'])[:160])
                     chunk=(output.get('audio') or {}).get('data')
                     if chunk:
                         metrics.setdefault('first_audio_ms',round((time.monotonic()-started)*1000))
-                        pcm=base64.b64decode(chunk,validate=True); total+=len(pcm)
+                        if trace:trace.mark('tts.'+beat['beat_id']+'.first_pcm')
+                        with vt.span('tts.pcm_decode',beat_id=beat['beat_id']):
+                            pcm=base64.b64decode(chunk,validate=True); total+=len(pcm)
                         if total>24000*2*90: raise ProviderError('TTS_TOO_LONG')
                         yield pcm
                     if output.get('finish_reason')=='stop': finished=True
@@ -296,6 +312,8 @@ class Provider:
         except BaseException as error:
             metrics['error_code']=getattr(error,'code',type(error).__name__)
             self.store.usage(usage,'interrupted_or_failed',metrics); raise
+        finally:
+            if trace:trace.span('tts.generate',trace_started,trace.ms(),beat_id=beat['beat_id'],bytes=total,audio_duration_ms=round(total/48,3),model=self.settings.tts_model)
     async def design_voice(self, character, profile, revision=None):
         existing=self.store.get('voice','system',character)
         if revision is None and existing:return existing

@@ -10,6 +10,7 @@ from . import prompts
 
 PROMPTS=('PLANNER','CORE_PLANNER','NARRATOR','PERFORMER','REPLY_LENGTH')
 TABLES={
+    'voice_traces':('语音耗时','逐次语音追踪，含预生成、缓存、模型调用和音频分段时间轴；只读，保留14天或最近5000次'),
     'messages':('AI 上下文','模型实际使用的对话上下文，只读'),
     'memories':('AI 记忆','推理提取的记忆，可修改或删除'),
     'records':('AI 状态','情绪、称呼、问候与检查状态，只读'),
@@ -96,7 +97,10 @@ def mount(app,settings,store,engine,admin):
             if q:
                 where=' AND ('+' OR '.join(f'CAST({f} AS TEXT) LIKE ? ESCAPE \'\\\'' for f in fields)+')'
                 pattern='%'+q.replace('\\','\\\\').replace('%','\\%').replace('_','\\_')+'%';args.extend([pattern]*len(fields))
-            items=[dict(row) for row in store.db.execute(f'SELECT rowid AS _rowid,{",".join(fields)} FROM {resource} WHERE rowid>?{where} ORDER BY rowid LIMIT 51',args)]
+            direction='DESC' if resource=='voice_traces' else 'ASC'
+            comparison='<' if resource=='voice_traces' else '>'
+            if resource=='voice_traces' and not cursor:args[0]=9223372036854775807
+            items=[dict(row) for row in store.db.execute(f'SELECT rowid AS _rowid,{",".join(fields)} FROM {resource} WHERE rowid{comparison}?{where} ORDER BY rowid {direction} LIMIT 51',args)]
             for row in items:
                 if resource=='memories':row['version']=memory_version(row)
                 for k in ('data','result','metrics'):

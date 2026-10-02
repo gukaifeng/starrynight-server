@@ -146,10 +146,20 @@ class ReactionPool:
         return job.claimed or (self.context_key(job.owner,job.request)==job.key and (not job.source or self.quick.latest(job.owner,job.request.character_id)==job.source))
 
     async def run(self,job):
+        from . import voice_trace as vt
+        trace=vt.Trace(self.store,job.owner,job.request.character_id,'prepare:'+job.kind,job.id,str(job.request.request_id))
+        with vt.scope(trace):
+            try:await self._run(job)
+            finally:trace.save('cancelled' if isinstance(job.error,asyncio.CancelledError) else 'failed' if job.error else 'completed')
+
+    async def _run(self,job):
+        from . import voice_trace as vt
         owner=job.owner;request=job.request;char=request.character_id;voice=self.store.get('voice','system',char,{})
         try:
             priority=0 if job.kind.startswith('quick:') else 1 if job.kind in ('first_meeting','app_launch','return') else 2 if job.kind in REACTIONS else 3
+            waiting=vt.current.get().ms()
             async with self.slots.acquire(priority):
+                trace=vt.current.get();trace.span('preparation.priority_queue',waiting,trace.ms(),priority=priority)
                 if not voice.get('approved') or not self.current(job):raise ValueError('DRAFT_NOT_APPLICABLE')
                 context=self.engine.context(owner,request,persist=False)
                 if job.kind in SCENARIOS:
@@ -173,6 +183,8 @@ class ReactionPool:
                                 if novelty.match(self.store,owner,job.script['text'],extra=other):raise ValueError('REPLY_REPEATED')
                                 ttl=self.settings.entry_pool_ttl_seconds if job.kind in ('first_meeting','app_launch','return') else self.settings.reaction_pool_ttl_seconds
                                 with self.store.db:self.store.db.execute('INSERT INTO reaction_drafts VALUES(?,?,?,?,?,?,?,?,?)',(job.id,owner,char,job.kind,job.key,'preparing',dump(dict(script=job.script,plan=job.plan,voice_id=voice['voice_id'])),time.time(),time.time()+ttl))
+                        if item.get('script'):vt.flag('message_id',item['script'].get('message_id',''))
+                        if item['type']=='segment.audio.chunk':vt.mark('first_audio_ready')
                         job.append(item)
                         await asyncio.sleep(0) # Attached foreground consumers get the first PCM promptly.
                 if not job.script or not self.has_audio(owner,char,job.script):raise ValueError('DRAFT_AUDIO_FAILED')
@@ -219,6 +231,8 @@ class ReactionPool:
         return script
 
     async def deliver(self,owner,request,context,claim):
+        from . import voice_trace as vt
+        started=vt.current.get().ms() if vt.current.get() else 0
         if 'candidate' in claim:
             candidate=claim['candidate'];script=await self.publish(owner,request,context,claim,candidate['script'],candidate['plan'])
             yield dict(type='reply.narration.ready',script=script,cached=False,prepared=True)
@@ -228,10 +242,12 @@ class ReactionPool:
                 yield dict(type='audio.completed',message_id=script['message_id'])
             yield dict(type='reply.completed',message_id=script['message_id']);return
         job=claim['job'];completed=False
+        attached_trace=vt.current.get();vt.flag('preparation_inflight',True)
         try:
             async with aclosing(job.stream()) as stream:
                 async for item in stream:
                     if item['type']=='reply.narration.ready':
+                        if attached_trace:attached_trace.span('preparation.inflight_text_wait',started,attached_trace.ms())
                         script=await self.publish(owner,request,context,claim,item['script'],job.plan)
                         item={**item,'script':script,'prepared':True,'preparation_inflight':True}
                     elif item['type']=='reply.visuals.updated':
@@ -239,6 +255,9 @@ class ReactionPool:
                         script=review_script({**item['script'],'trigger':request.trigger},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))
                         self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}
                     if not request.wants_audio and (item['type'].startswith('segment.audio.') or item['type'].startswith('audio.')):continue
+                    if item['type']=='segment.audio.chunk' and attached_trace and 'inflight_audio' not in attached_trace.marks:
+                        attached_trace.mark('inflight_audio')
+                        attached_trace.span('preparation.inflight_audio_wait',started,attached_trace.ms())
                     yield item
             completed=True
         finally:

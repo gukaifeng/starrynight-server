@@ -1,6 +1,7 @@
 """Generate independent voice beats concurrently; deliver in spoken order."""
 import asyncio
 from contextlib import aclosing
+from . import voice_trace as vt
 
 async def ordered_audio(sources):
     # Three is the maximum current core-plan beat count. Keep the same bound
@@ -17,9 +18,10 @@ async def ordered_audio(sources):
         await queue.put(end)
     workers=[asyncio.create_task(produce(source,queue)) for source,queue in zip(sources,queues)]
     try:
-        for queue in queues:
+        for index,queue in enumerate(queues):
             while True:
-                item=await queue.get()
+                with vt.span('audio.ordered_queue_wait',beat_index=index):
+                    item=await queue.get()
                 if item is end:break
                 if isinstance(item,Exception):raise item
                 yield item

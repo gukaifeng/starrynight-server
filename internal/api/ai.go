@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -15,6 +16,8 @@ import (
 )
 
 type goalSnapshotKey struct{}
+type gatewayTimingKey struct{}
+type gatewayStartKey struct{}
 
 // The Python inference worker is private. Only explicitly listed user routes
 // pass this gateway; voice design, usage/admin APIs and arbitrary URLs do not.
@@ -111,6 +114,16 @@ func newAIProxy(target *url.URL, token string, transport http.RoundTripper) *htt
 			p.Out.Header.Set("X-Starry-Account", user)
 			p.Out.Header.Del("Cookie")
 			p.Out.Header.Del("X-Starry-Goal-Snapshot")
+			p.Out.Header.Del("X-Starry-Gateway-Timing")
+			if timing, ok := p.In.Context().Value(gatewayTimingKey{}).(map[string]float64); ok {
+				encoded, _ := json.Marshal(timing)
+				p.Out.Header.Set("X-Starry-Gateway-Timing", string(encoded))
+			}
+			traceID, err := uuid.Parse(p.In.Header.Get("X-Starry-Voice-Trace"))
+			if err != nil {
+				traceID = uuid.New()
+			}
+			p.Out.Header.Set("X-Starry-Voice-Trace", traceID.String())
 			if snapshot, ok := p.In.Context().Value(goalSnapshotKey{}).(string); ok {
 				p.Out.Header.Set("X-Starry-Goal-Snapshot", snapshot)
 			}
@@ -127,7 +140,14 @@ func (s *Server) aiRoutes() {
 	transport.ResponseHeaderTimeout = 20 * time.Second
 	transport.MaxIdleConnsPerHost = 32
 	proxy := newAIProxy(target, s.Config.AIServiceToken, transport)
-	s.Router.Any("/v1/ai/*path", gin.WrapH(s.session(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	s.Router.Any("/v1/ai/*path", func(c *gin.Context) {
+		c.Request = c.Request.WithContext(context.WithValue(c.Request.Context(), gatewayStartKey{}, time.Now()))
+		c.Next()
+	}, gin.WrapH(s.session(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		timing := map[string]float64{}
+		if start, ok := r.Context().Value(gatewayStartKey{}).(time.Time); ok {
+			timing["authorization_ms"] = float64(time.Since(start).Microseconds()) / 1000
+		}
 		if principal(r.Context()).ID == "" {
 			http.Error(w, "sign in required", 401)
 			return
@@ -142,14 +162,17 @@ func (s *Server) aiRoutes() {
 			return
 		}
 		if character != "" {
+			started := time.Now()
 			if _, err := s.Store.Character(r.Context(), principal(r.Context()).ID, character); err != nil {
 				http.Error(w, "character unavailable", 404)
 				return
 			}
+			timing["catalog_ms"] = float64(time.Since(started).Microseconds()) / 1000
 		}
 		ctx, cancel := context.WithTimeout(r.Context(), 180*time.Second)
 		defer cancel()
 		if character != "" {
+			started := time.Now()
 			goals, err := s.Store.Goals(ctx, principal(ctx).ID, character)
 			if err != nil {
 				http.Error(w, "goal context unavailable", 503)
@@ -171,7 +194,9 @@ func (s *Server) aiRoutes() {
 				return
 			}
 			ctx = context.WithValue(ctx, goalSnapshotKey{}, base64.RawURLEncoding.EncodeToString(data))
+			timing["goals_ms"] = float64(time.Since(started).Microseconds()) / 1000
 		}
+		ctx = context.WithValue(ctx, gatewayTimingKey{}, timing)
 		// Override the regular API's short write deadline for SSE/WebSocket.
 		_ = http.NewResponseController(w).SetWriteDeadline(time.Now().Add(180 * time.Second))
 		r.Body = http.MaxBytesReader(w, r.Body, 8<<20)

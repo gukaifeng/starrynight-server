@@ -6,6 +6,7 @@ from .prompts import PLANNER, CORE_PLANNER, NARRATOR
 from .director import Director, grounded_excerpt, visible_narration
 from .storage import clamp, dump
 from .speech_text import audio_key
+from . import voice_trace as vt
 from .greetings import ENTRY_TRIGGERS, greeting_context, plan_text
 from . import novelty
 from .reply_flow import compile_parts, duration_hint
@@ -178,7 +179,8 @@ class Orchestrator:
             aside_problem=aside_quality.plan_problem(plan,context.get('recent_asides_to_avoid',[]))
             content_problem=wrong_gesture or language_problem or aside_problem
             duplicate=novelty.match(self.store,owner,text,extra)
-            related=await self.semantic.match(owner,text,request.trigger) if not duplicate and not content_problem else None
+            with vt.span('plan.quality_review',attempt=len(reviews)+1):
+                related=await self.semantic.match(owner,text,request.trigger) if not duplicate and not content_problem else None
             # BGE is a retrieval model, not an equivalence judge. One semantic
             # suggestion may steer a new draft; it cannot reject a succession
             # of otherwise distinct answers merely sharing a topic or event.
@@ -212,7 +214,8 @@ class Orchestrator:
                 async with aclosing(self.audio(owner,char,cached,create=False)) as audio:
                     async for e in audio:yield e
             yield event('reply.completed',message_id=cached['message_id']); return
-        context=self.context(owner,request)
+        with vt.span('context.load'):
+            context=self.context(owner,request)
         if request.trigger in INTERACTION_TRIGGERS and not resume:
             # Keep the historical key so an older app's rotation cooldown also
             # covers pinches after upgrading. All physical play shares one lane.
@@ -239,15 +242,20 @@ class Orchestrator:
         # Real event eligibility/cooldowns are checked before consuming a draft.
         # Entry identity and transcript position belong to now, not preparation.
         if self.reactions:
-            claim=self.reactions.claim(owner,request) if request.timeline_reply and not resume else None
+            with vt.span('preparation.claim'):
+                claim=self.reactions.claim(owner,request) if request.timeline_reply and not resume else None
             if claim:
+                vt.flag('preparation_hit',True)
+                vt.flag('preparation_trace_id',claim.get('id',''))
                 # A prepared answer already owns its generation. Waiting for
                 # unrelated provider cancellation adds latency and destroys
                 # other event buffers that are still valid in this context.
                 async with aclosing(self.reactions.deliver(owner,request,context,claim)) as output:
                     async for item in output:yield item
                 return
-            await self.reactions.yield_to_reply(owner)
+            vt.flag('preparation_hit',False)
+            with vt.span('preparation.yield_to_foreground'):
+                await self.reactions.yield_to_reply(owner)
         async with aclosing(self.compose_reply(owner,request,context,budget)) as source:
             async for item in source:yield item
 
@@ -294,8 +302,9 @@ class Orchestrator:
                 b.dialogue=None; b.vocal_events=[]
         if not draft:self.store.put('vocals',owner,char,used)
         yield event('reply.plan.ready',beat_count=len(plan.beats))
-        resolved=[self.director.beat(owner,char,b,context['relationship'],context['state'],request.available_assets,
-                  plan.state_interpretation.dominant_emotion,request.trigger,record_usage=not draft) for b in plan.beats]
+        with vt.span('performance.resolve'):
+            resolved=[self.director.beat(owner,char,b,context['relationship'],context['state'],request.available_assets,
+                      plan.state_interpretation.dominant_emotion,request.trigger,record_usage=not draft) for b in plan.beats]
         yield event('segment.visual.resolved',count=len(resolved))
         narrations=[]; warning=None
         if plan.beats and not request.progressive_reply and not request.timeline_reply:
@@ -325,10 +334,11 @@ class Orchestrator:
         if draft:
             yield event('reaction.draft',plan=plan.model_dump())
         else:
-            script['goal_state']=await goals.commit(self.settings,request,plan)
-            goals.committed(self.store,owner,request,script['goal_state'])
-            self.store.publish_reply(owner,char,rid,request.text,script)
-            self.commit_context(owner,request,context,script,plan)
+            with vt.span('reply.commit'):
+                script['goal_state']=await goals.commit(self.settings,request,plan)
+                goals.committed(self.store,owner,request,script['goal_state'])
+                self.store.publish_reply(owner,char,rid,request.text,script)
+                self.commit_context(owner,request,context,script,plan)
         yield event('reply.narration.ready',script=script,cached=False)
         if warning:yield event('reply.warning',message=warning)
         if request.timeline_reply:
@@ -415,31 +425,39 @@ class Orchestrator:
     async def audio_beat(self,owner,char,script,beat,voice,folder,create):
         key=audio_key(owner,char,voice['voice_id'],script['message_id'],beat['beat_id'])
         path=folder/(key+'.pcm')
-        if not create and not path.exists():
+        with vt.span('audio.cache_lookup',beat_id=beat['beat_id']):
+            cached=path.exists()
+        if not create and not cached:
             yield event('audio.error',message='这句语音未完成，可点播放重新生成。');return
         yield event('segment.audio.started',beat_id=beat['beat_id'],sample_rate=24000,message_id=script['message_id'])
         data=bytearray()
         try:
-            if path.exists():
-                path.touch()
-                content=path.read_bytes()
+            if cached:
+                with vt.span('audio.cache_read',beat_id=beat['beat_id'],cache_hit=True):
+                    path.touch()
+                    content=path.read_bytes()
                 for offset in range(0,len(content),12288):
                     chunk=content[offset:offset+12288];data.extend(chunk)
-                    yield event('segment.audio.chunk',beat_id=beat['beat_id'],data=base64.b64encode(chunk).decode())
+                    with vt.span('audio.base64_encode',beat_id=beat['beat_id'],bytes=len(chunk)):
+                        encoded=base64.b64encode(chunk).decode()
+                    yield event('segment.audio.chunk',beat_id=beat['beat_id'],data=encoded)
                     await asyncio.sleep(0)
             else:
                 async with aclosing(self.provider.synthesize(owner,char,beat,voice['voice_id'])) as synthesis:
                     async for chunk in synthesis:
                         data.extend(chunk)
-                        yield event('segment.audio.chunk',beat_id=beat['beat_id'],data=base64.b64encode(chunk).decode())
+                        with vt.span('audio.base64_encode',beat_id=beat['beat_id'],bytes=len(chunk)):
+                            encoded=base64.b64encode(chunk).decode()
+                        yield event('segment.audio.chunk',beat_id=beat['beat_id'],data=encoded)
                 if data:
-                    temp=path.with_suffix('.tmp');temp.write_bytes(data);temp.replace(path)
-                    files=sorted(folder.glob('*.pcm'),key=lambda f:f.stat().st_mtime)
-                    total=sum(f.stat().st_size for f in files)
-                    for old in files:
-                        if total<=128*1024*1024:break
-                        if old==path:continue
-                        total-=old.stat().st_size;old.unlink(missing_ok=True)
+                    with vt.span('audio.cache_write_and_trim',beat_id=beat['beat_id'],bytes=len(data)):
+                        temp=path.with_suffix('.tmp');temp.write_bytes(data);temp.replace(path)
+                        files=sorted(folder.glob('*.pcm'),key=lambda f:f.stat().st_mtime)
+                        total=sum(f.stat().st_size for f in files)
+                        for old in files:
+                            if total<=128*1024*1024:break
+                            if old==path:continue
+                            total-=old.stat().st_size;old.unlink(missing_ok=True)
             yield event('segment.audio.ready',beat_id=beat['beat_id'],duration=len(data)/48000)
         except Exception:
             yield event('audio.error',message='语音连接中断，文字已保留。点播放可重试。')

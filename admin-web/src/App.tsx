@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { VoiceTimings } from "./VoiceTimings";
 import {
   Dialog,
   DialogPanel,
@@ -587,6 +588,8 @@ export default function App() {
               refresh={refresh}
               ask={ask}
             />
+          ) : view === "ai:voice_traces" ? (
+            <VoiceTimings refresh={refresh} />
           ) : current ? (
             <ResourceWorkspace
               key={view}

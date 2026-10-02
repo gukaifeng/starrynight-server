@@ -18,6 +18,7 @@ from .reaction_pool import ReactionPool
 from .schemas import PreparationRequest,QuickReplyRequest
 from .translation import Translations, TranslationRequest
 from .openings import OpeningRegistration,register as register_opening
+from . import voice_trace
 
 def create_app(settings=None,provider=None):
     settings=settings or Settings.load();store=Store(settings.data_dir/'state.sqlite3')
@@ -38,6 +39,7 @@ def create_app(settings=None,provider=None):
             await asyncio.gather(warming,return_exceptions=True)
             await reactions.close();await turns.close();await provider.close();store.db.close()
     app=FastAPI(title='StarryNight Character Gateway',version='1.2',lifespan=lifespan,docs_url=None,redoc_url=None)
+    app.add_middleware(voice_trace.WorkerClock)
     app.state.store=store;app.state.engine=engine;app.state.turns=turns
     app.state.reactions=reactions
     def owner(headers):
@@ -59,6 +61,16 @@ def create_app(settings=None,provider=None):
         if (who,character) in resetting:raise HTTPException(409,'CONVERSATION_RESETTING')
         row=store.db.execute('SELECT id FROM conversation_resets WHERE owner=? AND character=? ORDER BY version DESC,created DESC LIMIT 1',(who,character)).fetchone()
         if body.conversation_reset != (row['id'] if row else ''):raise HTTPException(409,'CONVERSATION_RESET_REQUIRED')
+    def traced(request,who,character,kind,source,request_id=''):
+        gateway={}
+        try:
+            raw=json.loads(request.headers.get('x-starry-gateway-timing','{}'))
+            gateway={key:round(float(value),3) for key,value in raw.items() if key in ('catalog_ms','goals_ms','authorization_ms') and isinstance(value,(int,float)) and 0<=value<=180000}
+        except (ValueError,TypeError,AttributeError):pass
+        trace=voice_trace.Trace(store,who,character,kind,request.headers.get('x-starry-voice-trace'),request_id,gateway)
+        trace.started=request.scope.get('voice_started',trace.started)
+        trace.span('worker.validation',0,trace.ms())
+        return lambda:voice_trace.source(trace,source())
     @app.get('/health')
     async def health():return dict(status='ok',protocol=1,revision=5,paid_calls=False)
     @app.get('/v1/status')
@@ -90,7 +102,7 @@ def create_app(settings=None,provider=None):
         if mode in ('progressive-v1','timeline-v2'):body.progressive_reply=True
         if mode=='timeline-v2':body.timeline_reply=True
         body.parallel_performance=body.timeline_reply and request.headers.get('x-starry-performance-mode')=='parallel-v1'
-        return await turns.start(who+':'+character,str(body.request_id),lambda: engine.reply(who,body),replace=body.trigger!='idle',validate=lambda:check_reset(who,character,body))
+        return await turns.start(who+':'+character,str(body.request_id),traced(request,who,character,body.trigger,lambda:engine.reply(who,body),str(body.request_id)),replace=body.trigger!='idle',validate=lambda:check_reset(who,character,body))
     @app.post('/v1/conversations/{character}/opening')
     async def opening(character:str,body:OpeningRegistration,request:HTTPRequest):
         who=owner(request.headers);check_reset(who,character,body)
@@ -134,7 +146,7 @@ def create_app(settings=None,provider=None):
         def still_available():
             if (who,character) in resetting:raise HTTPException(409,'CONVERSATION_RESETTING')
             if not store.db.execute('SELECT 1 FROM messages WHERE owner=? AND character=? AND id=?',(who,character,str(message_id))).fetchone():raise HTTPException(404,'MESSAGE_NOT_FOUND')
-        return await turns.start(who+':'+character,'audio:'+str(message_id),lambda: engine.audio(who,character,json.loads(row[0]),True),validate=still_available)
+        return await turns.start(who+':'+character,'audio:'+str(message_id),traced(request,who,character,'replay',lambda:engine.audio(who,character,json.loads(row[0]),True),str(message_id)),validate=still_available)
     @app.post('/v1/conversations/{character}/suggestions/{operation}')
     async def suggestions(character:str,operation:str,body:QuickReplyRequest,request:HTTPRequest):
         who=owner(request.headers)
@@ -202,17 +214,23 @@ def create_app(settings=None,provider=None):
         finally:resetting.discard(scope)
     @app.websocket('/v1/asr/{character}')
     async def asr(socket:WebSocket,character:str):
-        key=None
+        key=None;trace=None
         try:
             who=owner(socket.headers)
             if character not in PROFILES:raise HTTPException(404)
             candidate=who+':'+character;acquire(candidate);key=candidate;await socket.accept()
-            await recognize(socket,settings,store,who,character,socket.query_params.get('nickname',''))
+            trace=voice_trace.Trace(store,who,character,'asr',socket.headers.get('x-starry-voice-trace'))
+            trace.started=socket.scope.get('voice_started',trace.started)
+            with voice_trace.scope(trace):
+                await recognize(socket,settings,store,who,character,socket.query_params.get('nickname',''))
+                data=trace.save()
+                if data:await socket.send_json(dict(type='voice.trace',trace_id=trace.id,trace=data))
         except (WebSocketDisconnect,asyncio.CancelledError):pass
         except Exception:
             try:await socket.send_json(dict(type='asr.error',message='语音识别连接中断，请重试。'))
             except Exception:pass
         finally:
+            if trace and not trace.closed:trace.save('interrupted')
             if key:busy.discard(key)
             try:await socket.close()
             except Exception:pass

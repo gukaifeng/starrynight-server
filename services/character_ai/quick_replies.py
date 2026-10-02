@@ -47,6 +47,15 @@ class QuickReplies:
         return self.status(owner,request)
 
     async def build(self,owner,request,key,source):
+        from . import voice_trace as vt
+        trace=vt.Trace(self.store,owner,request.character_id,'prepare:suggestions',request_id=source)
+        with vt.scope(trace):
+            try:await self._build(owner,request,key,source)
+            except BaseException:
+                trace.save('cancelled');raise
+            finally:trace.save('completed')
+
+    async def _build(self,owner,request,key,source):
         char=request.character_id
         try:
             saved=self.saved(owner,request)
