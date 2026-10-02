@@ -27,6 +27,7 @@ def main():
             accounts.append((session,password))
         a,b=accounts[0][0],accounts[1][0];token=a['token'];user=a['user']
         assert user['starry_id'].startswith('xy') and user['starry_id'][2:].isdigit() and not user['starry_id'][2:].startswith('0')
+        assert int(user['starry_id'][2:])>=100000001 and int(b['user']['starry_id'][2:])>=100000001
         assert user['starry_id']!=b['user']['starry_id'] and user['profile']['avatar']=='starry-orbit-v1'
         call('PATCH','/v1/me',token,dict(expected_version=user['version'],patch=dict(starry_id=b['user']['starry_id'])),422)
         uploaded=call('PUT','/v1/me/avatar',token,dict(expected_version=user['version'],image=base64.b64encode(image()).decode()))
