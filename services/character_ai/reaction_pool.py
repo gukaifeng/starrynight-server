@@ -237,7 +237,7 @@ class ReactionPool:
             job=self.jobs.get(row['id'])
             if job and not job.done and not job.claimed and not job.task.cancelling():
                 job.claimed=True;self.slots.promote(job.id)
-                return dict(id=job.id,kind=kind,job=job,audio_ready=True)
+                return dict(id=job.id,kind=kind,candidate=candidate,audio_ready=True)
             return dict(id=row['id'],kind=kind,candidate=candidate)
         job=self.find_job(owner,char,key,kind)
         if job is None and kind.startswith('quick:'):job=self.ensure_job(owner,request,key,kind,source=self.quick.latest(owner,char))
@@ -251,10 +251,10 @@ class ReactionPool:
             return dict(id=job.id,kind=kind,job=job)
         self.store.put('reaction_pool_review',owner,char,dict(status='miss',kind=kind));return None
 
-    async def publish(self,owner,request,context,claim,script,plan):
+    async def publish(self,owner,request,context,claim,script,plan,*,defer_goals=False):
         from .aside_quality import review_script, recent
         char=request.character_id;script=review_script({**script,'trigger':request.trigger},recent(self.store,owner,char),goals.spoken_language(char,context['goal_context']))
-        script['goal_state']=await goals.commit(self.settings,request,Plan.model_validate(plan))
+        script['goal_state']=goals.effective(self.store,owner,request) if defer_goals else await goals.commit(self.settings,request,Plan.model_validate(plan))
         goals.committed(self.store,owner,request,script['goal_state'])
         self.store.publish_reply(owner,char,str(request.request_id),request.text,script,prepared_id=claim['id'],allow_preparing='job' in claim)
         self.engine.commit_context(owner,request,context,script,Plan.model_validate(plan))
@@ -288,9 +288,13 @@ class ReactionPool:
                 async for item in stream:
                     if item['type']=='reply.narration.ready':
                         if attached_trace:attached_trace.span('preparation.inflight_text_wait',started,attached_trace.ms())
-                        script=await self.publish(owner,request,context,claim,item['script'],job.plan)
+                        script=await self.publish(owner,request,context,claim,item['script'],job.plan,defer_goals=bool(item.get('core_streaming')))
                         item={**item,'script':script,'prepared':True,'preparation_inflight':waiting_core}
                     elif item['type'] in ('reply.visuals.updated','reply.script.updated'):
+                        if item.get('core_complete'):
+                            state=await goals.commit(self.settings,request,Plan.model_validate(job.plan))
+                            goals.committed(self.store,owner,request,state)
+                            self.engine.commit_context(owner,request,context,item['script'],Plan.model_validate(job.plan))
                         from .aside_quality import review_script, recent
                         script=review_script({**item['script'],'trigger':request.trigger,'goal_state':goals.effective(self.store,owner,request)},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))
                         self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}

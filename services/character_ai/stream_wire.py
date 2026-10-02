@@ -3,13 +3,13 @@ import json,re
 from .schemas import Beat,Speech,StagedThought,GoalFeedback,CONTROL_TEXT
 
 class Objects:
-    def __init__(self,nested=False):self.buffer='';self.started=False;self.depth=0;self.quoted=False;self.escape=False;self.nested=nested;self.array_depth=0;self.beat_start=None
+    def __init__(self,nested=False):self.buffer='';self.started=False;self.depth=0;self.quoted=False;self.escape=False;self.nested=nested;self.array_depth=0;self.beat_start=None;self.emitted=0
     def feed(self,chunk):
         result=[]
         for c in chunk:
             if not self.started:
                 if c!='{':continue
-                self.started=True;self.depth=1;self.buffer=c;continue
+                self.started=True;self.depth=1;self.buffer=c;self.emitted=0;continue
             self.buffer+=c
             if len(self.buffer)>16000:raise ValueError('STREAM_OBJECT_TOO_LARGE')
             if self.quoted:
@@ -24,12 +24,15 @@ class Objects:
                 if self.nested and self.depth==2 and self.array_depth==1 and re.match(r'^\s*\{\s*"beats"\s*:\s*\[',self.buffer):self.beat_start=len(self.buffer)-1
             elif c=='}':
                 if self.nested and self.depth==2 and self.beat_start is not None and self.array_depth==1:
-                    try:result.append(json.loads(self.buffer[self.beat_start:]))
+                    try:result.append(json.loads(self.buffer[self.beat_start:]));self.emitted+=1
                     except ValueError:raise ValueError('STREAM_JSON_INVALID') from None
                     self.beat_start=None
                 self.depth-=1
                 if not self.depth:
-                    try:result.append(json.loads(self.buffer))
+                    try:
+                        root=json.loads(self.buffer)
+                        if self.nested and not self.emitted:result.extend(root.get('beats',[]) if isinstance(root.get('beats'),list) else [])
+                        result.append(root)
                     except ValueError:raise ValueError('STREAM_JSON_INVALID') from None
                     self.started=False;self.buffer=''
         return result

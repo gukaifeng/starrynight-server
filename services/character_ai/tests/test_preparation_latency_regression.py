@@ -59,11 +59,11 @@ async def test_complete_pcm_is_ready_and_slot_is_free_while_optional_visuals_wai
     pool.active.clear()
     actual=request.model_copy(update=dict(request_id=uuid.uuid4(),trigger='appLaunch',timeline_reply=True))
     claim=pool.claim('u',actual)
-    assert claim['audio_ready'] and claim['job'] is job
+    assert claim['audio_ready'] and claim['candidate']['script']['message_id']==job.script['message_id']
     output=pool.deliver('u',actual,engine.context('u',actual),claim)
     heard=False
     async for item in output:
-        if item['type']=='reply.narration.ready':assert not item['preparation_inflight']
+        if item['type']=='reply.narration.ready':assert item['prepared'] and not item.get('preparation_inflight')
         if item['type']=='segment.audio.chunk':
             heard=True;visual_gate.set()
     assert heard and provider.calls.count('tts')==1

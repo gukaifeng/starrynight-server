@@ -11,6 +11,8 @@ def test_object_stream_handles_quotes_unicode_and_chunk_boundaries():
     for c in raw:values.extend(parser.feed(c))
     assert values[0]['say']=='Hmm… "a flower"?' and values[1]['focus']=='naming'
     assert not parser.started
+    reordered=Objects(nested=True).feed('{"focus":"hello","beats":[{"say":"A new hello!"}]}')
+    assert reordered[0]['say']=='A new hello!'
     parser=Objects(nested=True)
     prefix='{"beats":[{"say":"Hello?","asides":[["I wonder.","before"]]}'
     assert parser.feed(prefix)[0]['say']=='Hello?' and parser.started
@@ -41,6 +43,8 @@ async def test_first_audio_does_not_wait_for_second_sentence_or_metadata(tmp_pat
     final=next(e for e in events if e.get('core_complete'))
     assert len(first['script']['beats'])==1 and len(final['script']['beats'])==2
     assert first['script']['message_id']==final['script']['message_id']
+    types=[e['type'] for e in events]
+    assert types.index('reply.narration.ready')<types.index('segment.audio.started')
     assert store.history('u',req.character_id)[-1]['text']==final['script']['text']
     assert store.db.execute('select text from reply_novelty where message=?',(final['script']['message_id'],)).fetchone()[0]==final['script']['text']
     before=provider.calls[:]
@@ -61,4 +65,30 @@ async def test_ready_clip_prefetch_is_private_context_bound_and_non_consuming(tm
     cached=[c['id'] for c in clips]
     assert not pool.clips('u',request.model_copy(update=dict(cached_preparation_ids=cached)))
     assert all(r['status']=='ready' for r in pool.rows('u',request.character_id,pool.context_key('u',request)))
+    await pool.close();store.db.close()
+
+@pytest.mark.asyncio
+async def test_inflight_stream_commits_final_goal_feedback_once_after_early_audio(tmp_path,monkeypatch):
+    from services.character_ai import goals
+    store,provider,engine,pool,request=setup(tmp_path);tail=asyncio.Event();first=asyncio.Event();commits=[]
+    async def source(*args):
+        yield dict(say='要不要和我一起找一颗属于今晚的星星？')
+        first.set();await tail.wait()
+        yield dict(goal_feedback=dict(evidence='星星',affection=.02),focus='choose a star')
+    async def commit(settings,req,plan):
+        commits.append((plan.goal_feedback.affection,plan.response_focus));return {'version':1,'progress_version':1}
+    monkeypatch.setattr(goals,'commit',commit);provider.stream_beats=source
+    entry=entry_request(request).model_copy(update=dict(timeline_reply=True,parallel_performance=True))
+    pool.prepare('u',entry);await first.wait();pool.active.clear()
+    actual=request.model_copy(update=dict(request_id=uuid.uuid4(),trigger='appLaunch',text='星星',timeline_reply=True,parallel_performance=True))
+    events=[]
+    async with asyncio.timeout(2):
+        async for e in engine.reply('u',actual):
+            events.append(e)
+            if e['type']=='segment.audio.chunk':
+                assert not commits;tail.set()
+    types=[e['type'] for e in events]
+    assert types.index('reply.narration.ready')<types.index('segment.audio.started')
+    assert commits==[(0.0,'choose a star')] # Event drafts cannot invent user progress.
+    assert next(e for e in events if e.get('core_complete'))['script']['goal_state']['progress_version']==1
     await pool.close();store.db.close()

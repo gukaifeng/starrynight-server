@@ -36,7 +36,7 @@ class SemanticNovelty:
                 # Local weights only, no dialogue/paid request. Load ORT and
                 # prime its kernels before a user's first generated answer.
                 await asyncio.to_thread(self.embed,['预热'])
-    async def match(self,owner,text,trigger='user_message'):
+    async def match(self,owner,text,trigger='user_message',*,exclude_message=''):
         if not self.settings.semantic_novelty or len(text.strip())<10:return None
         # This deployed embedding is Chinese. English topic similarity is not
         # reliable evidence for a paid rewrite. Exact/near-copy checks still
@@ -46,7 +46,7 @@ class SemanticNovelty:
         rows=self.store.db.execute('''SELECT n.message,n.text,n.character,e.vector,json_extract(m.data,'$.trigger') trigger FROM reply_novelty n
             JOIN messages m ON m.id=n.message
             LEFT JOIN reply_embeddings e ON e.message=n.message AND e.model=?
-            WHERE n.owner=? ORDER BY n.created DESC LIMIT ?''',(MODEL_REVISION,owner,HISTORY_LIMIT)).fetchall()
+            WHERE n.owner=? AND n.message!=? ORDER BY n.created DESC LIMIT ?''',(MODEL_REVISION,owner,exclude_message,HISTORY_LIMIT)).fetchall()
         if not rows:return None
         missing=[r for r in rows if r['vector'] is None]
         async with self.lock:

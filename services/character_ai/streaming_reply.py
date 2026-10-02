@@ -5,8 +5,8 @@ field cannot invalidate already accepted speech or start a second paid call.
 """
 import asyncio,copy,uuid
 from contextlib import aclosing
-from . import voice_trace as vt,novelty,goals,parallel_performance
-from .schemas import Plan,visible_text
+from . import voice_trace as vt,novelty,goals,parallel_performance,aside_quality
+from .schemas import Plan,MemoryProposal,visible_text
 from .stream_wire import beat,feedback
 from .reply_flow import compile_parts,duration_hint
 from .roleplay import wrong_language
@@ -16,7 +16,7 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
     script=dict(message_id=str(uuid.uuid4()),character_id=char,beats=[],text='',trigger=request.trigger,
         idle_decision='proactive_speech' if request.trigger=='idle' else None,memory_suggestions=[])
     controls=asyncio.Queue(maxsize=16);segments=asyncio.Queue(maxsize=4);end=object()
-    published=False
+    published=False;announced=asyncio.Event()
     pending_visuals=None
     async def produce():
         nonlocal published
@@ -26,10 +26,18 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                     if 'say' not in raw:
                         if 'goal_feedback' in raw:plan.goal_feedback=feedback(raw['goal_feedback'],request.text)
                         if isinstance(raw.get('focus'),str):plan.response_focus=raw['focus'][:100]
+                        if isinstance(raw.get('state'),dict):
+                            plan.suggested_state_delta={k:v for k,v in raw['state'].items() if k in ('happiness','sadness','anger','anxiety','energy','closeness','trust','conflict') and isinstance(v,(int,float)) and not isinstance(v,bool) and -.08<=v<=.08}
+                        if request.trigger=='user_message' and isinstance(raw.get('memories'),list):
+                            for value in raw['memories'][:2]:
+                                try:plan.memory_updates.append(MemoryProposal.model_validate(value))
+                                except (ValueError,TypeError):pass
+                        script['memory_suggestions']=[m.content for m in plan.memory_updates]
                         continue
                     if len(plan.beats)>=3:continue
                     b=beat(raw,len(plan.beats)+1)
                     vt.mark('first_sentence_validated')
+                    b.asides=[a for a in b.asides if aside_quality.allowed_language(a.text,goals.spoken_language(char,context['goal_context']))]
                     proposed=Plan(beats=[b])
                     lang_char='anime-lime' if goals.spoken_language(char,context['goal_context'])=='en' else char
                     from .orchestrator import interaction_mismatch
@@ -37,6 +45,9 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                     candidate='\n'.join([script['text'],b.dialogue.text]).strip()
                     extra=[dict(text=t) for t in context.get('reserved_reactions',[])]
                     if novelty.match(engine.store,owner,candidate,extra,exclude_message=script['message_id']):raise ValueError('REPLY_REPEATED')
+                    with vt.span('plan.quality_review'):
+                        related=await engine.semantic.match(owner,candidate,request.trigger,exclude_message=script['message_id'])
+                        if related and related['score']>=.86:raise ValueError('REPLY_REPEATED')
                     resolved=engine.director.beat(owner,char,b,context['relationship'],context['state'],request.available_assets,
                         b.dialogue.speech.emotion,request.trigger,record_usage=not draft)
                     wire=dict(beat_id=b.beat_id,thought=None,dialogue=dict(text=visible_text(b.dialogue.text),speech=b.dialogue.speech.model_dump()),
@@ -72,6 +83,7 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
         finally:
             await segments.put(end);await controls.put(end)
     async def audio():
+        await announced.wait() # No PCM/start event may overtake the first public script.
         while True:
             wire=await segments.get()
             if wire is end:break
@@ -90,7 +102,9 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                 item=next_control.result();next_control=None
                 if item is end:control_done=True
                 elif isinstance(item,Exception):raise item
-                else:yield item
+                else:
+                    if item['type']=='reply.narration.ready':announced.set()
+                    yield item
                 if not control_done:next_control=asyncio.create_task(controls.get())
             if next_audio is not None and next_audio in done:
                 try:item=next_audio.result()
