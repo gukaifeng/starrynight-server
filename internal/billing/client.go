@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
@@ -29,6 +30,8 @@ type Client struct {
 	HTTP        *http.Client
 	Source      string
 	BailianCode string
+	paceMu      sync.Mutex
+	nextRequest time.Time
 }
 type Error struct {
 	Code      string `json:"code"`
@@ -82,6 +85,25 @@ func (c *Client) Query(ctx context.Context, action string, params url.Values) (D
 	}
 	if action != "QueryBillOverview" && action != "DescribeInstanceBill" && action != "DescribeSplitItemBill" {
 		return Data{}, &Error{Code: "InvalidAction", Message: "仅允许读取费用账单。"}
+	}
+	// DescribeInstanceBill has an account limit of 10 requests/second. Keep
+	// this process below it, including concurrent summaries and analytics.
+	c.paceMu.Lock()
+	now := time.Now()
+	start := c.nextRequest
+	if start.Before(now) {
+		start = now
+	}
+	c.nextRequest = start.Add(150 * time.Millisecond)
+	c.paceMu.Unlock()
+	if delay := time.Until(start); delay > 0 {
+		timer := time.NewTimer(delay)
+		defer timer.Stop()
+		select {
+		case <-timer.C:
+		case <-ctx.Done():
+			return Data{}, ctx.Err()
+		}
 	}
 	cred, err := c.Provider.GetCredentials(ctx)
 	if err != nil || !cred.HasKeys() || cred.Expired() {

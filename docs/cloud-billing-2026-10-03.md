@@ -31,3 +31,51 @@ Go vet / race 单元测试、前端 9 项单元测试、TypeScript / Vite 生产
 真实 Chrome 的本地明确夹具验收通过：1512×1050 与 390×844、计费明细、小额金额、退款、分页、CSV、Bucket 页面与授权提示，无页面错误、无整体横向溢出。截图和测试结果在忽略目录 `.local/billing-browser/`。这属于界面验收，不代表已获得阿里云真实费用。
 
 官方依据：[账单 API 概览](https://help.aliyun.com/zh/user-center/developer-reference/api-overview-1)、[账单汇总及授权](https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-querybilloverview)、[实例账单](https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-describeinstancebill)、[Bucket 分账](https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-describesplititembill)、[百炼账单字段](https://help.aliyun.com/zh/model-studio/bill-query-and-cost-management)、[RPC 签名规则](https://help.aliyun.com/en/cmn/developer-reference/signature-mechanism)。
+
+## 云端发布与只读验收
+
+运行版本 `20261003T040355Z-452cd59031a3`，实现提交 `452cd59031a3a872c5e6e6d21e405111282f9e87`。发布清单 297 个文件，经现有 active updater 的 check-only 校验后上线。PG 备份保留于 `~/app/backups/before-api-20261003T040355Z-452cd59031a3`；没有新增数据库迁移，也没有修改公开 App API 或角色、AI 源码。AI 进程 PID 和启动时间在发布前后完全一致。
+
+公网实际验收：App 8443 和管理 8444 readiness 均为 200，API / Admin / AI / Caddy 均 active；匿名费用请求 401。真实主管理员会话查询百炼汇总、OSS 汇总、百炼明细、当前 Bucket 分账，管理接口均返回 200 的明确 unavailable 状态及阿里云 `NotAuthorized`，没有返回虚假的金额。当前 Bucket 配置已正确用于分账请求。
+
+真实 Chrome 公网验收通过登录、费用与 Bucket 页面、刷新、1512×1050 和 390×844，无页面错误或整体横向溢出。此前 Node 独立 APIRequestContext 遇到本机连接 EBADF；改为页面内 fetch，使用与用户相同的浏览器网络路径后完成匿名认证校验。未修改 TLS 校验或略过匿名检查。原始结果及截图在 `.local/billing-production/`，不公开提交。
+
+上述是初次发布时的权限状态；随后完成了以下授权后验收。
+
+## RAM 授权后真实账单验收
+
+用户为既有 OSS AccessKey 所属 RAM 用户添加 `AliyunBSSReadOnlyAccess` 后，2026-10-03 公网只读验收确认权限已经生效。该系统策略是账号费用读取策略，当前明确包含 `bss:Describe*`、`bssapi:Describe*`、`bssapi:Query*` 以及百炼 `modelstudio:ListBilling*`、`modelstudio:GetBilling*`，因此同一身份也可以读取百炼账单，并非只允许查看这个 RAM 用户或原 OSS Bucket 自己产生的费用。控制台路径为 RAM → 身份管理 → 用户 → 目标用户新增授权 → 账号级别 → 系统策略。也可继续使用本仓库仅三个操作的自定义策略；两者不必重复添加。依据：[系统策略内容](https://help.aliyun.com/zh/ram/developer-reference/aliyunbssreadonlyaccess)、[RAM 用户授权](https://help.aliyun.com/zh/ram/user-guide/grant-permissions-to-the-ram-user)。
+
+真实主管理员会话的接口结果：
+
+| 账期 | 产品与范围 | 状态 | 返回条数 |
+| --- | --- | --- | --- |
+| 2026-10 | 百炼账号汇总 | ready | 3 |
+| 2026-10 | OSS 账号汇总 | ready | 1 |
+| 2026-10 | 百炼计费明细 | ready | 18，无后续分页 |
+| 2026-10 | 当前项目 Bucket 分账 | ready | 0 |
+| 2026-09 | 百炼账号汇总 | ready | 3 |
+| 2026-09 | OSS 账号汇总 | ready | 0 |
+
+百炼默认产品代码 `sfm` 已与实际返回的「大模型服务平台百炼」匹配。账号汇总已返回官方真实金额；不在公开仓库记录账号财务数值、API Key ID 或 Bucket 名称。本月金额尚未最终结算，也不能声称是星夜专属费用。Bucket 查询成功且过滤已配置，但空结果不能证明项目费用为零，也不能据此证明分账数据已经开始生成；该部分仍需核对控制台分账启用状态及出账延迟。
+
+真实 Chrome 再次通过公网登录、匿名 401、费用及 Bucket 页面、1512×1050 和 390×844 检查，无页面错误或整体横向溢出。截图、结果与受限财务响应保留于忽略目录 `.local/billing-after-grant/`。本次仅查询和记录验证结果，没有修改客户端、云端运行代码或云资源配置，也没有调用付费模型。
+
+## 百炼多维分析
+
+百炼标签页提供完整账单分析，OSS 保持原有分页及 Bucket 分账。统计与筛选只读，沿用 owner 权限；不需要新增阿里云权限。账号月汇总与筛选后统计分别标注范围，不能将账号费用直接称为星夜专属费用。
+
+- 15 个分组维度：模型、API Key ID、工作空间、输入/输出类型、调用渠道、地域、商品/服务、计费项、账单类型、付费方式、实例标签、财务单元、资源组、免费额度用完即停标识、账单日期。可选择一级及二级分组，并按应付金额、计费明细条数或名称排序。
+- 模型、Key、商品是常用筛选，其余在「更多筛选维度」展开；支持组合筛选、原始字段搜索和币种筛选。费用排行、按日图与分组表可点击筛选；筛选同步更新全部面板和计费明细。
+- 费用面板显示应付、原始金额、优惠、代金券、现金支付、未结清，并单列正向费用和负向调整/退款；排行占比按同币种正向费用计算，不用含退款的净额做分母。
+- 用量按输入/输出类型及单位分别求和，Token、千tokens、秒、张等不互相转换或混加。明细条数不是模型调用次数；账单不能直接推导调用次数。缺失有效金额不补零，缺少单位的用量不汇总。
+- 「整月汇总」完整读取月计费项，适合快速分类；「按日展开」逐日调用官方 DAILY 接口，当前月只到北京时间当天，并显示每日已出账费用。也可沿用顶部具体日期只统计某日。MONTHLY 返回的记录不伪造逐日日期。
+- 分组 CSV 导出当前条件下全部分组，明细 CSV 导出当前条件下全部记录，不受界面分页影响；继续处理 CSV 公式转义，真实原始实例 ID 可供核对。
+
+新增管理接口 `GET /admin-api/v1/billing/analysis?month=YYYY-MM&granularity=monthly|daily&date=YYYY-MM-DD`。接口完整跟随每页 NextToken，成功才返回 `status=ready` 和 `complete=true`，并返回实际范围 `start_date`/`end_date`。上游失败、重复游标、总条数变化或最终条数不一致均丢弃部分结果，不能发布部分金额；失败不缓存。每次最多 100 个供应商查询、10,000 条记录、60 秒，超出时明确建议按具体日期查询。成功的月/日结果在 Redis 缓存 5 分钟，逐日长查询失败后可复用已经完成的日期。进程内供应商请求间隔至少 150 毫秒，低于官方该接口 10 次/秒的账号限制；其他进程仍需共享账号时自行遵守总限额。
+
+模型维度优先按官方六段推理 ID 解析；真实账单中的部分语音、图片、翻译等记录为省略调用渠道的五段结构。兼容仅限 `key;llm-/ws-工作空间;模型;计量类型;0/1标识`，缺少渠道保持「未提供」。这是实际接口返回的兼容处理，不宣称官方文档保证该五段格式。训练 ID 只解析官方三段结构中的工作空间，不推断模型；其他未知结构全部保留并列入未知维度。依据：[官方推理与训练字段](https://help.aliyun.com/zh/model-studio/bill-query-and-cost-management)、[分页、DAILY 日期及限流](https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-describeinstancebill)。
+
+金额在浏览器中使用 BigInt 与十进制字符串精确累计，支持科学计数及小额费用；Number 只用于图表几何比例，不用于金额累计、排序和导出。币种始终分开，原始财务数据不提交公开仓库。
+
+实现验证：Go vet / race 检查和四个 Go 可执行程序构建通过；前端 15 项单元测试及 TypeScript/Vite 构建通过。专用全新 `_test` 数据库及真实 Redis 的 API/Admin 集成测试 32 项通过，包括完整跨页统计、逐日范围、缓存、权限、重复游标、条数变化、第二页授权失败及失败不缓存。复用旧测试库曾遇到已有商城主键残留，改用新库；首次新库命名未满足测试要求的 `_test` 后缀，修正后完成全套，不跳过失败检查。真实 Chrome 的明确本地夹具覆盖 112 条账单、两级分组、模型筛选、明细分页、导出全部 72 条筛选记录、每日趋势筛选、退款及权限失败；桌面 1512×1050、手机 390×844 无页面错误和整体横向溢出，明细表内部滚动。验证文件在忽略目录 `.local/billing-analytics-browser/` 和 `.local/billing-analytics-integration-fresh.log`。

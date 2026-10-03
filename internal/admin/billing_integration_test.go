@@ -97,4 +97,5 @@ func testBillingReports(t *testing.T, app *Server, get func(string) (int, []byte
 	if calls.Load() != before+1 {
 		t.Fatal("permission failures must not be cached")
 	}
+	testBillingAnalysis(t, app, get)
 }

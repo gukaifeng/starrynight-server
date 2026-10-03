@@ -103,6 +103,7 @@ func New(cfg Config, db *store.Store, cache *redis.Client, prefix string) (*Serv
 	api.GET("/resources", func(c *gin.Context) { c.JSON(200, Resources) })
 	api.GET("/overview", s.overview)
 	api.GET("/billing", s.bills)
+	api.GET("/billing/analysis", s.billAnalysis)
 	api.GET("/resources/:resource", s.list)
 	api.POST("/resources/:resource/mutate", s.mutate)
 	api.POST("/create/:resource", s.create)
