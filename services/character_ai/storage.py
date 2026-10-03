@@ -110,12 +110,21 @@ class Store:
             if prepared_id:
                 self.db.execute("UPDATE requests SET status='completed',result=? WHERE owner=? AND character=? AND id=?",(dump(script),owner,character,request))
     def request(self,owner,character,id,payload):
-        digest=hashlib.sha256(dump(payload).encode()).hexdigest()
+        digest=hashlib.sha256(json.dumps(payload,ensure_ascii=False,separators=(',',':'),sort_keys=True).encode()).hexdigest()
+        legacy=hashlib.sha256(dump(payload).encode()).hexdigest()
         row=self.db.execute('SELECT * FROM requests WHERE owner=? AND character=? AND id=?',(owner,character,id)).fetchone()
         if row:
-            if row['payload_hash']!=digest: raise ValueError('REQUEST_ID_REUSED')
+            if row['payload_hash'] not in (digest,legacy): raise ValueError('REQUEST_ID_REUSED')
+            if row['payload_hash']!=digest:
+                with self.db:self.db.execute('UPDATE requests SET payload_hash=? WHERE owner=? AND character=? AND id=?',(digest,owner,character,id))
             if row['result']:return json.loads(row['result'])
-            raise ValueError('REQUEST_INCOMPLETE') # never automatically repeat a possibly billed call
+            if row['status']=='interrupted':
+                # The stream owns cancellation/cleanup before this transition.
+                # An explicit bounded client retry reuses its immutable payload;
+                # published results above are replayed, never generated twice.
+                with self.db:self.db.execute("UPDATE requests SET status='running' WHERE owner=? AND character=? AND id=?",(owner,character,id))
+                return None
+            raise ValueError('REQUEST_INCOMPLETE')
         with self.db:self.db.execute('INSERT INTO requests VALUES(?,?,?,?,?,?,?)',(owner,character,id,digest,'running',None,time.time()))
         return None
     def complete(self,owner,character,id,result):
@@ -177,6 +186,11 @@ class Store:
     def interrupt(self,owner,character,id):
         with self.db:
             self.db.execute("UPDATE requests SET status='interrupted' WHERE owner=? AND character=? AND id=? AND result IS NULL",(owner,character,id))
+    def recover_interrupted_requests(self):
+        # Called by the single-worker gateway's lifespan, not by admin/Store
+        # readers. Recovery never calls a provider; it only enables later retry.
+        with self.db:
+            return self.db.execute("UPDATE requests SET status='interrupted' WHERE status='running' AND result IS NULL").rowcount
     def usage(self,id,status,metrics=None,units=None):
         with self.db:
             self.db.execute('UPDATE usage SET status=?,metrics=?,units=coalesce(?,units) WHERE id=?',(status,dump(metrics or {}),units,id))

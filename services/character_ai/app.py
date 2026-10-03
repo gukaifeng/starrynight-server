@@ -28,6 +28,8 @@ def create_app(settings=None,provider=None):
     busy=set(); resetting=set(); turns=TurnStreams()
     @asynccontextmanager
     async def lifespan(app):
+        recovered=store.recover_interrupted_requests()
+        if recovered:store.put('startup','system','recovered_requests',dict(count=recovered))
         async def warmup():
             try:await engine.semantic.warmup()
             except Exception as error:

@@ -181,7 +181,7 @@ class Orchestrator:
             # Optional prose is filtered by compile_parts/review_script. Never
             # regenerate otherwise valid dialogue/TTS just to replace an aside.
             if aside_problem:vt.flag('optional_asides_filtered',True)
-            content_problem=wrong_gesture or language_problem
+            content_problem=wrong_gesture or language_problem or ('直接回应这条用户输入，至少提供一句有实质内容的台词，不能输出空回复。' if request.trigger in ('user_message','story') and not text.strip() else None)
             duplicate=novelty.match(self.store,owner,text,extra)
             with vt.span('plan.quality_review',attempt=len(reviews)+1):
                 related=await self.semantic.match(owner,text,request.trigger) if not duplicate and not content_problem else None
@@ -275,9 +275,12 @@ class Orchestrator:
                     if item.get('script'):delivered=True
                     yield item
         except ValueError as error:
-            if str(error)!='REPLY_REPEATED' or delivered or not budget[0]:raise
+            recoverable={'REPLY_REPEATED','STREAM_CONTENT_INVALID','STREAM_JSON_INVALID','STREAM_SPEECH_INVALID','STREAM_OBJECT_TOO_LARGE','EMPTY_REPLY'}
+            if str(error) not in recoverable or delivered or not budget[0]:raise
             correction=getattr(request,'_stream_correction',None)
-            if correction is None:raise # No certified unpublished stream rejection.
+            if correction is None:
+                if str(error)=='REPLY_REPEATED':raise
+                correction=dict(rejected_text='',instruction='上一份未交付草稿格式无效。直接回应当前输入，重新按核心JSON Schema完整输出；台词只含说出口的话，可选说明只放asides，不能嵌入台词。')
             vt.flag('quality_recovery','role_planner')
             vt.flag('quality_recovery_model',self.settings.preparation_model if context.get('speculative_generation') else self.settings.character_model)
             reviewed={**context,'novelty_correction':correction}

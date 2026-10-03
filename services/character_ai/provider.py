@@ -338,6 +338,12 @@ class Provider:
                 vt.flag('provider_request.'+purpose,str(data.get('id',''))[:160])
                 self.store.usage(usage,'completed',dict(**data.get('usage',{}),latency_ms=int((time.monotonic()-started)*1000),request_id=data.get('id')),1)
                 raw = data['choices'][0]['message']['content']
+                from .planner_wire import optional_controls
+                try:
+                    projected,removed=optional_controls(json.loads(raw),transport_schema)
+                    raw=dump(projected)
+                    if removed:vt.flag('optional_controls_ignored',removed)
+                except (ValueError,TypeError):pass # Malformed speech/JSON uses bounded correction.
                 raw,defaulted=control_defaults(raw,transport_schema,context)
                 if defaulted:vt.flag('goal_controls_defaulted',defaulted)
                 try:

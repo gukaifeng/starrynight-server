@@ -7,7 +7,7 @@ No text or aside is invented by the adapter.
 """
 from typing import Literal
 import re
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, TypeAdapter, ValidationError
 from .schemas import Strict, Speech, VocalType, MemoryProposal, TimelinePlan, CoreTimelinePlan, GoalFeedback
 
 Cue = tuple[str,str] | tuple[str,str,int] | tuple[str,str,int,bool]
@@ -68,6 +68,37 @@ class GoalCompactPlan(CompactPlan):
 
 class GoalSpokenPlan(SpokenPlan):
     goal_feedback: GroundedGoalFeedback
+
+def optional_controls(data,schema):
+    """Provider-only projection. Public request schemas remain strict.
+
+    Unknown decoration must not invalidate correct speech. Never repair, truncate
+    or invent `say`; expand still runs Dialogue's content/format validation.
+    """
+    if not issubclass(schema,CompactPlan) or not isinstance(data,dict):return data,0
+    cleaned={k:v for k,v in data.items() if k in schema.model_fields}
+    removed=len(data)-len(cleaned)
+    beat_schema=SpokenBeat if issubclass(schema,SpokenPlan) else CompactBeat
+    if isinstance(data.get('beats'),list):
+        beats=[]
+        for value in data['beats']:
+            if not isinstance(value,dict):beats.append(value);continue
+            b={k:v for k,v in value.items() if k in beat_schema.model_fields}
+            removed+=len(value)-len(b)
+            # These are optional presentation controls, never spoken content.
+            for key in ('asides','details','vocals','cues'):
+                if key not in beat_schema.model_fields or key not in b:continue
+                adapter=TypeAdapter(beat_schema.model_fields[key].annotation.__args__[0])
+                accepted=[]
+                for item in b[key] if isinstance(b[key],list) else []:
+                    try:accepted.append(adapter.validate_python(item))
+                    except (ValidationError,TypeError,ValueError):removed+=1
+                b[key]=accepted[:3 if key=='asides' else 1 if key=='details' else 2 if key=='vocals' else 24]
+            # No invented visible aside when all optional proposals were bad.
+            if not b.get('asides'):b['asides']=[('','before','hidden')]
+            beats.append(b)
+        cleaned['beats']=beats
+    return cleaned,removed
 
 def wire_schema(purpose,schema,context=None):
     grounded=bool(context and context.get('goal_context',{}).get('config_version') and context.get('trigger') in ('user_message','story') and context.get('user_message','').strip())

@@ -37,7 +37,7 @@ class StreamJob:
             except Exception as error:
                 code = 'REPLY_TIMEOUT' if isinstance(error, TimeoutError) else (
                     str(error) if isinstance(error, ValueError) else getattr(error, 'code', 'CONNECTION_FAILED'))
-                safe = code if re.fullmatch(r'[A-Za-z0-9_-]{1,100}', code) else 'CONNECTION_FAILED'
+                safe = code if re.fullmatch(r'[A-Za-z0-9_.-]{1,100}', code) else 'CONNECTION_FAILED'
                 if safe in ('REPLY_REPEATED','GREETING_REPEATED'):safe='REPLY_UNAVAILABLE'
                 await self.sender.send('data: '+dump(dict(type='reply.error',code=safe))+'\n\n')
 
