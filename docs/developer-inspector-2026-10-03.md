@@ -43,3 +43,11 @@
 发布包首次解压时误形成同名嵌套目录，check-only 因找不到部署脚本失败。修正解压目标后 check-only 通过；仅在确认重复目录内 source_commit 等于本次发布提交后删除本次创建的重复目录，没有动已有发布或用户数据。
 
 升级前程序备份位于服务器私有 `~/app/backups/before-api-20261002T223022Z-ffcf235f20e4`，配置备份位于同一私有 backups 根目录下的 `developer-inspector-*`。无需数据库迁移。源码与测试可公开，带用户设定的完整响应、配置与认证资料只留私有路径。
+
+## 公网入口修复（0.98 客户端阶段）
+
+用户确认实际账号为 `xy100000001`。只读核对发现 API 配置、运行进程与 worker 配置均已授权；真正的遗漏是 Caddy 的 `/v1/ai/testing/*` 整段拦截，已授权请求仍在边缘返回 404。
+
+新增精确的 POST `/v1/ai/testing/characters/[a-zA-Z0-9_-]+/inspector` 转发，保留 Gin 的可撤销登录会话、固定 UUID allowlist、角色访问检查，以及 worker 的 owner/HMAC 授权。其他 testing、admin、internal 路由仍直接拒绝；没有打开全局测试权限。`scripts/deploy/enable_inspector_edge.py` 对现有配置做窄范围、幂等更新，先验证 Caddy，再原子替换与 reload，失败恢复；保留管理平台其他站点。
+
+云端已执行该修复。公网未登录 POST 现返回 401（此前入口直接 404）；对应账号的 worker 只读检查覆盖全部 16 个角色，均返回 200，每个报告 48 个不同分区 ID。没有生成对话、语音或图片，也没有复制客户端认证令牌。Go API/config 测试与部署脚本 2 个边缘规则测试通过。这是分层验证；未把手机上的实际登录请求描述为已验证。私有结果在服务器 `~/app/authoring/inspector-v098/grants.json`，不提交完整用户资料。

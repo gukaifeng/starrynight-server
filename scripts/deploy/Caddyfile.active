@@ -26,6 +26,15 @@ https://39.105.116.74:8443 {
 		rewrite * /health
 		reverse_proxy 127.0.0.1:8766
 	}
+	# Forward only this read-only developer route to the authenticated API.
+	# Gin and the worker independently check the fixed account allowlist.
+	@inspector {
+		method POST
+		path_regexp inspector ^/v1/ai/testing/characters/[a-zA-Z0-9_-]+/inspector$
+	}
+	handle @inspector {
+		reverse_proxy 127.0.0.1:8090
+	}
 	@private path /metrics /internal/* /v1/ai/testing/* /v1/ai/admin/*
 	handle @private {
 		respond 404
