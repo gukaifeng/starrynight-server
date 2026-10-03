@@ -10,6 +10,7 @@ from . import voice_trace as vt
 from .greetings import ENTRY_TRIGGERS, greeting_context, plan_text
 from . import novelty
 from .reply_flow import compile_parts, duration_hint
+from . import emotion_standard
 from .semantic_novelty import SemanticNovelty
 from . import parallel_performance
 from .ordered_audio import ordered_audio
@@ -91,6 +92,7 @@ class Orchestrator:
         context['recent_response_focus']=self.store.get('response_focus',owner,char,[])
         context['recent_asides_to_avoid']=aside_quality.recent(self.store,owner,char)
         context['visible_details']=aside_quality.appearance_choices(PROFILES[char],context['recent_asides_to_avoid'],goals.spoken_language(char,context['goal_context'])) if request.trigger=='idle' else []
+        if emotion_standard.contract(request):context['emotion_context']=emotion_standard.context(self.store,owner,char,request)
         context['reply_format']='timeline-v2' if request.timeline_reply else 'legacy'
         if correction:=getattr(request,'_stream_correction',None):context['novelty_correction']=correction
         if request.trigger=='idle':context['idle_context']=idle_presence.context(self.store,owner,char,context)
@@ -174,6 +176,16 @@ class Orchestrator:
                 {**context,**({'novelty_correction':correction} if correction else {})},schema)
             generated=time.monotonic()
             if request.trigger in INTERACTION_TRIGGERS:brief_shake_plan(plan,context['interaction_context']['mood'],language(char))
+            contract_problem=None
+            if emotion_standard.contract(request):
+                try:
+                    normalized=[];last=context['emotion_context']['last']
+                    for b in plan.beats:
+                        values,last=emotion_standard.normalize(b,last,goals.spoken_language(char,context['goal_context']),context['recent_asides_to_avoid'])
+                        normalized.extend(values)
+                    plan.beats=normalized
+                except ValueError:
+                    contract_problem='每句单独一个beat且至少一条新的visible第一人称心声，不能用hidden或省略；每句mood明确且相邻不同。保留正确台词，修正分句和心声。'
             text=plan_text(plan)
             wrong_gesture=interaction_mismatch(request,text)
             language_problem=('English-only character: rewrite all dialogue and visible asides in English. Do not translate or quote Chinese. Keep the same new content and role.' if wrong_language('anime-lime' if context['goal_context']['config'].get('mode')=='task' and context['goal_context']['config'].get('task')=='english' else char,plan) else None)
@@ -181,7 +193,7 @@ class Orchestrator:
             # Optional prose is filtered by compile_parts/review_script. Never
             # regenerate otherwise valid dialogue/TTS just to replace an aside.
             if aside_problem:vt.flag('optional_asides_filtered',True)
-            content_problem=wrong_gesture or language_problem or ('直接回应这条用户输入，至少提供一句有实质内容的台词，不能输出空回复。' if request.trigger in ('user_message','story') and not text.strip() else None)
+            content_problem=contract_problem or wrong_gesture or language_problem or ('直接回应这条用户输入，至少提供一句有实质内容的台词，不能输出空回复。' if request.trigger in ('user_message','story') and not text.strip() else None)
             duplicate=novelty.match(self.store,owner,text,extra)
             with vt.span('plan.quality_review',attempt=len(reviews)+1):
                 related=await self.semantic.match(owner,text,request.trigger) if not duplicate and not content_problem else None
@@ -275,12 +287,12 @@ class Orchestrator:
                     if item.get('script'):delivered=True
                     yield item
         except ValueError as error:
-            recoverable={'REPLY_REPEATED','STREAM_CONTENT_INVALID','STREAM_JSON_INVALID','STREAM_SPEECH_INVALID','STREAM_OBJECT_TOO_LARGE','EMPTY_REPLY'}
+            recoverable={'REPLY_REPEATED','STREAM_CONTENT_INVALID','STREAM_JSON_INVALID','STREAM_SPEECH_INVALID','STREAM_OBJECT_TOO_LARGE','EMPTY_REPLY','SENTENCE_THOUGHT_MISSING','SENTENCE_THOUGHT_COVERAGE'}
             if str(error) not in recoverable or delivered or not budget[0]:raise
             correction=getattr(request,'_stream_correction',None)
             if correction is None:
                 if str(error)=='REPLY_REPEATED':raise
-                correction=dict(rejected_text='',instruction='上一份未交付草稿格式无效。直接回应当前输入，重新按核心JSON Schema完整输出；台词只含说出口的话，可选说明只放asides，不能嵌入台词。')
+                correction=dict(rejected_text='',instruction='每句须为独立beat，至少一条有效的visible第一人称心声，mood明确且相邻不同；修复未交付草稿。上一份未交付草稿格式无效。直接回应当前输入，重新按核心JSON Schema完整输出；台词只含说出口的话，可选说明只放asides，不能嵌入台词。')
             vt.flag('quality_recovery','role_planner')
             vt.flag('quality_recovery_model',self.settings.preparation_model if context.get('speculative_generation') else self.settings.character_model)
             reviewed={**context,'novelty_correction':correction}
@@ -356,7 +368,7 @@ class Orchestrator:
                 visuals=[dict(asset_id=c['asset']['asset_id'],group=c['asset']['group'],duration_ms=c['duration_ms'],
                     offset_ms=c['offset_ms'],active=c['active'],grounding=r['grounding']) for c in r['performances']]))
             if request.timeline_reply:
-                beats[-1]['parts']=compile_parts(b,r,language=goals.spoken_language(char,context['goal_context']),recent_asides=context['recent_asides_to_avoid'],visible_details=context['visible_details'])
+                beats[-1]['parts']=compile_parts(b,r,language=goals.spoken_language(char,context['goal_context']),recent_asides=() if emotion_standard.contract(request) else context['recent_asides_to_avoid'],visible_details=context['visible_details'])
                 context['recent_asides_to_avoid'].extend(p['text'] for p in beats[-1]['parts'] if p['kind']!='dialogue')
                 beats[-1]['reading_duration']=duration_hint(beats[-1]['dialogue']['text'] if beats[-1]['dialogue'] else '')
         text='\n'.join(b['dialogue']['text'] for b in beats if b['dialogue'])
@@ -368,6 +380,7 @@ class Orchestrator:
         script=dict(message_id=str(uuid.uuid4()),character_id=char,beats=beats,text=text,trigger=request.trigger,idle_decision=plan.idle_decision,
             memory_suggestions=[m.content for m in plan.memory_updates] if request.trigger=='user_message' else [])
         if request.trigger=='idle':script['idle_angle']=context['idle_context']['angle']['id']
+        if emotion_standard.contract(request):script['emotion_contract']=1
         if draft:
             yield event('reaction.draft',plan=plan.model_dump())
         else:
@@ -393,6 +406,7 @@ class Orchestrator:
 
     def commit_context(self,owner,request,context,script,plan):
         char=request.character_id;rid=str(request.request_id);text=script['text']
+        if emotion_standard.contract(request):emotion_standard.commit(self.store,owner,char,script)
         if request.trigger=='idle':idle_presence.commit(self.store,owner,char,script)
         if plan.response_focus and text:
             self.store.put('response_focus',owner,char,(context['recent_response_focus']+[plan.response_focus])[-12:])

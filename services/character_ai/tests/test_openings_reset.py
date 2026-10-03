@@ -84,7 +84,7 @@ async def test_first_meeting_registration_and_full_reset_are_scoped_and_idempote
         assert (await client.post(path+'/opening',headers=headers,json=first)).status_code==200
         assert len(store.history(owner,role))==1
         saved=json.loads(store.db.execute('SELECT data FROM messages WHERE id=?',(first['message_id'],)).fetchone()[0])
-        assert len([p for p in saved['beats'][0]['parts'] if p['kind']=='thought'])==2
+        assert len([p for p in saved['beats'][0]['parts'] if p['kind']=='thought'])==len(saved['beats'][0]['sentences'])
         text=store.history(owner,role)[0]['text'];assert 'Chiffon' in text and '花' in text
         assert store.get('greetings',owner,role)==[text]
         store.put('relationship',owner,role,{'closeness':0.9})

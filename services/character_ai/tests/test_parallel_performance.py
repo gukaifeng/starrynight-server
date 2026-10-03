@@ -123,7 +123,8 @@ def test_core_prompt_does_not_contain_the_large_avatar_catalogue(tmp_path):
     assert 'recent_response_focus' in core[0]['content']
     # Shared goal policy and bounded feedback schema add a fixed prefix, not a
     # per-role capability catalogue or another model invocation.
-    assert len(core[0]['content'])<10000
+    # The fixed 28-emotion schema adds a bounded prefix; avatar data stays out.
+    assert len(core[0]['content'])<11000
     store.db.close()
 
 def test_late_same_group_cues_are_coalesced_to_current_phase():

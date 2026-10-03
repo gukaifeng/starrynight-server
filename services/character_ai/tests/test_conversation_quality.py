@@ -41,7 +41,7 @@ def test_annotations_only_are_silent_but_structured_vocals_survive():
     beat = dict(dialogue=dict(text='（语气平稳）。', speech=dict(emotion='happy')))
     assert speech_input(beat)[0] == ''
     beat['vocal_events'] = [dict(event='giggle')]
-    assert speech_input(beat)[0] == '[excited][giggles]'
+    assert speech_input(beat)[0] == '[giggles]'
     assert audio_key('u','c','v','m','b') != audio_key('u','c','v','m','b',revision='')
     assert audio_key('u','c','v','m','b') != audio_key('other','c','v','m','b')
 

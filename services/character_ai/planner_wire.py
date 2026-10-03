@@ -13,14 +13,20 @@ from .schemas import Strict, Speech, VocalType, MemoryProposal, TimelinePlan, Co
 Cue = tuple[str,str] | tuple[str,str,int] | tuple[str,str,int,bool]
 Aside = tuple[str,Literal['before','middle','after']] | tuple[str,Literal['before','middle','after'],Literal['visible','hidden','unlock_required']] | tuple[str,Literal['before','middle','after'],Literal['visible','hidden','unlock_required'],str]
 
+class PositionedVocal(Strict):
+    event:VocalType
+    at:float=Field(default=0,ge=0,le=1)
+    intensity:float=Field(default=.3,ge=0,le=1)
+
 class SpokenBeat(Strict):
     say: str | None = Field(default=None,max_length=220)
     mood: Speech.model_fields['emotion'].annotation = 'neutral'
+    style: Speech.model_fields['style'].annotation = 'plain'
     tone: Speech.model_fields['delivery'].annotation = 'normal'
     strength: float = Field(default=.4,ge=0,le=1)
     asides: list[Aside] = Field(min_length=1,max_length=3)
     details: list[tuple[str,Literal['before','middle','after']]] = Field(default_factory=list,max_length=1)
-    vocals: list[VocalType] = Field(default_factory=list,max_length=2)
+    vocals: list[VocalType | PositionedVocal] = Field(default_factory=list,max_length=2)
 
     @field_validator('mood',mode='before')
     @classmethod
@@ -45,11 +51,11 @@ class CompactPlan(Strict):
         beats=[]
         for i,b in enumerate(self.beats):
             beats.append(dict(beat_id=f'b{i+1}',
-                dialogue=dict(text=b.say,speech=dict(emotion=b.mood,delivery=b.tone,intensity=b.strength)) if b.say is not None else None,
+                dialogue=dict(text=b.say,speech=dict(emotion=b.mood,style=b.style,delivery=b.tone,intensity=b.strength)) if b.say is not None else None,
                 asides=[dict(text=a[0],stage=a[1],visibility=a[2] if len(a)>2 else 'visible',after_text=a[3] if len(a)>3 else '') for a in b.asides],
                 details=b.details,
                 performance=dict(intensity=b.strength,cues=[dict(group=c[0],intent=c[1],offset_ms=c[2] if len(c)>2 else 0,active=c[3] if len(c)>3 else True) for c in getattr(b,'cues',[])]),
-                vocal_events=[dict(event=v,intensity=b.strength) for v in b.vocals]))
+                vocal_events=[v.model_dump() if isinstance(v,PositionedVocal) else dict(event=v,intensity=b.strength) for v in b.vocals]))
         return schema.model_validate(dict(goal_feedback=self.goal_feedback,response_focus=self.focus,beats=beats,idle_decision=self.idle,
             reply_type='idle_event' if self.idle else 'normal_reply',suggested_state_delta=self.state,memory_updates=self.memory))
 
@@ -119,7 +125,5 @@ asides为数组：[心声,阶段]，阶段before/middle/after，通常2条。需
 cues为数组：[group,intent]，可补第三项offset_ms、第四项active布尔。普通交谈只选1至2个关键cue，导演会扩展丰富的多组多阶段表演；用户明确要求多个时全部表达。不需要额外表现时省略cues。
 mood和tone用Schema里的英文枚举。可选strength为0至1；vocals只列声音事件名。不要输出默认值、空数组或空对象凑字段；需要用户记忆、关系变化或待机决策时才填memory/state/idle。'''
 
-SPOKEN_SHAPE='''只输出核心紧凑JSON：
-{"focus":"<本轮新内容>","beats":[{"say":"<台词>","mood":"happy","tone":"gentle","asides":[["<角色开口时的感受>","before"],["<收尾时不同的感受>","after"]]}]}
-asides=[心声,before/middle/after]，通常2条；可加第三项visible/hidden、第四项带结尾标点的完整台词锚点。不拆词，问候和预缓存也有心声。中文用我/咱，英文用I/my/we/our；纯台词时hidden。details=[visible_details原文,阶段]，最多1条。mood/tone用Schema枚举。
-不等表演，不生成cues、performance或资源ID。默认及空字段省略。'''
+SPOKEN_SHAPE='''只输出核心JSON：{"focus":"<本轮新内容>","beats":[{"say":"<台词>","mood":"happy","tone":"gentle","asides":[["<当前感受>","before"]]}]}。
+asides=[第一人称心声,before/middle/after]；可加visible/hidden、带结尾标点的完整台词锚点，不拆词；中文用我/咱、英文用I/my/we/our。每句遵循当前情感标准。details=[visible_details原文,阶段]最多1条。mood/tone/style用Schema枚举；不生成cues、performance或资源ID，省略空字段。'''

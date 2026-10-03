@@ -19,9 +19,10 @@ def register(store, owner, character, body):
     if store.history(owner,character):return
     identifier=str(body.message_id)
     script=dict(message_id=identifier,character_id=character,text=variant['text'],trigger='firstMeeting',
-                beats=[dict(beat_id='opening',dialogue=dict(text=variant['text']),narrations=[],visuals=[],
+                beats=[dict(beat_id='opening',sentences=variant.get('sentences',[]),dialogue=dict(text=variant['text'],speech=dict(emotion=variant.get('sentences',[{'emotion':'happy'}])[0]['emotion'])),narrations=[],visuals=[],
                     parts=variant.get('parts',[dict(kind='dialogue',text=variant['text'],at=0)]))],
                 opening_id=body.opening_id,
                 initial_replies=next((c.get('initialReplies',[]) for c in catalog['characters'] if c['characterID']==character),[]))
     store.message(identifier,owner,character,identifier,'assistant',script)
     store.put('greetings',owner,character,[variant['text']])
+    if variant.get('sentences'):store.put('sentence_emotion.v1',owner,character,variant['sentences'][-1]['emotion'])

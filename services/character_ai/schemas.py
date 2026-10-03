@@ -18,7 +18,8 @@ class StagedThought(Thought):
         description='可选锚点：复制本beat一个带结尾标点的完整短句，心声在其后；不能引用半个词，省略时使用stage。')
 
 class Speech(Strict):
-    emotion: Literal['neutral','happy','sad','surprised','serious','worried'] = 'neutral'
+    emotion: Literal['neutral','calm','happy','excited','sad','crying','angry','worried','fearful','panicked','surprised','curious','thoughtful','serious','empathetic','affectionate','shy','playful','sarcastic','scornful','reluctant','bored','tired','confident','grateful','jealous','relieved','hopeful'] = 'neutral'
+    style: Literal['plain','deep_shouting','dracula','shouting','asmr','whisper','slow','fast'] = 'plain'
     delivery: Literal['normal','soft','gentle','hesitant','teasing','whisper'] = 'normal'
     intensity: float = Field(default=.4, ge=0, le=1)
 
@@ -34,10 +35,10 @@ class Speech(Strict):
         # Character models may use a familiar synonym despite the advertised
         # vocabulary. Translate known meanings to our supported speech controls;
         # unknown values still fail validation and never become arbitrary tags.
-        return {'playful':'happy','teasing':'happy','cheerful':'happy','excited':'happy','joyful':'happy',
+        return {'teasing':'happy','cheerful':'happy','joyful':'happy',
                 'bright_smile':'happy','soft_smile':'happy','teasing_smile':'happy','shy_smile':'happy',
-                'angry':'serious','pout':'serious','confused':'neutral','thinking':'neutral',
-                'calm':'neutral','relaxed':'neutral','curious':'neutral',
+                'pout':'angry','confused':'thoughtful','thinking':'thoughtful',
+                'relaxed':'calm',
                 'soft':'neutral','gentle':'neutral','serene':'neutral','warm':'happy','tender':'happy','pleasant':'happy','contented':'happy',
                 'concerned':'worried','anxious':'worried','amazed':'surprised',
                 'melancholy':'sad'}.get(value,value) if isinstance(value,str) else value
@@ -83,6 +84,7 @@ VocalType = Literal['gasp','sigh','throat_clear','giggle','laugh','cough','snort
 class Vocal(Strict):
     event: VocalType
     intensity: float = Field(default=.3, ge=0, le=1)
+    at: float = Field(default=0,ge=0,le=1)
     describe_in_narration: bool = False
     visual_sync: Performance | None = None
 
@@ -138,7 +140,7 @@ class Plan(Strict):
         description='本轮新增的具体内容摘要，先确定一个还没有讲过的新细节、观点或回应，再据此生成台词。不是台词或思考步骤。')
     state_interpretation: Interpretation = Field(default_factory=Interpretation)
     idle_decision: Literal['do_nothing','visual_only','thought_only','proactive_speech'] | None = None
-    beats: list[Beat] = Field(default_factory=list,max_length=3)
+    beats: list[Beat] = Field(default_factory=list,max_length=6)
     suggested_state_delta: dict[str,float] = Field(default_factory=dict)
     memory_updates: list[MemoryProposal] = Field(default_factory=list,max_length=2)
 
@@ -156,7 +158,7 @@ class TimelineBeat(Beat):
 class TimelinePlan(Plan):
     response_focus: str = Field(min_length=1,max_length=100,
         description='本轮新增内容的一句话摘要，必须不同于recent_response_focus以及刚刚的回答。先写此项，再写beats；静默时写保持安静。')
-    beats: list[TimelineBeat] = Field(default_factory=list,max_length=3)
+    beats: list[TimelineBeat] = Field(default_factory=list,max_length=6)
 
 class CoreTimelinePlan(TimelinePlan):
     """Internal marker for speech-first planning without avatar control data."""
@@ -214,6 +216,8 @@ class Request(Strict):
     progressive_reply: bool = False
     timeline_reply: bool = False
     parallel_performance: bool = False
+    emotion_contract: Literal[0,1] = 0
+    previous_emotion: str = Field(default='',max_length=32)
 
     @field_validator('character_id')
     @classmethod

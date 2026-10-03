@@ -87,7 +87,7 @@ def test_compact_wire_preserves_voice_staged_asides_all_groups_and_account_chang
         cues=[['author.future.wings','flutter'],['pose','sit',1800],['appearance','hat',2500,False]],vocals=['giggle'])],
         state={'trust':.02},memory=[dict(content='用户喜欢画画')])
     plan=compact.expand(TimelinePlan);beat=plan.beats[0]
-    assert beat.beat_id=='b1' and beat.dialogue.speech.emotion=='happy' and beat.dialogue.speech.delivery=='gentle'
+    assert beat.beat_id=='b1' and beat.dialogue.speech.emotion=='playful' and beat.dialogue.speech.delivery=='gentle'
     assert beat.asides[0].after_text=='新想法，' and beat.asides[1].visibility=='hidden'
     assert [(c.group,c.intent,c.offset_ms,c.active) for c in beat.performance.cues]==[
         ('author.future.wings','flutter',0,True),('pose','sit',1800,True),('appearance','hat',2500,False)]

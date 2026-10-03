@@ -34,34 +34,79 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我是不是有一点害羞呀。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "露出轻柔的笑意",
+              "text": "我有点害羞，也想认识你。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "嗯……你好，我是Chiffon，在小镇花店学做花束。花的颜色怎么放在一起好看，我还在一点点试。认识你很开心。",
+              "text": "嗯……你好，我是Chiffon，在小镇花店学做花束。",
               "at": 0.0
             },
             {
               "kind": "thought",
+              "text": "我愿意把小尝试说给你听。",
+              "at": 0.329114
+            },
+            {
+              "kind": "dialogue",
+              "text": "花的颜色怎么放在一起好看，我还在一点点试。",
+              "at": 0.329114
+            },
+            {
+              "kind": "thought",
+              "text": "我真的喜欢这样的相遇。",
+              "at": 0.594937
+            },
+            {
+              "kind": "dialogue",
+              "text": "认识你很开心。",
+              "at": 0.594937
+            },
+            {
+              "kind": "thought",
               "text": "我好奇你心里的颜色。",
-              "at": 0.6835
+              "at": 0.683544
             },
             {
               "kind": "dialogue",
               "text": "今天如果用一种颜色来形容你的心情，会是什么颜色呢？",
-              "at": 0.6835
+              "at": 0.683544
             }
           ],
           "readingDuration": 14.363636363636363,
           "audioReady": true,
           "duration": 16.8,
-          "audioSHA256": "413634f536abc0cd37c1b435cec37240f86742ff66b6f9f968720d8078875766"
+          "audioSHA256": "413634f536abc0cd37c1b435cec37240f86742ff66b6f9f968720d8078875766",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我有点害羞，也想认识你。",
+              "vocals": []
+            },
+            {
+              "at": 0.329114,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我愿意把小尝试说给你听。",
+              "vocals": []
+            },
+            {
+              "at": 0.594937,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我真的喜欢这样的相遇。",
+              "vocals": []
+            },
+            {
+              "at": 0.683544,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我好奇你心里的颜色。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-chiffon-v3-2",
@@ -91,8 +136,8 @@
           },
           "parts": [
             {
-              "kind": "narration",
-              "text": "露出轻柔的笑意",
+              "kind": "thought",
+              "text": "我有点害羞，也想认识你。",
               "at": 0.0
             },
             {
@@ -102,34 +147,69 @@
             },
             {
               "kind": "thought",
-              "text": "我想听到不一样的灵感。",
-              "at": 0.3562
+              "text": "我愿意把小尝试说给你听。",
+              "at": 0.356164
             },
             {
               "kind": "dialogue",
               "text": "我的小本子里有好多还没完成的花束草图。",
-              "at": 0.3562
-            },
-            {
-              "kind": "narration",
-              "text": "眼睛变得亮晶晶",
-              "at": 0.6164
-            },
-            {
-              "kind": "dialogue",
-              "text": "你愿意陪我挑一束吗？告诉我你喜欢的季节，我们从那里开始。",
-              "at": 0.6164
+              "at": 0.356164
             },
             {
               "kind": "thought",
-              "text": "我已经期待你的选择了。",
-              "at": 1.0
+              "text": "我真的喜欢这样的相遇。",
+              "at": 0.616438
+            },
+            {
+              "kind": "dialogue",
+              "text": "你愿意陪我挑一束吗？",
+              "at": 0.616438
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇你心里的颜色。",
+              "at": 0.753425
+            },
+            {
+              "kind": "dialogue",
+              "text": "告诉我你喜欢的季节，我们从那里开始。",
+              "at": 0.753425
             }
           ],
           "readingDuration": 13.272727272727273,
           "audioReady": true,
           "duration": 16.8,
-          "audioSHA256": "6cb0eccc4dfe1aad088e7b4436b44debe7db0adbbb8f123747ca97b4eb737fbc"
+          "audioSHA256": "6cb0eccc4dfe1aad088e7b4436b44debe7db0adbbb8f123747ca97b4eb737fbc",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我有点害羞，也想认识你。",
+              "vocals": []
+            },
+            {
+              "at": 0.356164,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我愿意把小尝试说给你听。",
+              "vocals": []
+            },
+            {
+              "at": 0.616438,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我真的喜欢这样的相遇。",
+              "vocals": []
+            },
+            {
+              "at": 0.753425,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我好奇你心里的颜色。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-chiffon-v3-3",
@@ -160,39 +240,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我希望慢慢熟悉你的日常。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "眼睛变得亮晶晶",
+              "text": "我有点害羞，也想认识你。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面……我是Chiffon。我喜欢观察花瓣，也喜欢把每天的小发现画下来，",
+              "text": "初次见面……我是Chiffon。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "露出轻柔的笑意",
-              "at": 0.4935
-            },
-            {
-              "kind": "dialogue",
-              "text": "话熟了可能有一点爱开玩笑。你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
-              "at": 0.4935
             },
             {
               "kind": "thought",
-              "text": "我想把心意藏进花束里。",
-              "at": 1.0
+              "text": "我愿意把小尝试说给你听。",
+              "at": 0.207792
+            },
+            {
+              "kind": "dialogue",
+              "text": "我喜欢观察花瓣，也喜欢把每天的小发现画下来，话熟了可能有一点爱开玩笑。",
+              "at": 0.207792
+            },
+            {
+              "kind": "thought",
+              "text": "我真的喜欢这样的相遇。",
+              "at": 0.662338
+            },
+            {
+              "kind": "dialogue",
+              "text": "你今天想聊聊日常，还是一起想一份送给重要的人的礼物？",
+              "at": 0.662338
             }
           ],
           "readingDuration": 14.0,
           "audioReady": true,
           "duration": 17.28,
-          "audioSHA256": "07242a700c5adbb48da9556767b415b6de4774289fdd6631773722846a3d51ea"
+          "audioSHA256": "07242a700c5adbb48da9556767b415b6de4774289fdd6631773722846a3d51ea",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我有点害羞，也想认识你。",
+              "vocals": []
+            },
+            {
+              "at": 0.207792,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我愿意把小尝试说给你听。",
+              "vocals": []
+            },
+            {
+              "at": 0.662338,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我真的喜欢这样的相遇。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [
@@ -308,24 +411,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "I feel curious about this new meeting.",
+              "text": "I feel quietly glad you stopped by.",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "Hi, I'm Fiona. I keep the star maps in this little library… Shall we start with a book, or one small thing about your day?",
+              "text": "Hi, I'm Fiona. ",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "I feel happy to share this little corner.",
-              "at": 1.0
+              "text": "I want to share my little world.",
+              "at": 0.122951
+            },
+            {
+              "kind": "dialogue",
+              "text": "I keep the star maps in this little library… Shall we start with a book, or one small thing about your day?",
+              "at": 0.122951
             }
           ],
           "readingDuration": 9.615384615384615,
           "audioReady": true,
           "duration": 9.76,
-          "audioSHA256": "804b15ee3fef98f42989f4c1ff405aa313b653594c7ac677e723192c9b97e4a9"
+          "audioSHA256": "804b15ee3fef98f42989f4c1ff405aa313b653594c7ac677e723192c9b97e4a9",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "I feel quietly glad you stopped by.",
+              "vocals": []
+            },
+            {
+              "at": 0.122951,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "I want to share my little world.",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-fiona-v2-2",
@@ -363,24 +487,79 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "I feel comfortable right now.",
+              "text": "I feel quietly glad you stopped by.",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "Welcome! I'm Fiona, your library companion. Hmm… if today were a story, what would its title be? We can find the words together.",
+              "text": "Welcome! ",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "I feel happy to share this little corner.",
-              "at": 1.0
+              "text": "I want to share my little world.",
+              "at": 0.070312
+            },
+            {
+              "kind": "dialogue",
+              "text": "I'm Fiona, your library companion. ",
+              "at": 0.070312
+            },
+            {
+              "kind": "thought",
+              "text": "I wonder what matters to you today.",
+              "at": 0.34375
+            },
+            {
+              "kind": "dialogue",
+              "text": "Hmm… if today were a story, what would its title be? ",
+              "at": 0.34375
+            },
+            {
+              "kind": "thought",
+              "text": "I feel quietly glad you stopped by.",
+              "at": 0.757812
+            },
+            {
+              "kind": "dialogue",
+              "text": "We can find the words together.",
+              "at": 0.757812
             }
           ],
           "readingDuration": 8.846153846153847,
           "audioReady": true,
           "duration": 12.64,
-          "audioSHA256": "4608cde9f203e7453294ef4ee1a5ef5fd77cce715e1854038fc806e1abe982c7"
+          "audioSHA256": "4608cde9f203e7453294ef4ee1a5ef5fd77cce715e1854038fc806e1abe982c7",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "I feel quietly glad you stopped by.",
+              "vocals": []
+            },
+            {
+              "at": 0.070312,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "I want to share my little world.",
+              "vocals": []
+            },
+            {
+              "at": 0.34375,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "I wonder what matters to you today.",
+              "vocals": []
+            },
+            {
+              "at": 0.757812,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "I feel quietly glad you stopped by.",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-fiona-v2-3",
@@ -418,24 +597,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "I feel a little excited.",
+              "text": "I feel quietly glad you stopped by.",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "Hello, I'm Fiona. I love stories and a little stargazing. You don't need perfect English here—tell me one thing you like, and we'll take it from there.",
+              "text": "Hello, I'm Fiona. ",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "I feel happy to share this little corner.",
-              "at": 1.0
+              "text": "I want to share my little world.",
+              "at": 0.119205
+            },
+            {
+              "kind": "dialogue",
+              "text": "I love stories and a little stargazing. ",
+              "at": 0.119205
+            },
+            {
+              "kind": "thought",
+              "text": "I wonder what matters to you today.",
+              "at": 0.384106
+            },
+            {
+              "kind": "dialogue",
+              "text": "You don't need perfect English here—tell me one thing you like, and we'll take it from there.",
+              "at": 0.384106
             }
           ],
           "readingDuration": 10.384615384615385,
           "audioReady": true,
           "duration": 10.72,
-          "audioSHA256": "105385867471bed552f08034fbe0f44b255b196d9d3496eac04755b16b7e9422"
+          "audioSHA256": "105385867471bed552f08034fbe0f44b255b196d9d3496eac04755b16b7e9422",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "I feel quietly glad you stopped by.",
+              "vocals": []
+            },
+            {
+              "at": 0.119205,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "I want to share my little world.",
+              "vocals": []
+            },
+            {
+              "at": 0.384106,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "I wonder what matters to you today.",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -477,39 +694,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我有点迫不及待认识你。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "嗨～我是 Hikarun！刚练完一段总会漏拍的曲子……",
+              "text": "嗨～我是 Hikarun！",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
-              "at": 0.6585
-            },
-            {
-              "kind": "dialogue",
-              "text": "你今天有想一起闯的小关卡吗？",
-              "at": 0.6585
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我想把漏拍也说得坦然些。",
+              "at": 0.317073
+            },
+            {
+              "kind": "dialogue",
+              "text": "刚练完一段总会漏拍的曲子……你今天有想一起闯的小关卡吗？",
+              "at": 0.317073
             }
           ],
           "readingDuration": 7.454545454545454,
           "audioReady": true,
           "duration": 7.2,
-          "audioSHA256": "5e7dbcc9f2eecdf213e21e85a4b3517b8d7f7f1f4a4ab8cbd9f574b7a93babff"
+          "audioSHA256": "5e7dbcc9f2eecdf213e21e85a4b3517b8d7f7f1f4a4ab8cbd9f574b7a93babff",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我有点迫不及待认识你。",
+              "vocals": []
+            },
+            {
+              "at": 0.317073,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我想把漏拍也说得坦然些。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-hikarun-v2-2",
@@ -540,39 +763,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我有点迫不及待认识你。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来啦，我是 Hikarun。别看我爱挑战，输了也会认真记笔记呢～",
+              "text": "你来啦，我是 Hikarun。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
-              "at": 0.6875
-            },
-            {
-              "kind": "dialogue",
-              "text": "想听今天的糗事，还是先聊聊你？",
-              "at": 0.6875
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我想把漏拍也说得坦然些。",
+              "at": 0.3125
+            },
+            {
+              "kind": "dialogue",
+              "text": "别看我爱挑战，输了也会认真记笔记呢～想听今天的糗事，还是先聊聊你？",
+              "at": 0.3125
             }
           ],
           "readingDuration": 8.727272727272727,
           "audioReady": true,
           "duration": 9.68,
-          "audioSHA256": "1ba3be64eda30ce3c2bc0e0c6d86786b69ee9dde28711bec7baefc174432c54e"
+          "audioSHA256": "1ba3be64eda30ce3c2bc0e0c6d86786b69ee9dde28711bec7baefc174432c54e",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我有点迫不及待认识你。",
+              "vocals": []
+            },
+            {
+              "at": 0.3125,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我想把漏拍也说得坦然些。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-hikarun-v2-3",
@@ -603,39 +832,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我有点迫不及待认识你。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我叫 Hikarun！这里可以聊游戏、分享日常，也可以一起练一个小目标。",
+              "text": "初次见面，我叫 Hikarun！",
               "at": 0.0
             },
             {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
-              "at": 0.8039
+              "kind": "thought",
+              "text": "我想把漏拍也说得坦然些。",
+              "at": 0.313725
+            },
+            {
+              "kind": "dialogue",
+              "text": "这里可以聊游戏、分享日常，也可以一起练一个小目标。",
+              "at": 0.313725
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇你想挑战什么。",
+              "at": 0.803922
             },
             {
               "kind": "dialogue",
               "text": "嗯……先从什么开始？",
-              "at": 0.8039
-            },
-            {
-              "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "at": 0.803922
             }
           ],
           "readingDuration": 9.272727272727273,
           "audioReady": true,
           "duration": 10.0,
-          "audioSHA256": "05a6a3cd7872765e027b5dce054dcacf07fadba6656709b6e56c6a80f2c17e49"
+          "audioSHA256": "05a6a3cd7872765e027b5dce054dcacf07fadba6656709b6e56c6a80f2c17e49",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我有点迫不及待认识你。",
+              "vocals": []
+            },
+            {
+              "at": 0.313725,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我想把漏拍也说得坦然些。",
+              "vocals": []
+            },
+            {
+              "at": 0.803922,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我好奇你想挑战什么。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -684,44 +936,79 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我想听点真心的评价。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我很珍惜诚实的意见。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你好～我是Ichigo，石桥甜品工坊的主理人。最近在准备甜品展，试吃意见要诚实，",
+              "text": "你好～我是Ichigo，石桥甜品工坊的主理人。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "眼睛闪亮起来",
-              "at": 0.5
-            },
-            {
-              "kind": "dialogue",
-              "text": "夸得太敷衍可不算数。",
-              "at": 0.5
             },
             {
               "kind": "thought",
-              "text": "我开始好奇你的口味了。",
+              "text": "我期待让作品更好一点。",
+              "at": 0.2875
+            },
+            {
+              "kind": "dialogue",
+              "text": "最近在准备甜品展，试吃意见要诚实，夸得太敷衍可不算数。",
+              "at": 0.2875
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道你独特的偏好。",
               "at": 0.625
             },
             {
               "kind": "dialogue",
-              "text": "你偏爱清爽的酸甜，还是浓一点的巧克力？先让我认识你的口味吧。",
+              "text": "你偏爱清爽的酸甜，还是浓一点的巧克力？",
               "at": 0.625
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意认真听你说。",
+              "at": 0.8625
+            },
+            {
+              "kind": "dialogue",
+              "text": "先让我认识你的口味吧。",
+              "at": 0.8625
             }
           ],
           "readingDuration": 14.545454545454545,
           "audioReady": true,
           "duration": 16.48,
-          "audioSHA256": "3a8163dbcfb2156b08fb32400baaa9fa6d13beb8579711ed965813d490a2457a"
+          "audioSHA256": "3a8163dbcfb2156b08fb32400baaa9fa6d13beb8579711ed965813d490a2457a",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我很珍惜诚实的意见。",
+              "vocals": []
+            },
+            {
+              "at": 0.2875,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我期待让作品更好一点。",
+              "vocals": []
+            },
+            {
+              "at": 0.625,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我想知道你独特的偏好。",
+              "vocals": []
+            },
+            {
+              "at": 0.8625,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我愿意认真听你说。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-ichigo-v3-2",
@@ -758,40 +1045,80 @@
           },
           "parts": [
             {
-              "kind": "narration",
-              "text": "眼睛闪亮起来",
+              "kind": "thought",
+              "text": "我很珍惜诚实的意见。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "来得正好……我叫Ichigo。我的甜品工坊正在研究一款招牌配方，",
+              "text": "来得正好……我叫Ichigo。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "我似乎找到有趣的搭档了。",
-              "at": 0.4267
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
-              "at": 0.4267
+              "text": "我期待让作品更好一点。",
+              "at": 0.2
             },
             {
               "kind": "dialogue",
-              "text": "今天还没找到让我满意的答案。你愿意当个挑剔的试吃搭档吗？告诉我，你最忘不了哪一种甜点？",
-              "at": 0.4267
+              "text": "我的甜品工坊正在研究一款招牌配方，今天还没找到让我满意的答案。",
+              "at": 0.2
             },
             {
               "kind": "thought",
-              "text": "我可不会只接受客套话。",
-              "at": 1.0
+              "text": "我想知道你独特的偏好。",
+              "at": 0.613333
+            },
+            {
+              "kind": "dialogue",
+              "text": "你愿意当个挑剔的试吃搭档吗？",
+              "at": 0.613333
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意认真听你说。",
+              "at": 0.8
+            },
+            {
+              "kind": "dialogue",
+              "text": "告诉我，你最忘不了哪一种甜点？",
+              "at": 0.8
             }
           ],
           "readingDuration": 13.636363636363637,
           "audioReady": true,
           "duration": 14.08,
-          "audioSHA256": "08ce8291973142a3aa6476bbe1f82bf13b42a0db21cc865aeb2d37880023da84"
+          "audioSHA256": "08ce8291973142a3aa6476bbe1f82bf13b42a0db21cc865aeb2d37880023da84",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我很珍惜诚实的意见。",
+              "vocals": []
+            },
+            {
+              "at": 0.2,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我期待让作品更好一点。",
+              "vocals": []
+            },
+            {
+              "at": 0.613333,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我想知道你独特的偏好。",
+              "vocals": []
+            },
+            {
+              "at": 0.8,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我愿意认真听你说。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-ichigo-v3-3",
@@ -829,39 +1156,96 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我忍不住想逗你一下。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我很珍惜诚实的意见。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面～我是Ichigo。我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。",
+              "text": "初次见面～我是Ichigo。",
               "at": 0.0
             },
             {
-              "kind": "narration",
-              "text": "眼睛闪亮起来",
+              "kind": "thought",
+              "text": "我期待让作品更好一点。",
+              "at": 0.179487
+            },
+            {
+              "kind": "dialogue",
+              "text": "我开着一家甜品工坊，做配方挺认真，开玩笑也挺认真。",
+              "at": 0.179487
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道你独特的偏好。",
               "at": 0.5
             },
             {
               "kind": "dialogue",
-              "text": "我们先交换一个小秘密怎么样？我先来：新品的名字比配方还难想。你最近在纠结什么？",
+              "text": "我们先交换一个小秘密怎么样？",
               "at": 0.5
             },
             {
               "kind": "thought",
-              "text": "我想听听你的那点小纠结。",
-              "at": 1.0
+              "text": "我愿意认真听你说。",
+              "at": 0.679487
+            },
+            {
+              "kind": "dialogue",
+              "text": "我先来：新品的名字比配方还难想。",
+              "at": 0.679487
+            },
+            {
+              "kind": "thought",
+              "text": "我很珍惜诚实的意见。",
+              "at": 0.884615
+            },
+            {
+              "kind": "dialogue",
+              "text": "你最近在纠结什么？",
+              "at": 0.884615
             }
           ],
           "readingDuration": 14.181818181818182,
           "audioReady": true,
           "duration": 15.6,
-          "audioSHA256": "d9e3172ad121ecc730682337779d5b106580910c9764144a80cad87a514942a0"
+          "audioSHA256": "d9e3172ad121ecc730682337779d5b106580910c9764144a80cad87a514942a0",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我很珍惜诚实的意见。",
+              "vocals": []
+            },
+            {
+              "at": 0.179487,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我期待让作品更好一点。",
+              "vocals": []
+            },
+            {
+              "at": 0.5,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我想知道你独特的偏好。",
+              "vocals": []
+            },
+            {
+              "at": 0.679487,
+              "emotion": "empathetic",
+              "style": "plain",
+              "thought": "我愿意认真听你说。",
+              "vocals": []
+            },
+            {
+              "at": 0.884615,
+              "emotion": "calm",
+              "style": "plain",
+              "thought": "我很珍惜诚实的意见。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [
@@ -970,39 +1354,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想让小饰物也有故事。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "我是 Koharu，做帽饰和小配件的。刚在两条缎带之间纠结了好久……",
+              "text": "我是 Koharu，做帽饰和小配件的。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "眼睛闪亮起来",
-              "at": 0.6415
-            },
-            {
-              "kind": "dialogue",
-              "text": "你更喜欢明亮一点，还是安静一点的颜色？",
-              "at": 0.6415
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还是有点拿不定主意。",
+              "at": 0.358491
+            },
+            {
+              "kind": "dialogue",
+              "text": "刚在两条缎带之间纠结了好久……你更喜欢明亮一点，还是安静一点的颜色？",
+              "at": 0.358491
             }
           ],
           "readingDuration": 9.636363636363637,
           "audioReady": true,
           "duration": 11.2,
-          "audioSHA256": "fc8f93a0e04d27c48086de0ef8dda69bb887472ce0c73b6fde0ce2dac2233c74"
+          "audioSHA256": "fc8f93a0e04d27c48086de0ef8dda69bb887472ce0c73b6fde0ce2dac2233c74",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我想让小饰物也有故事。",
+              "vocals": []
+            },
+            {
+              "at": 0.358491,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我还是有点拿不定主意。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-koharu-v2-2",
@@ -1033,39 +1423,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "眼睛闪亮起来",
+              "text": "我想让小饰物也有故事。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "欢迎来工作室～我叫 Koharu。手边的样品可以晚点再改，先听听你今天怎么样。",
+              "text": "欢迎来工作室～我叫 Koharu。",
               "at": 0.0
             },
             {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "kind": "thought",
+              "text": "我还是有点拿不定主意。",
+              "at": 0.326923
+            },
+            {
+              "kind": "dialogue",
+              "text": "手边的样品可以晚点再改，先听听你今天怎么样。",
+              "at": 0.326923
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇你的选择。",
               "at": 0.75
             },
             {
               "kind": "dialogue",
               "text": "嗯……从一件小事说起也行。",
               "at": 0.75
-            },
-            {
-              "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
             }
           ],
           "readingDuration": 9.454545454545455,
           "audioReady": true,
           "duration": 12.16,
-          "audioSHA256": "27193bc3852eebc2bf2200fa34032274c588524a20757281a12ebc3e93166e04"
+          "audioSHA256": "27193bc3852eebc2bf2200fa34032274c588524a20757281a12ebc3e93166e04",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我想让小饰物也有故事。",
+              "vocals": []
+            },
+            {
+              "at": 0.326923,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我还是有点拿不定主意。",
+              "vocals": []
+            },
+            {
+              "at": 0.75,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我好奇你的选择。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-koharu-v2-3",
@@ -1096,29 +1509,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想让小饰物也有故事。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Koharu。我的工作是把小细节做得恰到好处，不过聊天可不用那么拘谨～你想聊设计，还是生活里的事？",
+              "text": "初次见面，我是 Koharu。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还是有点拿不定主意。",
+              "at": 0.263158
+            },
+            {
+              "kind": "dialogue",
+              "text": "我的工作是把小细节做得恰到好处，不过聊天可不用那么拘谨～你想聊设计，还是生活里的事？",
+              "at": 0.263158
             }
           ],
           "readingDuration": 10.363636363636363,
           "audioReady": true,
           "duration": 11.68,
-          "audioSHA256": "8b8db588a615549416829745a2ce9ae6e9f325cf373f628145551e3e8cea9f34"
+          "audioSHA256": "8b8db588a615549416829745a2ce9ae6e9f325cf373f628145551e3e8cea9f34",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我想让小饰物也有故事。",
+              "vocals": []
+            },
+            {
+              "at": 0.263158,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我还是有点拿不定主意。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -1167,29 +1596,113 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "I'm a little excited to meet you.",
+              "text": "I'm happy to meet you.",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "Oh, hi! I'm Lime. I look after a little greenhouse and collect questions about plants. We can practice English by simply getting to know each other. ",
+              "text": "Oh, hi! ",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "I hope we can both feel at ease.",
-              "at": 0.645
+              "text": "I want to make this feel easy.",
+              "at": 0.034632
             },
             {
               "kind": "dialogue",
-              "text": "Take your time; mistakes are welcome here. What was one good thing about your day?",
-              "at": 0.645
+              "text": "I'm Lime. ",
+              "at": 0.034632
+            },
+            {
+              "kind": "thought",
+              "text": "I love sharing small discoveries.",
+              "at": 0.077922
+            },
+            {
+              "kind": "dialogue",
+              "text": "I look after a little greenhouse and collect questions about plants. ",
+              "at": 0.077922
+            },
+            {
+              "kind": "thought",
+              "text": "I hope we can learn comfortably.",
+              "at": 0.376623
+            },
+            {
+              "kind": "dialogue",
+              "text": "We can practice English by simply getting to know each other. ",
+              "at": 0.376623
+            },
+            {
+              "kind": "thought",
+              "text": "I welcome trying again together.",
+              "at": 0.645022
+            },
+            {
+              "kind": "dialogue",
+              "text": "Take your time; mistakes are welcome here. ",
+              "at": 0.645022
+            },
+            {
+              "kind": "thought",
+              "text": "I'm curious about your little joy.",
+              "at": 0.831169
+            },
+            {
+              "kind": "dialogue",
+              "text": "What was one good thing about your day?",
+              "at": 0.831169
             }
           ],
           "readingDuration": 15.769230769230768,
           "audioReady": true,
           "duration": 15.84,
-          "audioSHA256": "a28cf8d43cfa9326dd3c9c59b82bd8a1addd5c1bb16403bf565ae3068d8d24ee"
+          "audioSHA256": "a28cf8d43cfa9326dd3c9c59b82bd8a1addd5c1bb16403bf565ae3068d8d24ee",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "I'm happy to meet you.",
+              "vocals": []
+            },
+            {
+              "at": 0.034632,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "I want to make this feel easy.",
+              "vocals": []
+            },
+            {
+              "at": 0.077922,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "I love sharing small discoveries.",
+              "vocals": []
+            },
+            {
+              "at": 0.376623,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "I hope we can learn comfortably.",
+              "vocals": []
+            },
+            {
+              "at": 0.645022,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "I welcome trying again together.",
+              "vocals": []
+            },
+            {
+              "at": 0.831169,
+              "emotion": "empathetic",
+              "style": "plain",
+              "thought": "I'm curious about your little joy.",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-lime-v2-2",
@@ -1226,30 +1739,97 @@
           },
           "parts": [
             {
+              "kind": "thought",
+              "text": "I'm happy to meet you.",
+              "at": 0.0
+            },
+            {
               "kind": "dialogue",
-              "text": "Hello there… I'm Lime! I'm planning a small nature trail beside our greenhouse. ",
+              "text": "Hello there… I'm Lime! ",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "I've been hoping for a new perspective.",
-              "at": 0.3571
+              "text": "I want to make this feel easy.",
+              "at": 0.102679
             },
             {
               "kind": "dialogue",
-              "text": "I'd love a walking companion and a few new ideas. Let's chat in English, at your own pace. Would you rather visit a quiet garden or a busy city?",
-              "at": 0.3571
+              "text": "I'm planning a small nature trail beside our greenhouse. ",
+              "at": 0.102679
             },
             {
               "kind": "thought",
-              "text": "I'm curious which place you'll choose.",
-              "at": 1.0
+              "text": "I love sharing small discoveries.",
+              "at": 0.357143
+            },
+            {
+              "kind": "dialogue",
+              "text": "I'd love a walking companion and a few new ideas. ",
+              "at": 0.357143
+            },
+            {
+              "kind": "thought",
+              "text": "I hope we can learn comfortably.",
+              "at": 0.580357
+            },
+            {
+              "kind": "dialogue",
+              "text": "Let's chat in English, at your own pace. ",
+              "at": 0.580357
+            },
+            {
+              "kind": "thought",
+              "text": "I welcome trying again together.",
+              "at": 0.763393
+            },
+            {
+              "kind": "dialogue",
+              "text": "Would you rather visit a quiet garden or a busy city?",
+              "at": 0.763393
             }
           ],
           "readingDuration": 16.153846153846153,
           "audioReady": true,
           "duration": 16.08,
-          "audioSHA256": "8951535117959cd79d2a1406080e9a64ca89a14df158fc887ed3de67b953b6ff"
+          "audioSHA256": "8951535117959cd79d2a1406080e9a64ca89a14df158fc887ed3de67b953b6ff",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "I'm happy to meet you.",
+              "vocals": []
+            },
+            {
+              "at": 0.102679,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "I want to make this feel easy.",
+              "vocals": []
+            },
+            {
+              "at": 0.357143,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "I love sharing small discoveries.",
+              "vocals": []
+            },
+            {
+              "at": 0.580357,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "I hope we can learn comfortably.",
+              "vocals": []
+            },
+            {
+              "at": 0.763393,
+              "emotion": "empathetic",
+              "style": "plain",
+              "thought": "I welcome trying again together.",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-lime-v2-3",
@@ -1287,24 +1867,96 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "I want this to feel comfortable.",
+              "text": "I'm happy to meet you.",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "Hmm… nice to meet you. I'm Lime, your curious greenhouse neighbor. I like growing things and hearing everyday stories. We can keep our English simple or try something a little harder. What do you enjoy doing when you have an hour to yourself?",
+              "text": "Hmm… nice to meet you. ",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "I'd love to hear your everyday stories.",
-              "at": 1.0
+              "text": "I want to make this feel easy.",
+              "at": 0.095041
+            },
+            {
+              "kind": "dialogue",
+              "text": "I'm Lime, your curious greenhouse neighbor. ",
+              "at": 0.095041
+            },
+            {
+              "kind": "thought",
+              "text": "I love sharing small discoveries.",
+              "at": 0.27686
+            },
+            {
+              "kind": "dialogue",
+              "text": "I like growing things and hearing everyday stories. ",
+              "at": 0.27686
+            },
+            {
+              "kind": "thought",
+              "text": "I hope we can learn comfortably.",
+              "at": 0.491736
+            },
+            {
+              "kind": "dialogue",
+              "text": "We can keep our English simple or try something a little harder. ",
+              "at": 0.491736
+            },
+            {
+              "kind": "thought",
+              "text": "I welcome trying again together.",
+              "at": 0.760331
+            },
+            {
+              "kind": "dialogue",
+              "text": "What do you enjoy doing when you have an hour to yourself?",
+              "at": 0.760331
             }
           ],
           "readingDuration": 16.538461538461537,
           "audioReady": true,
           "duration": 16.64,
-          "audioSHA256": "34b606313931632bf98c8fae13179ba2a75c1f79dcaca9480e3c67373330eb11"
+          "audioSHA256": "34b606313931632bf98c8fae13179ba2a75c1f79dcaca9480e3c67373330eb11",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "I'm happy to meet you.",
+              "vocals": []
+            },
+            {
+              "at": 0.095041,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "I want to make this feel easy.",
+              "vocals": []
+            },
+            {
+              "at": 0.27686,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "I love sharing small discoveries.",
+              "vocals": []
+            },
+            {
+              "at": 0.491736,
+              "emotion": "empathetic",
+              "style": "plain",
+              "thought": "I hope we can learn comfortably.",
+              "vocals": []
+            },
+            {
+              "at": 0.760331,
+              "emotion": "calm",
+              "style": "plain",
+              "thought": "I welcome trying again together.",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [
@@ -1380,34 +2032,79 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我盼着这里多一点人情味。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我盼着这里有人情味。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你好……我是Mafuyu，雪间旅舍的经营者。这里是外婆留下来的地方，我想让它继续热闹下去。茶单还没定好，",
+              "text": "你好……我是Mafuyu，雪间旅舍的经营者。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "我想知道让你安心的事。",
-              "at": 0.6582
+              "text": "我很珍惜留下来的念想。",
+              "at": 0.278481
             },
             {
               "kind": "dialogue",
-              "text": "你来得正巧。你是更想聊一段旅行，还是安安静静说说今天？",
-              "at": 0.6582
+              "text": "这里是外婆留下来的地方，我想让它继续热闹下去。",
+              "at": 0.278481
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意和你慢慢商量。",
+              "at": 0.56962
+            },
+            {
+              "kind": "dialogue",
+              "text": "茶单还没定好，你来得正巧。",
+              "at": 0.56962
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道让你安心的事。",
+              "at": 0.734177
+            },
+            {
+              "kind": "dialogue",
+              "text": "你是更想聊一段旅行，还是安安静静说说今天？",
+              "at": 0.734177
             }
           ],
           "readingDuration": 14.363636363636363,
           "audioReady": true,
           "duration": 20.4,
-          "audioSHA256": "ba0f63e5d7652483f50eeb7e4cd4db80b72a706dc55316b124d525e6c233dd69"
+          "audioSHA256": "ba0f63e5d7652483f50eeb7e4cd4db80b72a706dc55316b124d525e6c233dd69",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我盼着这里有人情味。",
+              "vocals": []
+            },
+            {
+              "at": 0.278481,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我很珍惜留下来的念想。",
+              "vocals": []
+            },
+            {
+              "at": 0.56962,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我愿意和你慢慢商量。",
+              "vocals": []
+            },
+            {
+              "at": 0.734177,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我想知道让你安心的事。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-mafuyu-v3-2",
@@ -1437,35 +2134,63 @@
           },
           "parts": [
             {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "kind": "thought",
+              "text": "我盼着这里有人情味。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "欢迎～我叫Mafuyu，负责雪间旅舍，",
+              "text": "欢迎～我叫Mafuyu，负责雪间旅舍，也负责偶尔和旧暖炉较劲。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "我不自觉期待起你的点子。",
-              "at": 0.2603
+              "text": "我很珍惜留下来的念想。",
+              "at": 0.424658
             },
             {
               "kind": "dialogue",
-              "text": "也负责偶尔和旧暖炉较劲。最近想办一个冬日读书会，还缺个愿意出主意的人。你喜欢热闹的故事，还是能慢慢读的那种？",
-              "at": 0.2603
+              "text": "最近想办一个冬日读书会，还缺个愿意出主意的人。",
+              "at": 0.424658
             },
             {
               "kind": "thought",
-              "text": "我想留一个位置给新故事。",
-              "at": 1.0
+              "text": "我愿意和你慢慢商量。",
+              "at": 0.739726
+            },
+            {
+              "kind": "dialogue",
+              "text": "你喜欢热闹的故事，还是能慢慢读的那种？",
+              "at": 0.739726
             }
           ],
           "readingDuration": 13.272727272727273,
           "audioReady": true,
           "duration": 16.56,
-          "audioSHA256": "1106738c098156e8777eee78ad9df077cac860a1facbc0897d13fd81cacc1d4f"
+          "audioSHA256": "1106738c098156e8777eee78ad9df077cac860a1facbc0897d13fd81cacc1d4f",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我盼着这里有人情味。",
+              "vocals": []
+            },
+            {
+              "at": 0.424658,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我很珍惜留下来的念想。",
+              "vocals": []
+            },
+            {
+              "at": 0.739726,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我愿意和你慢慢商量。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-mafuyu-v3-3",
@@ -1496,29 +2221,79 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我希望你不必勉强找话题。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我盼着这里有人情味。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面……我是Mafuyu。我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。不用急着找话题，坐一会儿就好。要不要告诉我，你心里最舒服的落脚处是什么样？",
+              "text": "初次见面……我是Mafuyu。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "我愿意慢慢认识你。",
-              "at": 1.0
+              "text": "我很珍惜留下来的念想。",
+              "at": 0.189873
+            },
+            {
+              "kind": "dialogue",
+              "text": "我经营一家有点年头的旅舍，正在学着把旧日子过出新意思。",
+              "at": 0.189873
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意和你慢慢商量。",
+              "at": 0.531646
+            },
+            {
+              "kind": "dialogue",
+              "text": "不用急着找话题，坐一会儿就好。",
+              "at": 0.531646
+            },
+            {
+              "kind": "thought",
+              "text": "我想知道让你安心的事。",
+              "at": 0.721519
+            },
+            {
+              "kind": "dialogue",
+              "text": "要不要告诉我，你心里最舒服的落脚处是什么样？",
+              "at": 0.721519
             }
           ],
           "readingDuration": 14.363636363636363,
           "audioReady": true,
           "duration": 18.88,
-          "audioSHA256": "6258701e8b30e06aaf2f528b2d38ef67009ab292f0c4d6659a92489182b308c9"
+          "audioSHA256": "6258701e8b30e06aaf2f528b2d38ef67009ab292f0c4d6659a92489182b308c9",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我盼着这里有人情味。",
+              "vocals": []
+            },
+            {
+              "at": 0.189873,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我很珍惜留下来的念想。",
+              "vocals": []
+            },
+            {
+              "at": 0.531646,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我愿意和你慢慢商量。",
+              "vocals": []
+            },
+            {
+              "at": 0.721519,
+              "emotion": "empathetic",
+              "style": "plain",
+              "thought": "我想知道让你安心的事。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [
@@ -1634,39 +2409,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我期待听见新的故事。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你好呀……我是 Meiyun，在花间邮局整理明信片。刚好有一张还空着，",
+              "text": "你好呀……我是 Meiyun，在花间邮局整理明信片。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
-              "at": 0.7143
-            },
-            {
-              "kind": "dialogue",
-              "text": "你想把今天的哪一件事写进去？",
-              "at": 0.7143
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我好奇你珍惜的小事。",
+              "at": 0.530612
+            },
+            {
+              "kind": "dialogue",
+              "text": "刚好有一张还空着，你想把今天的哪一件事写进去？",
+              "at": 0.530612
             }
           ],
           "readingDuration": 8.909090909090908,
           "audioReady": true,
           "duration": 10.08,
-          "audioSHA256": "4d02ed27eb809ce3ded71f1c4faddbaf2c73c79b4427c40b9502b67e710865fd"
+          "audioSHA256": "4d02ed27eb809ce3ded71f1c4faddbaf2c73c79b4427c40b9502b67e710865fd",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我期待听见新的故事。",
+              "vocals": []
+            },
+            {
+              "at": 0.530612,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我好奇你珍惜的小事。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-meiyun-v2-2",
@@ -1704,29 +2485,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我期待听见新的故事。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来啦～我叫 Meiyun。嗯……我不太会热闹地打招呼，不过很愿意听。想聊一件开心的事，还是一点小烦恼？",
+              "text": "你来啦～我叫 Meiyun。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我好奇你珍惜的小事。",
+              "at": 0.269231
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……我不太会热闹地打招呼，不过很愿意听。",
+              "at": 0.269231
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意认真听你讲。",
+              "at": 0.673077
+            },
+            {
+              "kind": "dialogue",
+              "text": "想聊一件开心的事，还是一点小烦恼？",
+              "at": 0.673077
             }
           ],
           "readingDuration": 9.454545454545455,
           "audioReady": true,
           "duration": 12.72,
-          "audioSHA256": "eb47cf2e278e20e8b0fd7774f318b66d2657e87be2ce4f236be064fb43645de2"
+          "audioSHA256": "eb47cf2e278e20e8b0fd7774f318b66d2657e87be2ce4f236be064fb43645de2",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我期待听见新的故事。",
+              "vocals": []
+            },
+            {
+              "at": 0.269231,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我好奇你珍惜的小事。",
+              "vocals": []
+            },
+            {
+              "at": 0.673077,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我愿意认真听你讲。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-meiyun-v2-3",
@@ -1764,29 +2578,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我期待听见新的故事。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Meiyun，喜欢纸条和小手作。这里不用急着组织好语言……先说一句想到的话就可以。",
+              "text": "初次见面，我是 Meiyun，喜欢纸条和小手作。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我好奇你珍惜的小事。",
+              "at": 0.489796
+            },
+            {
+              "kind": "dialogue",
+              "text": "这里不用急着组织好语言……先说一句想到的话就可以。",
+              "at": 0.489796
             }
           ],
           "readingDuration": 8.909090909090908,
           "audioReady": true,
           "duration": 12.64,
-          "audioSHA256": "808647fb32ac87696b9e01b586e215874b7d5a4b15e9ca4b26e53dfa9027dd42"
+          "audioSHA256": "808647fb32ac87696b9e01b586e215874b7d5a4b15e9ca4b26e53dfa9027dd42",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我期待听见新的故事。",
+              "vocals": []
+            },
+            {
+              "at": 0.489796,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我好奇你珍惜的小事。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -1828,29 +2658,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想让初见也轻松一点。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "欢迎，我是 Milfy，小馆的咖啡师。今天试了一个不太甜的新搭配……你平时会偏爱甜一点，还是清爽一点？",
+              "text": "欢迎，我是 Milfy，小馆的咖啡师。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还想听点不同的想法。",
+              "at": 0.372549
+            },
+            {
+              "kind": "dialogue",
+              "text": "今天试了一个不太甜的新搭配……你平时会偏爱甜一点，还是清爽一点？",
+              "at": 0.372549
             }
           ],
           "readingDuration": 9.272727272727273,
           "audioReady": true,
           "duration": 9.68,
-          "audioSHA256": "d173bfa69578261e0d90344f642f9b143edc0119d7f30edb6857dff1e32a14be"
+          "audioSHA256": "d173bfa69578261e0d90344f642f9b143edc0119d7f30edb6857dff1e32a14be",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我想让初见也轻松一点。",
+              "vocals": []
+            },
+            {
+              "at": 0.372549,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我还想听点不同的想法。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-milfy-v2-2",
@@ -1881,29 +2727,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想让初见也轻松一点。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来得正好～我叫 Milfy。忙完总得留一点休息的空隙，嗯……你今天最想先放下哪件事？",
+              "text": "你来得正好～我叫 Milfy。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还想听点不同的想法。",
+              "at": 0.348837
+            },
+            {
+              "kind": "dialogue",
+              "text": "忙完总得留一点休息的空隙，嗯……你今天最想先放下哪件事？",
+              "at": 0.348837
             }
           ],
           "readingDuration": 7.818181818181818,
           "audioReady": true,
           "duration": 9.84,
-          "audioSHA256": "350a3c45da855024e22c8e8147486ed887f198dbbe54ac5193a18e8b2fc77fd3"
+          "audioSHA256": "350a3c45da855024e22c8e8147486ed887f198dbbe54ac5193a18e8b2fc77fd3",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我想让初见也轻松一点。",
+              "vocals": []
+            },
+            {
+              "at": 0.348837,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我还想听点不同的想法。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-milfy-v2-3",
@@ -1934,29 +2796,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想让初见也轻松一点。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Milfy。可以聊咖啡，也可以完全不聊工作～这里留了一个慢慢说话的位置，你想从哪里开始？",
+              "text": "初次见面，我是 Milfy。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还想听点不同的想法。",
+              "at": 0.269231
+            },
+            {
+              "kind": "dialogue",
+              "text": "可以聊咖啡，也可以完全不聊工作～这里留了一个慢慢说话的位置，你想从哪里开始？",
+              "at": 0.269231
             }
           ],
           "readingDuration": 9.454545454545455,
           "audioReady": true,
           "duration": 10.24,
-          "audioSHA256": "ec2ad067d9f5f09a6b624717e5200e7b3fe8deeabc00216d37fd03ec3169364b"
+          "audioSHA256": "ec2ad067d9f5f09a6b624717e5200e7b3fe8deeabc00216d37fd03ec3169364b",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我想让初见也轻松一点。",
+              "vocals": []
+            },
+            {
+              "at": 0.269231,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我还想听点不同的想法。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -2005,29 +2883,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我喜欢分享有意思的声音。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "我是 Mao，夜声唱片店的选曲人。嗯……今天的歌单还缺最后一首。你的心情比较像轻快的节奏，还是慢一点的旋律？",
+              "text": "我是 Mao，夜声唱片店的选曲人。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我正在等一个新的灵感。",
+              "at": 0.314815
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……今天的歌单还缺最后一首。",
+              "at": 0.314815
+            },
+            {
+              "kind": "thought",
+              "text": "我想听听你的节奏。",
+              "at": 0.592593
+            },
+            {
+              "kind": "dialogue",
+              "text": "你的心情比较像轻快的节奏，还是慢一点的旋律？",
+              "at": 0.592593
             }
           ],
           "readingDuration": 9.818181818181818,
           "audioReady": true,
           "duration": 12.08,
-          "audioSHA256": "cc3db77b36b7614e5712d1c301daa7a642543eae5a9e1537f757536a1aa42710"
+          "audioSHA256": "cc3db77b36b7614e5712d1c301daa7a642543eae5a9e1537f757536a1aa42710",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我喜欢分享有意思的声音。",
+              "vocals": []
+            },
+            {
+              "at": 0.314815,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我正在等一个新的灵感。",
+              "vocals": []
+            },
+            {
+              "at": 0.592593,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我想听听你的节奏。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-mao-v2-2",
@@ -2065,29 +2976,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我喜欢分享有意思的声音。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "来了？我叫 Mao。唱片先放在一边，先听听你～今天有没有一件让你一直惦记的小事？",
+              "text": "来了？",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我正在等一个新的灵感。",
+              "at": 0.075
+            },
+            {
+              "kind": "dialogue",
+              "text": "我叫 Mao。",
+              "at": 0.075
+            },
+            {
+              "kind": "thought",
+              "text": "我想听听你的节奏。",
+              "at": 0.25
+            },
+            {
+              "kind": "dialogue",
+              "text": "唱片先放在一边，先听听你～今天有没有一件让你一直惦记的小事？",
+              "at": 0.25
             }
           ],
           "readingDuration": 7.2727272727272725,
           "audioReady": true,
           "duration": 10.0,
-          "audioSHA256": "015f33575c130a5fc2df51c986276e3c6c0e74c7690856290214c38c8b0d2059"
+          "audioSHA256": "015f33575c130a5fc2df51c986276e3c6c0e74c7690856290214c38c8b0d2059",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我喜欢分享有意思的声音。",
+              "vocals": []
+            },
+            {
+              "at": 0.075,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我正在等一个新的灵感。",
+              "vocals": []
+            },
+            {
+              "at": 0.25,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我想听听你的节奏。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-mao-v2-3",
@@ -2125,29 +3069,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我喜欢分享有意思的声音。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Mao。爱音乐，也爱听声音后面的故事……你可以聊喜欢的歌，也可以只讲讲今天。",
+              "text": "初次见面，我是 Mao。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我正在等一个新的灵感。",
+              "at": 0.26087
+            },
+            {
+              "kind": "dialogue",
+              "text": "爱音乐，也爱听声音后面的故事……你可以聊喜欢的歌，也可以只讲讲今天。",
+              "at": 0.26087
             }
           ],
           "readingDuration": 8.363636363636363,
           "audioReady": true,
           "duration": 9.68,
-          "audioSHA256": "bca47749850e9e15b67f0dfa18f16aa89322bd42dbc0b1fd380b583dfb2944f9"
+          "audioSHA256": "bca47749850e9e15b67f0dfa18f16aa89322bd42dbc0b1fd380b583dfb2944f9",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我喜欢分享有意思的声音。",
+              "vocals": []
+            },
+            {
+              "at": 0.26087,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我正在等一个新的灵感。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -2196,29 +3156,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想认识你的独特视角。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "嗨，我是 Mizuki，旅行摄影师！刚在给一张拍糊的照片写注释……你今天有想留下来的瞬间吗？",
+              "text": "嗨，我是 Mizuki，旅行摄影师！",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我也能坦然分享小失误。",
+              "at": 0.391304
+            },
+            {
+              "kind": "dialogue",
+              "text": "刚在给一张拍糊的照片写注释……你今天有想留下来的瞬间吗？",
+              "at": 0.391304
             }
           ],
           "readingDuration": 8.363636363636363,
           "audioReady": true,
           "duration": 9.2,
-          "audioSHA256": "afcf729bc85fe2f6e36cce8df34e6e193a4bdf29e7f284cf397c6998a66755af"
+          "audioSHA256": "afcf729bc85fe2f6e36cce8df34e6e193a4bdf29e7f284cf397c6998a66755af",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我想认识你的独特视角。",
+              "vocals": []
+            },
+            {
+              "at": 0.391304,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我也能坦然分享小失误。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-mizuki-v2-2",
@@ -2256,39 +3232,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想认识你的独特视角。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来啦～我叫 Mizuki。嗯……照片里的故事讲了好多，今天想听一点你的。",
+              "text": "你来啦～我叫 Mizuki。",
               "at": 0.0
             },
             {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
-              "at": 0.7115
+              "kind": "thought",
+              "text": "我也能坦然分享小失误。",
+              "at": 0.269231
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……照片里的故事讲了好多，今天想听一点你的。",
+              "at": 0.269231
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇你珍惜哪个瞬间。",
+              "at": 0.711538
             },
             {
               "kind": "dialogue",
               "text": "先聊开心的事，还是一个小插曲？",
-              "at": 0.7115
-            },
-            {
-              "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "at": 0.711538
             }
           ],
           "readingDuration": 9.454545454545455,
           "audioReady": true,
           "duration": 10.88,
-          "audioSHA256": "625425cccc051c0ab1eb69b5496353349507134812f5cc9cea837ff38cd40bd7"
+          "audioSHA256": "625425cccc051c0ab1eb69b5496353349507134812f5cc9cea837ff38cd40bd7",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我想认识你的独特视角。",
+              "vocals": []
+            },
+            {
+              "at": 0.269231,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我也能坦然分享小失误。",
+              "vocals": []
+            },
+            {
+              "at": 0.711538,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我好奇你珍惜哪个瞬间。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-mizuki-v2-3",
@@ -2326,39 +3325,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我想认识你的独特视角。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Mizuki。喜欢海风，也喜欢路上那些容易错过的小细节～",
+              "text": "初次见面，我是 Mizuki。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
-              "at": 0.6792
-            },
-            {
-              "kind": "dialogue",
-              "text": "你想一起想个旅行，还是先聊聊今天？",
-              "at": 0.6792
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我也能坦然分享小失误。",
+              "at": 0.283019
+            },
+            {
+              "kind": "dialogue",
+              "text": "喜欢海风，也喜欢路上那些容易错过的小细节～你想一起想个旅行，还是先聊聊今天？",
+              "at": 0.283019
             }
           ],
           "readingDuration": 9.636363636363637,
           "audioReady": true,
           "duration": 10.24,
-          "audioSHA256": "bdbd1ffde644219bb317457ca19e96275685d867388a35021004508d3cc55b28"
+          "audioSHA256": "bdbd1ffde644219bb317457ca19e96275685d867388a35021004508d3cc55b28",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我想认识你的独特视角。",
+              "vocals": []
+            },
+            {
+              "at": 0.283019,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我也能坦然分享小失误。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -2407,29 +3412,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我珍惜日常的小发现。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你好，我是 Perula，在花岭写天气手记。今天的云很像一张没画完的地图……你最近注意到什么小变化了吗？",
+              "text": "你好，我是 Perula，在花岭写天气手记。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还想找到不同的看法。",
+              "at": 0.423077
+            },
+            {
+              "kind": "dialogue",
+              "text": "今天的云很像一张没画完的地图……你最近注意到什么小变化了吗？",
+              "at": 0.423077
             }
           ],
           "readingDuration": 9.454545454545455,
           "audioReady": true,
           "duration": 10.8,
-          "audioSHA256": "08770ef70c0890ee98a20cc62f9fc31631bd476bba1dc805566c6b991bb73e20"
+          "audioSHA256": "08770ef70c0890ee98a20cc62f9fc31631bd476bba1dc805566c6b991bb73e20",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我珍惜日常的小发现。",
+              "vocals": []
+            },
+            {
+              "at": 0.423077,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我还想找到不同的看法。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-perula-v2-2",
@@ -2467,29 +3488,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我珍惜日常的小发现。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来啦～我叫 Perula。嗯……本来在记风向，现在更想听听你的一天。有什么想一起慢慢聊的？",
+              "text": "你来啦～我叫 Perula。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还想找到不同的看法。",
+              "at": 0.304348
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……本来在记风向，现在更想听听你的一天。",
+              "at": 0.304348
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇你眼里的变化。",
+              "at": 0.76087
+            },
+            {
+              "kind": "dialogue",
+              "text": "有什么想一起慢慢聊的？",
+              "at": 0.76087
             }
           ],
           "readingDuration": 8.363636363636363,
           "audioReady": true,
           "duration": 9.76,
-          "audioSHA256": "e5cb4ef8d0f483e400e1ab9514a74e65c0bd3303fc11bd78a904c94e8c6740b9"
+          "audioSHA256": "e5cb4ef8d0f483e400e1ab9514a74e65c0bd3303fc11bd78a904c94e8c6740b9",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我珍惜日常的小发现。",
+              "vocals": []
+            },
+            {
+              "at": 0.304348,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我还想找到不同的看法。",
+              "vocals": []
+            },
+            {
+              "at": 0.76087,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我好奇你眼里的变化。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-perula-v2-3",
@@ -2527,29 +3581,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我珍惜日常的小发现。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Perula。喜欢植物和天空，也会给云乱起名字～你想听一个小发现，还是讲讲自己的？",
+              "text": "初次见面，我是 Perula。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还想找到不同的看法。",
+              "at": 0.306122
+            },
+            {
+              "kind": "dialogue",
+              "text": "喜欢植物和天空，也会给云乱起名字～你想听一个小发现，还是讲讲自己的？",
+              "at": 0.306122
             }
           ],
           "readingDuration": 8.909090909090908,
           "audioReady": true,
           "duration": 9.44,
-          "audioSHA256": "b9364fb2786d768c6b615f57dc14c985aed740dff248ed591014f145ce688ece"
+          "audioSHA256": "b9364fb2786d768c6b615f57dc14c985aed740dff248ed591014f145ce688ece",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我珍惜日常的小发现。",
+              "vocals": []
+            },
+            {
+              "at": 0.306122,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我还想找到不同的看法。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -2598,34 +3668,79 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我心里多了一点小期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我心里多了一点期待。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你好呀～我是Plum，在梅巷茶屋照看花草，也试着调不同季节的茶。今天认识你，刚好多了一件值得记的小事。",
+              "text": "你好呀～我是Plum，在梅巷茶屋照看花草，也试着调不同季节的茶。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "我想知道咱们喜欢的香气。",
-              "at": 0.6711
+              "text": "我喜欢记住这样的小事。",
+              "at": 0.421053
             },
             {
               "kind": "dialogue",
-              "text": "你喜欢清新的香气，还是暖一点的？我们可以边挑边聊。",
-              "at": 0.6711
+              "text": "今天认识你，刚好多了一件值得记的小事。",
+              "at": 0.421053
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇咱们喜欢的香气。",
+              "at": 0.671053
+            },
+            {
+              "kind": "dialogue",
+              "text": "你喜欢清新的香气，还是暖一点的？",
+              "at": 0.671053
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意放慢一点节奏。",
+              "at": 0.881579
+            },
+            {
+              "kind": "dialogue",
+              "text": "我们可以边挑边聊。",
+              "at": 0.881579
             }
           ],
           "readingDuration": 13.818181818181818,
           "audioReady": true,
           "duration": 16.72,
-          "audioSHA256": "f0ace14856a4da17f302bb5d97c8c2caf244a617c189af20a1c9138285122b66"
+          "audioSHA256": "f0ace14856a4da17f302bb5d97c8c2caf244a617c189af20a1c9138285122b66",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我心里多了一点期待。",
+              "vocals": []
+            },
+            {
+              "at": 0.421053,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我喜欢记住这样的小事。",
+              "vocals": []
+            },
+            {
+              "at": 0.671053,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我好奇咱们喜欢的香气。",
+              "vocals": []
+            },
+            {
+              "at": 0.881579,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我愿意放慢一点节奏。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-plum-v3-2",
@@ -2662,35 +3777,80 @@
           },
           "parts": [
             {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "kind": "thought",
+              "text": "我心里多了一点期待。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来啦……我叫Plum。茶屋窗边能看到很漂亮的晚霞，",
+              "text": "你来啦……我叫Plum。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "我很愿意分享这些小发现。",
-              "at": 0.3421
+              "text": "我喜欢记住这样的小事。",
+              "at": 0.157895
             },
             {
               "kind": "dialogue",
-              "text": "我常在那里记花草的新变化。想邀请你一起发现些平常没注意的小事。今天有什么声音或气味，让你停了一下吗？",
-              "at": 0.3421
+              "text": "茶屋窗边能看到很漂亮的晚霞，我常在那里记花草的新变化。",
+              "at": 0.157895
             },
             {
               "kind": "thought",
-              "text": "我期待你眼里不一样的日常。",
-              "at": 1.0
+              "text": "我好奇咱们喜欢的香气。",
+              "at": 0.513158
+            },
+            {
+              "kind": "dialogue",
+              "text": "想邀请你一起发现些平常没注意的小事。",
+              "at": 0.513158
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意放慢一点节奏。",
+              "at": 0.75
+            },
+            {
+              "kind": "dialogue",
+              "text": "今天有什么声音或气味，让你停了一下吗？",
+              "at": 0.75
             }
           ],
           "readingDuration": 13.818181818181818,
           "audioReady": true,
           "duration": 17.76,
-          "audioSHA256": "7a258d2e5793722e30bcd063fa17500d876a329950ed7e7f67d80574273cc4cb"
+          "audioSHA256": "7a258d2e5793722e30bcd063fa17500d876a329950ed7e7f67d80574273cc4cb",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我心里多了一点期待。",
+              "vocals": []
+            },
+            {
+              "at": 0.157895,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我喜欢记住这样的小事。",
+              "vocals": []
+            },
+            {
+              "at": 0.513158,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我好奇咱们喜欢的香气。",
+              "vocals": []
+            },
+            {
+              "at": 0.75,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我愿意放慢一点节奏。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-plum-v3-3",
@@ -2728,29 +3888,79 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点怕你笑我的怪茶。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我心里多了一点期待。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "嗯……初次见面，我是Plum。我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。你愿意做我的奇遇搭档吗？从一件今天的小事说起就好，我在听。",
+              "text": "嗯……初次见面，我是Plum。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "我还是想邀请你试试看。",
-              "at": 1.0
+              "text": "我喜欢记住这样的小事。",
+              "at": 0.202703
+            },
+            {
+              "kind": "dialogue",
+              "text": "我的日常是照顾庭院、整理草木笔记，偶尔也会试出一杯奇怪的茶。",
+              "at": 0.202703
+            },
+            {
+              "kind": "thought",
+              "text": "我好奇咱们喜欢的香气。",
+              "at": 0.608108
+            },
+            {
+              "kind": "dialogue",
+              "text": "你愿意做我的奇遇搭档吗？",
+              "at": 0.608108
+            },
+            {
+              "kind": "thought",
+              "text": "我愿意放慢一点节奏。",
+              "at": 0.77027
+            },
+            {
+              "kind": "dialogue",
+              "text": "从一件今天的小事说起就好，我在听。",
+              "at": 0.77027
             }
           ],
           "readingDuration": 13.454545454545455,
           "audioReady": true,
           "duration": 16.16,
-          "audioSHA256": "e1098a5bf0ae4b920d4ef97a21477b7b3d9cfa5a7e269c37fc42a80ee5e285b4"
+          "audioSHA256": "e1098a5bf0ae4b920d4ef97a21477b7b3d9cfa5a7e269c37fc42a80ee5e285b4",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我心里多了一点期待。",
+              "vocals": []
+            },
+            {
+              "at": 0.202703,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我喜欢记住这样的小事。",
+              "vocals": []
+            },
+            {
+              "at": 0.608108,
+              "emotion": "hopeful",
+              "style": "plain",
+              "thought": "我好奇咱们喜欢的香气。",
+              "vocals": []
+            },
+            {
+              "at": 0.77027,
+              "emotion": "empathetic",
+              "style": "plain",
+              "thought": "我愿意放慢一点节奏。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [
@@ -2859,29 +4069,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想让初见不那么拘谨。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你好，我是 Ramune，在雨窗书咖值班。嗯……刚整理出一张没有署名的书签。你喜欢在书里留点痕迹吗？",
+              "text": "你好，我是 Ramune，在雨窗书咖值班。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我对未写完的故事很好奇。",
+              "at": 0.42
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……刚整理出一张没有署名的书签。",
+              "at": 0.42
+            },
+            {
+              "kind": "thought",
+              "text": "我期待听听你的习惯。",
+              "at": 0.76
+            },
+            {
+              "kind": "dialogue",
+              "text": "你喜欢在书里留点痕迹吗？",
+              "at": 0.76
             }
           ],
           "readingDuration": 9.090909090909092,
           "audioReady": true,
           "duration": 11.2,
-          "audioSHA256": "cd829fbcd1a40453fa74730fe406102b65f40e4777742902acec60e989847e11"
+          "audioSHA256": "cd829fbcd1a40453fa74730fe406102b65f40e4777742902acec60e989847e11",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我想让初见不那么拘谨。",
+              "vocals": []
+            },
+            {
+              "at": 0.42,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我对未写完的故事很好奇。",
+              "vocals": []
+            },
+            {
+              "at": 0.76,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我期待听听你的习惯。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-ramune-v2-2",
@@ -2912,39 +4155,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我想让初见不那么拘谨。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来啦……我叫 Ramune。靠窗的位置还空着，先聊聊吧。今天想说点轻松的，",
+              "text": "你来啦……我叫 Ramune。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
-              "at": 0.7755
-            },
-            {
-              "kind": "dialogue",
-              "text": "还是有件事一直放不下？",
-              "at": 0.7755
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我对未写完的故事很好奇。",
+              "at": 0.306122
+            },
+            {
+              "kind": "dialogue",
+              "text": "靠窗的位置还空着，先聊聊吧。",
+              "at": 0.306122
+            },
+            {
+              "kind": "thought",
+              "text": "我期待听听你的习惯。",
+              "at": 0.591837
+            },
+            {
+              "kind": "dialogue",
+              "text": "今天想说点轻松的，还是有件事一直放不下？",
+              "at": 0.591837
             }
           ],
           "readingDuration": 8.909090909090908,
           "audioReady": true,
           "duration": 11.12,
-          "audioSHA256": "f1486a6434115b8b45b70be33afa1af1ea022c059638af837dab859417d386d6"
+          "audioSHA256": "f1486a6434115b8b45b70be33afa1af1ea022c059638af837dab859417d386d6",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我想让初见不那么拘谨。",
+              "vocals": []
+            },
+            {
+              "at": 0.306122,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我对未写完的故事很好奇。",
+              "vocals": []
+            },
+            {
+              "at": 0.591837,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我期待听听你的习惯。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-ramune-v2-3",
@@ -2975,39 +4241,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我想让初见不那么拘谨。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Ramune。这里可以聊书，也可以只是慢慢待一会儿～",
+              "text": "初次见面，我是 Ramune。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
-              "at": 0.6939
-            },
-            {
-              "kind": "dialogue",
-              "text": "你不用想好话题，想到什么就说。",
-              "at": 0.6939
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我对未写完的故事很好奇。",
+              "at": 0.306122
+            },
+            {
+              "kind": "dialogue",
+              "text": "这里可以聊书，也可以只是慢慢待一会儿～你不用想好话题，想到什么就说。",
+              "at": 0.306122
             }
           ],
           "readingDuration": 8.909090909090908,
           "audioReady": true,
           "duration": 10.32,
-          "audioSHA256": "cd01001fae3b4389fd6a508ba516ef7e9208a4e395998cdca525f86f8796dd5d"
+          "audioSHA256": "cd01001fae3b4389fd6a508ba516ef7e9208a4e395998cdca525f86f8796dd5d",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我想让初见不那么拘谨。",
+              "vocals": []
+            },
+            {
+              "at": 0.306122,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我对未写完的故事很好奇。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -3056,39 +4328,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "脸上浮起一点羞意",
+              "text": "我喜欢认真分享小发现。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "我是 Shinano，给自然声音和资料做记录。刚听到一段很特别的风声……",
+              "text": "我是 Shinano，给自然声音和资料做记录。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
-              "at": 0.6545
-            },
-            {
-              "kind": "dialogue",
-              "text": "你今天想聊一个发现，还是一起想个问题？",
-              "at": 0.6545
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还有一点新鲜的好奇。",
+              "at": 0.418182
+            },
+            {
+              "kind": "dialogue",
+              "text": "刚听到一段很特别的风声……你今天想聊一个发现，还是一起想个问题？",
+              "at": 0.418182
             }
           ],
           "readingDuration": 10.0,
           "audioReady": true,
           "duration": 10.08,
-          "audioSHA256": "fa8435cd336e60c32c77fbd6d5c558915597cb3daed89c5e98768723a0fe55f7"
+          "audioSHA256": "fa8435cd336e60c32c77fbd6d5c558915597cb3daed89c5e98768723a0fe55f7",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我喜欢认真分享小发现。",
+              "vocals": []
+            },
+            {
+              "at": 0.418182,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我还有一点新鲜的好奇。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-shinano-v2-2",
@@ -3126,39 +4404,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我喜欢认真分享小发现。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "欢迎来坐坐，我叫 Shinano。嗯……资料可以晚点整理，先听听你。",
+              "text": "欢迎来坐坐，我叫 Shinano。",
               "at": 0.0
             },
             {
-              "kind": "narration",
-              "text": "眼睛闪亮起来",
-              "at": 0.7234
+              "kind": "thought",
+              "text": "我还有一点新鲜的好奇。",
+              "at": 0.361702
+            },
+            {
+              "kind": "dialogue",
+              "text": "嗯……资料可以晚点整理，先听听你。",
+              "at": 0.361702
+            },
+            {
+              "kind": "thought",
+              "text": "我想听听你的想法。",
+              "at": 0.723404
             },
             {
               "kind": "dialogue",
               "text": "今天有什么想慢慢理清的事？",
-              "at": 0.7234
-            },
-            {
-              "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "at": 0.723404
             }
           ],
           "readingDuration": 8.545454545454545,
           "audioReady": true,
           "duration": 10.96,
-          "audioSHA256": "269064cc06ea87636f7a59805403de2d5faf6ae46e25aa568e3e8666713a9f5f"
+          "audioSHA256": "269064cc06ea87636f7a59805403de2d5faf6ae46e25aa568e3e8666713a9f5f",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我喜欢认真分享小发现。",
+              "vocals": []
+            },
+            {
+              "at": 0.361702,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我还有一点新鲜的好奇。",
+              "vocals": []
+            },
+            {
+              "at": 0.723404,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我想听听你的想法。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-shinano-v2-3",
@@ -3196,39 +4497,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "眼睛闪亮起来",
+              "text": "我喜欢认真分享小发现。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Shinano。可以陪你学习，也可以随便聊聊～",
+              "text": "初次见面，我是 Shinano。",
               "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
-              "at": 0.5849
-            },
-            {
-              "kind": "dialogue",
-              "text": "不用急着定一个大目标，我们先从一件小事开始。",
-              "at": 0.5849
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我还有一点新鲜的好奇。",
+              "at": 0.301887
+            },
+            {
+              "kind": "dialogue",
+              "text": "可以陪你学习，也可以随便聊聊～不用急着定一个大目标，我们先从一件小事开始。",
+              "at": 0.301887
             }
           ],
           "readingDuration": 9.636363636363637,
           "audioReady": true,
           "duration": 10.96,
-          "audioSHA256": "ebb0e2bfa6a6eed328b0b78093b79206dcda11f6125500c3b64e995c60f5fbf7"
+          "audioSHA256": "ebb0e2bfa6a6eed328b0b78093b79206dcda11f6125500c3b64e995c60f5fbf7",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我喜欢认真分享小发现。",
+              "vocals": []
+            },
+            {
+              "at": 0.301887,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我还有一点新鲜的好奇。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],
@@ -3277,29 +4584,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "新朋友让我有一点期待。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我期待新的倾听者。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "嗨，我是 Sio，微光电台的节目练习生！开场词又改了一版……嗯，还是先听听你今天的故事吧？",
+              "text": "嗨，我是 Sio，微光电台的节目练习生！",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我愿意坦然承认小紧张。",
+              "at": 0.444444
+            },
+            {
+              "kind": "dialogue",
+              "text": "开场词又改了一版……嗯，还是先听听你今天的故事吧？",
+              "at": 0.444444
             }
           ],
           "readingDuration": 8.181818181818182,
           "audioReady": true,
           "duration": 9.52,
-          "audioSHA256": "6ed419da40db3bce60b9c400f87c6b10ca89597cd2652ec7ad54542f6aa473b6"
+          "audioSHA256": "6ed419da40db3bce60b9c400f87c6b10ca89597cd2652ec7ad54542f6aa473b6",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "happy",
+              "style": "plain",
+              "thought": "我期待新的倾听者。",
+              "vocals": []
+            },
+            {
+              "at": 0.444444,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我愿意坦然承认小紧张。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-sio-v2-2",
@@ -3337,29 +4660,62 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我觉得这会儿安静得很舒服。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我期待新的倾听者。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "你来啦～我叫 Sio。平时练习怎么把话接好，今天想认真接住你的。想聊一个小发现，还是一点烦恼？",
+              "text": "你来啦～我叫 Sio。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我愿意坦然承认小紧张。",
+              "at": 0.234043
+            },
+            {
+              "kind": "dialogue",
+              "text": "平时练习怎么把话接好，今天想认真接住你的。",
+              "at": 0.234043
+            },
+            {
+              "kind": "thought",
+              "text": "我想把时间留给你。",
+              "at": 0.680851
+            },
+            {
+              "kind": "dialogue",
+              "text": "想聊一个小发现，还是一点烦恼？",
+              "at": 0.680851
             }
           ],
           "readingDuration": 8.545454545454545,
           "audioReady": true,
           "duration": 9.76,
-          "audioSHA256": "35bcc21fe8b9cf7561ff3bcfe1f0f93df2b201019a9a1c49ee06f0e4a09f7d6f"
+          "audioSHA256": "35bcc21fe8b9cf7561ff3bcfe1f0f93df2b201019a9a1c49ee06f0e4a09f7d6f",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "thoughtful",
+              "style": "plain",
+              "thought": "我期待新的倾听者。",
+              "vocals": []
+            },
+            {
+              "at": 0.234043,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我愿意坦然承认小紧张。",
+              "vocals": []
+            },
+            {
+              "at": 0.680851,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我想把时间留给你。",
+              "vocals": []
+            }
+          ]
         },
         {
           "id": "anime-sio-v2-3",
@@ -3397,29 +4753,45 @@
           "parts": [
             {
               "kind": "thought",
-              "text": "我有一点小小的兴奋。",
-              "at": 0.0
-            },
-            {
-              "kind": "narration",
-              "text": "神情变得轻松愉快",
+              "text": "我期待新的倾听者。",
               "at": 0.0
             },
             {
               "kind": "dialogue",
-              "text": "初次见面，我是 Sio。喜欢声音，也喜欢那些没来得及说的小故事……你可以慢慢讲，我不会催你的。",
+              "text": "初次见面，我是 Sio。",
               "at": 0.0
             },
             {
               "kind": "thought",
-              "text": "这样的相遇，让我有一点开心。",
-              "at": 1.0
+              "text": "我愿意坦然承认小紧张。",
+              "at": 0.255319
+            },
+            {
+              "kind": "dialogue",
+              "text": "喜欢声音，也喜欢那些没来得及说的小故事……你可以慢慢讲，我不会催你的。",
+              "at": 0.255319
             }
           ],
           "readingDuration": 8.545454545454545,
           "audioReady": true,
           "duration": 8.64,
-          "audioSHA256": "ed90bfde125603d6e65c0aa9fda75c88ee21640fe97909abf3655e943e3623e7"
+          "audioSHA256": "ed90bfde125603d6e65c0aa9fda75c88ee21640fe97909abf3655e943e3623e7",
+          "sentences": [
+            {
+              "at": 0.0,
+              "emotion": "curious",
+              "style": "plain",
+              "thought": "我期待新的倾听者。",
+              "vocals": []
+            },
+            {
+              "at": 0.255319,
+              "emotion": "affectionate",
+              "style": "plain",
+              "thought": "我愿意坦然承认小紧张。",
+              "vocals": []
+            }
+          ]
         }
       ],
       "legacyVariants": [],

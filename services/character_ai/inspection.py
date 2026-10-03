@@ -3,7 +3,7 @@ import importlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from . import prompts, schemas
+from . import prompts, schemas, emotion_standard
 from .profiles import PROFILES, assets
 from .provider import streaming_payload, structured_messages, structured_payload, EMOTIONS, DELIVERY, VOCALS
 from .planner_wire import CompactPlan, SpokenPlan, WIRE_SHAPE, SPOKEN_SHAPE
@@ -42,6 +42,7 @@ def report(settings,engine,owner,request):
     add('voice','语音与识别设定','完整音色设计在角色设定中；实际每次合成的文字、指令在请求记录中。',
         dict(active_voice={k:voice[k] for k in ('voice_id','revision','approved','model') if k in voice},
              emotion_tags=EMOTIONS,delivery_instructions=DELIVERY,vocal_tags=VOCALS,
+             performance_standard=emotion_standard.CATALOG,
              recognition_hotwords=PROFILES[char]['hotwords']+([request.preferences['nickname']] if request.preferences.get('nickname') else [])))
     fields=('character_model','preparation_model','streaming_core','streaming_model','suggestions_model','performance_model','translation_model','tts_model','asr_model','narration_timeout_seconds','performance_timeout_seconds','reaction_pool_size','reaction_pool_ttl_seconds','entry_pool_ttl_seconds','paid_enabled','enforce_conversation_limits',
             'max_daily_calls','max_daily_tts_characters','max_daily_asr_seconds','max_voice_designs','enable_test_inspector','semantic_novelty')

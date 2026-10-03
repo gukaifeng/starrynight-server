@@ -67,7 +67,7 @@ class ReactionPool:
         from .profiles import PROFILES
         # v4 adds conversational pauses/delivery and corresponding expression
         # selection. Retire only unspoken drafts; archive/audio remain intact.
-        value=[goals.REVISION,goals.effective(self.store,owner,request),5,reply_flow.REVISION,idle_presence.REVISION,request.character_id,self.has_met(owner,request),PROFILES[request.character_id],voice.get('voice_id'),request.preferences,
+        value=[getattr(request,'emotion_contract',0),goals.REVISION,goals.effective(self.store,owner,request),5,reply_flow.REVISION,idle_presence.REVISION,request.character_id,self.has_met(owner,request),PROFILES[request.character_id],voice.get('voice_id'),request.preferences,
                [m.model_dump() for m in request.memories],sorted(request.available_assets),{k:v for k,v in request.scene.items() if k!='time'},history]
         return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
 
@@ -253,9 +253,12 @@ class ReactionPool:
 
     async def publish(self,owner,request,context,claim,script,plan,*,defer_goals=False):
         from .aside_quality import review_script, recent
-        char=request.character_id;script=review_script({**script,'trigger':request.trigger},recent(self.store,owner,char),goals.spoken_language(char,context['goal_context']))
+        char=request.character_id;script=review_script({**script,'trigger':request.trigger},[] if request.emotion_contract else recent(self.store,owner,char),goals.spoken_language(char,context['goal_context']))
         script['goal_state']=goals.effective(self.store,owner,request) if defer_goals else await goals.commit(self.settings,request,Plan.model_validate(plan))
         goals.committed(self.store,owner,request,script['goal_state'])
+        if request.emotion_contract:
+            from . import emotion_standard
+            script=emotion_standard.review(script,context.get('emotion_context',{}).get('last',''))
         self.store.publish_reply(owner,char,str(request.request_id),request.text,script,prepared_id=claim['id'],allow_preparing='job' in claim)
         if defer_goals:self.store.complete(owner,char,str(request.request_id),script)
         else:self.engine.commit_context(owner,request,context,script,Plan.model_validate(plan))
@@ -292,15 +295,22 @@ class ReactionPool:
                         script=await self.publish(owner,request,context,claim,item['script'],job.plan,defer_goals=bool(item.get('core_streaming')))
                         item={**item,'script':script,'prepared':True,'preparation_inflight':waiting_core}
                     elif item['type'] in ('reply.visuals.updated','reply.script.updated'):
+                        state=goals.effective(self.store,owner,request)
                         if item.get('core_complete'):
                             state=await goals.commit(self.settings,request,Plan.model_validate(job.plan))
                             goals.committed(self.store,owner,request,state)
-                            item={**item,'script':{**item['script'],'goal_state':state}}
-                            self.engine.commit_context(owner,request,context,item['script'],Plan.model_validate(job.plan))
-                            if self.active.get(owner)==request.character_id:self.prepare(owner,request,renew_lease=False)
                         from .aside_quality import review_script, recent
-                        script=review_script({**item['script'],'trigger':request.trigger,'goal_state':goals.effective(self.store,owner,request)},recent(self.store,owner,request.character_id,item['script']['message_id']),goals.spoken_language(request.character_id,context['goal_context']))
-                        self.store.enrich_reply(owner,request.character_id,str(request.request_id),script);item={**item,'script':script}
+                        script=review_script({**item['script'],'trigger':request.trigger,'goal_state':state},
+                            [] if request.emotion_contract else recent(self.store,owner,request.character_id,item['script']['message_id']),
+                            goals.spoken_language(request.character_id,context['goal_context']))
+                        if request.emotion_contract:
+                            from . import emotion_standard
+                            script=emotion_standard.review(script,context.get('emotion_context',{}).get('last',''))
+                        self.store.enrich_reply(owner,request.character_id,str(request.request_id),script)
+                        item={**item,'script':script}
+                        if item.get('core_complete'):
+                            self.engine.commit_context(owner,request,context,script,Plan.model_validate(job.plan))
+                            if self.active.get(owner)==request.character_id:self.prepare(owner,request,renew_lease=False)
                     if not request.wants_audio and (item['type'].startswith('segment.audio.') or item['type'].startswith('audio.')):continue
                     if item['type']=='segment.audio.chunk' and attached_trace and 'inflight_audio' not in attached_trace.marks:
                         attached_trace.mark('inflight_audio')

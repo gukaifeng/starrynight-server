@@ -49,9 +49,14 @@ def beat(value,index):
             elif isinstance(a,dict):
                 asides.append(StagedThought.model_validate(a))
         except (ValueError,TypeError):pass
-    try:speech=Speech(emotion=value.get('mood','neutral'),delivery=value.get('tone','normal'),intensity=value.get('strength',.4))
+    try:speech=Speech(emotion=value.get('mood','neutral'),style=value.get('style','plain'),delivery=value.get('tone','normal'),intensity=value.get('strength',.4))
     except ValueError:speech=Speech()
-    return Beat(beat_id='b'+str(index),dialogue=dict(text=say.strip(),speech=speech),asides=asides[:3])
+    from .schemas import Vocal
+    vocals=[]
+    for v in (value.get('vocals',[]) if isinstance(value.get('vocals'),list) else [])[:2]:
+        try:vocals.append(Vocal.model_validate(v if isinstance(v,dict) else {'event':v}))
+        except (ValueError,TypeError):pass
+    return Beat(beat_id='b'+str(index),dialogue=dict(text=say.strip(),speech=speech),asides=asides[:3],vocal_events=vocals)
 
 def feedback(value,text):
     try:
