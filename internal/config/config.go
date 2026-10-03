@@ -1,8 +1,10 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/gukaifeng/starrynight-server/internal/privatecontent"
 	"net/url"
 	"os"
 	"strconv"
@@ -19,6 +21,9 @@ type Config struct {
 	AIUpstream, AIServiceToken                              string
 	AIInspectorAccounts                                     []string
 	OSSRegion, OSSBucket, OSSEndpoint, OSSCredentialSource  string
+	SettingPlatform                                         bool
+	ContentActiveKey                                        string
+	ContentKeys                                             map[string]string
 }
 
 func Load() (Config, error) {
@@ -33,6 +38,13 @@ func Load() (Config, error) {
 	}
 	c.OSSRegion, c.OSSBucket, c.OSSEndpoint = os.Getenv("OSS_REGION"), os.Getenv("OSS_BUCKET"), os.Getenv("OSS_ENDPOINT")
 	c.OSSCredentialSource = env("OSS_CREDENTIAL_SOURCE", "ecs")
+	c.SettingPlatform = os.Getenv("SETTING_PLATFORM_ENABLED") == "true"
+	c.ContentActiveKey = os.Getenv("CONTENT_ACTIVE_KEY")
+	if raw := os.Getenv("CONTENT_KEYS_JSON"); raw != "" {
+		if json.Unmarshal([]byte(raw), &c.ContentKeys) != nil {
+			return c, fmt.Errorf("invalid private content key configuration")
+		}
+	}
 	if value := os.Getenv("DB_POOL_SIZE"); value != "" {
 		n, e := strconv.Atoi(value)
 		if e != nil || n < 2 || n > 200 {
@@ -43,6 +55,11 @@ func Load() (Config, error) {
 	return c, c.Validate()
 }
 func (c Config) Validate() error {
+	if c.SettingPlatform {
+		if _, err := privatecontent.New(c.ContentActiveKey, c.ContentKeys); err != nil {
+			return fmt.Errorf("setting platform needs valid private content keys")
+		}
+	}
 	for _, account := range c.AIInspectorAccounts {
 		id, err := uuid.Parse(account)
 		if err != nil || id == uuid.Nil || id.String() != account {

@@ -13,6 +13,7 @@ import (
 	"github.com/gukaifeng/starrynight-server/internal/assets"
 	"github.com/gukaifeng/starrynight-server/internal/config"
 	"github.com/gukaifeng/starrynight-server/internal/identity"
+	"github.com/gukaifeng/starrynight-server/internal/privatecontent"
 	"github.com/gukaifeng/starrynight-server/internal/store"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -30,14 +31,15 @@ import (
 type actorKey struct{}
 type clientIPKey struct{}
 type Server struct {
-	Config   config.Config
-	Store    *store.Store
-	Redis    *redis.Client
-	Identity *identity.Service
-	Router   *gin.Engine
-	API      huma.API
-	Limiter  *redis_rate.Limiter
-	Assets   *assets.Signer
+	Config      config.Config
+	Store       *store.Store
+	Redis       *redis.Client
+	Identity    *identity.Service
+	Router      *gin.Engine
+	API         huma.API
+	Limiter     *redis_rate.Limiter
+	Assets      *assets.Signer
+	ContentKeys *privatecontent.Keyring
 }
 type Output[T any] struct{ Body T }
 type Mutation struct {
@@ -71,6 +73,10 @@ func problem(e error) error {
 		return huma.Error409Conflict(e.Error())
 	case errors.Is(e, store.ErrForbidden):
 		return huma.Error403Forbidden("operation not permitted")
+	case errors.Is(e, store.ErrPrecondition):
+		return huma.Error412PreconditionFailed("draft has changed; retrieve and merge the latest version")
+	case errors.Is(e, store.ErrMutationReused):
+		return huma.Error409Conflict("mutation identifier was reused with different content")
 	case errors.Is(e, identity.ErrCredentials):
 		return huma.Error401Unauthorized("invalid credentials or expired session")
 	case errors.Is(e, identity.ErrCapacity):
@@ -94,6 +100,12 @@ func New(c config.Config, db *store.Store, r *redis.Client) (*Server, error) {
 		return nil, err
 	}
 	s := &Server{Config: c, Store: db, Redis: r, Identity: auth, Router: router, Limiter: redis_rate.NewLimiter(r)}
+	if c.SettingPlatform {
+		s.ContentKeys, e = privatecontent.New(c.ContentActiveKey, c.ContentKeys)
+		if e != nil {
+			return nil, e
+		}
+	}
 	s.Assets, e = assets.NewSigner(c.OSSRegion, c.OSSBucket, c.OSSEndpoint, c.OSSCredentialSource)
 	if e != nil {
 		return nil, e
@@ -133,7 +145,11 @@ func New(c config.Config, db *store.Store, r *redis.Client) (*Server, error) {
 		ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
 		defer cancel()
 		c.Request = c.Request.WithContext(ctx)
-		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 256*1024)
+		limit := int64(256 * 1024)
+		if strings.HasPrefix(c.Request.URL.Path, "/v2/me/setting-drafts") {
+			limit = 600 * 1024
+		}
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, limit)
 		continued := false
 		s.session(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 			continued = true
@@ -160,6 +176,8 @@ func New(c config.Config, db *store.Store, r *redis.Client) (*Server, error) {
 	s.syncRoutes()
 	s.goalRoutes()
 	s.documentAIRoutes()
+	s.settingRoutes()
+	s.instanceRoutes()
 	return s, nil
 }
 func (s *Server) session(next http.Handler) http.Handler {
@@ -233,6 +251,9 @@ func register[I, O any](s *Server, method, path, id string, private bool, handle
 	op := huma.Operation{OperationID: id, Method: method, Path: path, MaxBodyBytes: 256 * 1024}
 	if id == "replace-own-avatar" {
 		op.MaxBodyBytes = 720 * 1024
+	}
+	if strings.HasPrefix(id, "v2-draft-") {
+		op.MaxBodyBytes = 600 * 1024
 	}
 	if private {
 		op.Security = []map[string][]string{{"session": {}}}

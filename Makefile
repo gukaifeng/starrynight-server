@@ -1,5 +1,6 @@
 .PHONY: build test integration check openapi dev-up dev-down run migrate
 build:
+	go build -trimpath -o bin/starry-content-worker ./cmd/content-worker
 	go build -trimpath -o bin/starry-api ./cmd/api
 	go build -trimpath -o bin/starry-admin ./cmd/admin
 	go build -trimpath -o bin/starry-migrate ./cmd/migrate

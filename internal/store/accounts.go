@@ -108,6 +108,23 @@ func (s *Store) ChangePassword(ctx context.Context, id, oldHash, newHash string)
 }
 func (s *Store) DeleteUser(ctx context.Context, id string) error {
 	return s.write(ctx, id, func(tx pgx.Tx) error {
+		// New content keeps consumers' own journals after its creator leaves.
+		// Revoke inference and erase private author source before detaching owner.
+		if _, e := tx.Exec(ctx, `DELETE FROM setting_public_projection WHERE setting_id IN(SELECT id FROM setting_templates WHERE owner_id=$1)`, id); e != nil {
+			return e
+		}
+		if _, e := tx.Exec(ctx, `DELETE FROM setting_revision_secrets WHERE setting_id IN(SELECT id FROM setting_templates WHERE owner_id=$1)`, id); e != nil {
+			return e
+		}
+		if _, e := tx.Exec(ctx, `DELETE FROM character_revision_secrets WHERE character_id IN(SELECT id FROM characters WHERE owner_id=$1)`, id); e != nil {
+			return e
+		}
+		if _, e := tx.Exec(ctx, `UPDATE setting_templates SET owner_id=NULL,availability='revoked',access_epoch=access_epoch+1,version=version+1 WHERE owner_id=$1`, id); e != nil {
+			return e
+		}
+		if _, e := tx.Exec(ctx, `DELETE FROM conversation_instances WHERE user_id=$1`, id); e != nil {
+			return e
+		}
 		// Remove subscriptions to works first; base character descendants retain
 		// their source ID by restricting deletion until the owner unpublishes.
 		// Physical removal of a source must not cascade into another user's work.
@@ -115,8 +132,15 @@ func (s *Store) DeleteUser(ctx context.Context, id string) error {
 		if e != nil {
 			return e
 		}
-		_, e = tx.Exec(ctx, `DELETE FROM characters WHERE owner_id=$1`, id)
+		_, e = tx.Exec(ctx, `DELETE FROM characters WHERE owner_id=$1 AND NOT EXISTS(SELECT 1 FROM character_revisions r WHERE r.character_id=characters.id)`, id)
 		if e != nil {
+			return e
+		}
+		if _, e = tx.Exec(ctx, `UPDATE characters SET owner_id=NULL,deleted=true,visibility='private',version=version+1 WHERE owner_id=$1`, id); e != nil {
+			return e
+		}
+		// Author IDs remain stable references; account credentials/profile do not.
+		if _, e = tx.Exec(ctx, `UPDATE authors SET user_id=NULL,data='{"name":"已注销作者","bio":"","avatar":"moon"}',version=version+1 WHERE user_id=$1`, id); e != nil {
 			return e
 		}
 		_, e = tx.Exec(ctx, `DELETE FROM users WHERE id=$1`, id)
