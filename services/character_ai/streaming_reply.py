@@ -66,6 +66,8 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                         parts=compile_parts(b,resolved,language=goals.spoken_language(char,context['goal_context']),recent_asides=context['recent_asides_to_avoid'],visible_details=context['visible_details']),
                         reading_duration=duration_hint(b.dialogue.text),language=goals.spoken_language(char,context['goal_context']))
                     updated={**script,'beats':script['beats']+[wire],'text':candidate}
+                    vt.flag('visible_thoughts',sum(p['kind']=='thought' for v in updated['beats'] for p in v.get('parts',[])))
+                    vt.flag('visible_observations',sum(p['kind']=='narration' for v in updated['beats'] for p in v.get('parts',[])))
                     if not draft:
                         if not published:
                             engine.store.publish_reply(owner,char,rid,request.text,updated)

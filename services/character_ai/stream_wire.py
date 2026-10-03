@@ -46,6 +46,8 @@ def beat(value,index):
         try:
             if isinstance(a,list) and 2<=len(a)<=4:
                 asides.append(StagedThought(text=a[0],stage=a[1],visibility=a[2] if len(a)>2 else 'visible',after_text=a[3] if len(a)>3 else ''))
+            elif isinstance(a,dict):
+                asides.append(StagedThought.model_validate(a))
         except (ValueError,TypeError):pass
     try:speech=Speech(emotion=value.get('mood','neutral'),delivery=value.get('tone','normal'),intensity=value.get('strength',.4))
     except ValueError:speech=Speech()

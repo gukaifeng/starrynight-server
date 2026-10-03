@@ -314,7 +314,11 @@ class Orchestrator:
         if request.trigger!='idle' and not any(b.dialogue for b in plan.beats): raise ValueError('EMPTY_REPLY')
         if visuals is not None and visuals.done():
             extra=visuals.result();visuals=None
-            if extra and plan.beats:plan.beats[0].performance.cues=(plan.beats[0].performance.cues+extra.cues)[:24]
+            if extra and plan.beats:
+                plan.beats[0].performance.cues=(plan.beats[0].performance.cues+extra.cues)[:24]
+                existing=plan.beats[0].asides
+                if len(existing)<2 and not (existing and all(a.visibility=='hidden' for a in existing)):
+                    plan.beats[0].asides=(existing+extra.asides[:2-len(existing)])[:3]
         # Event density and consecutive-event suppression are enforced, not just prompted.
         previous=self.store.get('vocals',owner,char,[])
         allowance=1 if sum(len(b.dialogue.text) if b.dialogue else 0 for b in plan.beats)<80 else 2

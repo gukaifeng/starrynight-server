@@ -2,13 +2,14 @@
 import asyncio
 import time
 from pydantic import Field
-from .schemas import Strict, PerformanceCue, Performance
+from .schemas import Strict, PerformanceCue, Performance, StagedThought
 from .prompts import PERFORMER
 from .provider import planner_data
 from .profiles import assets
 
 class PerformancePlan(Strict):
     cues: list[PerformanceCue] = Field(default_factory=list,max_length=24)
+    asides: list[StagedThought] = Field(default_factory=list,max_length=3)
 
 def performance_context(context):
     data=planner_data(context)
@@ -17,7 +18,8 @@ def performance_context(context):
                 user_message=context.get('user_message',''),recent_messages=context.get('recent_messages',[])[-4:],
                 interaction_context=context.get('interaction_context'),greeting_context=data.get('greeting_context'),
                 roleplay_context=context.get('roleplay_context'),idle_context=context.get('idle_context'),
-                personality=context.get('character_profile',{}).get('personality',{}),goal_context=context.get('goal_context',{}))
+                character_profile=context.get('character_profile',{}),language_contract=context.get('language_contract',''),
+                recent_asides_to_avoid=context.get('recent_asides_to_avoid',[]),goal_context=context.get('goal_context',{}))
 
 async def plan_performance(engine,owner,request,context):
     start=time.monotonic();char=request.character_id
@@ -62,7 +64,7 @@ def merge_visuals(base,extra,elapsed_ms):
     return sorted(result,key=lambda v:v['offset_ms'])
 
 def late_patch(engine,owner,request,context,plan,extra,script,elapsed_ms,draft=False):
-    if not extra or not extra.cues or not plan.beats:return None
+    if not extra or not (extra.cues or extra.asides) or not plan.beats:return None
     if draft:elapsed_ms=0  # Preparation time is not elapsed performance time.
     beat=plan.beats[0].model_copy(deep=True)
     beat.performance=Performance(intensity=beat.performance.intensity,cues=extra.cues)
@@ -77,13 +79,49 @@ def late_patch(engine,owner,request,context,plan,extra,script,elapsed_ms,draft=F
         if not (c['asset']['kind']=='expression' and c['asset'].get('moods') and mood not in c['asset']['moods'])
         and not any(a['group'] in c['asset'].get('conflicts',[]) or c['asset']['group'] in a.get('conflicts',[]) for a in retained)]
     visuals=resolved_visuals(resolved)
-    if not visuals:return None
     groups={v['group'] for v in visuals}
     merged=merge_visuals(base,visuals,elapsed_ms)
-    enriched={**script,'beats':[{**b,'visuals':merged} if i==0 else b for i,b in enumerate(script['beats'])]}
+    parts=enrich_parts(engine,context,beat,script['beats'][0],merged,extra.asides,catalogue,request.character_id)
+    if not visuals and parts==script['beats'][0].get('parts'):return None
+    enriched={**script,'beats':[{**b,'visuals':merged,'parts':parts} if i==0 else b for i,b in enumerate(script['beats'])]}
     if not draft:engine.store.enrich_reply(owner,request.character_id,str(request.request_id),enriched)
     return dict(type='reply.visuals.updated',message_id=script['message_id'],beat_id=beat.beat_id,script=enriched,
                 visuals=current_visuals([v for v in merged if v['group'] in groups],elapsed_ms))
+
+def enrich_parts(engine,context,beat,wire,visuals,extra_asides,catalogue,character):
+    """Enrich optional prose on the existing parallel lane, never regenerate speech.
+
+    Source thoughts and observed annotations retain their clause anchors. New
+    narration comes only from actually resolved actions, never invented prose.
+    """
+    from . import goals,voice_trace as vt
+    from .reply_flow import compile_text_parts
+    text=(wire.get('dialogue') or {}).get('text','')
+    old=wire.get('parts',[])
+    existing=[p for p in old if p['kind']!='dialogue']
+    thoughts=sum(p['kind']=='thought' for p in existing)
+    observations=sum(p['kind']=='narration' for p in existing)
+    hidden=bool(beat.asides) and all(a.visibility=='hidden' for a in beat.asides)
+    candidates=[] if hidden else extra_asides[:max(0,2-thoughts)]
+    performances=[dict(asset=catalogue[v['asset_id']],active=v['active'],offset_ms=v['offset_ms'])
+        for v in visuals if v['asset_id'] in catalogue] if observations<2 else []
+    # Existing annotations have already passed quality checks. Preserve them
+    # exactly, including their anchors, even after this turn enters history.
+    seen=[*context.get('recent_asides_to_avoid',[]),*(p['text'] for p in existing)]
+    additions=compile_text_parts(text,candidates,performances,goals.spoken_language(character,context['goal_context']),seen)
+    added=[]
+    for p in additions:
+        if p['kind']=='thought' and thoughts<2:added.append(p);thoughts+=1
+        elif p['kind']=='narration' and observations<2:added.append(p);observations+=1
+    if not added:return old
+    size=max(1,len(text));markers=sorted([*existing,*added],key=lambda p:p.get('at',0));parts=[];cursor=0
+    for marker in markers:
+        index=max(cursor,min(len(text),round(marker.get('at',0)*size)))
+        if index>cursor:parts.append(dict(kind='dialogue',text=text[cursor:index],at=round(cursor/size,4)));cursor=index
+        parts.append(marker)
+    if cursor<len(text):parts.append(dict(kind='dialogue',text=text[cursor:],at=round(cursor/size,4)))
+    vt.flag('visible_thoughts',thoughts);vt.flag('visible_observations',observations)
+    return parts
 
 async def deliver(engine,owner,request,context,plan,script,visual_task,draft=False):
     """Merge completed tasks, always yielding ready audio before decoration."""

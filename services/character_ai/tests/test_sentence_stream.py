@@ -117,3 +117,11 @@ async def test_unpublished_copy_retries_with_private_correction_and_no_spoken_du
     assert len([e for e in events if e['type']=='reply.narration.ready'])==1
     assert '_stream_correction' not in request.model_dump()
     await pool.close();store.db.close()
+
+
+def test_stream_accepts_both_compact_and_schema_asides_without_losing_speech():
+    from services.character_ai.stream_wire import beat
+    result=beat(dict(say='嗯……我正听着呢。',asides=[['我想再靠近一点。','before'],
+        dict(text='我还有些好奇。',stage='after'),dict(text='broken',stage='unknown')]),1)
+    assert result.dialogue.text=='嗯……我正听着呢。'
+    assert [(a.text,a.stage) for a in result.asides]==[('我想再靠近一点。','before'),('我还有些好奇。','after')]

@@ -160,3 +160,36 @@ async def test_optional_patch_failure_does_not_interrupt_active_voice(tmp_path,m
     assert not any(e['type'] in ('reply.error','reply.warning') for e in events)
     assert store.get('performance_review','u',request.character_id)['status']=='patch_skipped'
     store.db.close()
+
+@pytest.mark.parametrize('language',['zh','en'])
+def test_late_asides_preserve_accepted_parts_and_spoken_clauses(tmp_path,language):
+    from services.character_ai.parallel_performance import enrich_parts
+    from services.character_ai.schemas import Beat, StagedThought
+    store,provider,engine,request=setup(tmp_path)
+    text='好呀，我想听听你的想法。' if language=='zh' else 'Yes, I want to hear your idea.'
+    before='我在认真听。' if language=='zh' else 'I am listening closely.'
+    after='我还藏着一个问题。' if language=='zh' else 'I have one more question.'
+    existing=dict(kind='thought',text=before,at=0)
+    wire=dict(dialogue=dict(text=text),parts=[existing,dict(kind='dialogue',text=text,at=0)])
+    context=dict(goal_context={'config':{'mode':'task','task':'english'}} if language=='en' else {},recent_asides_to_avoid=[before])
+    beat=Beat(beat_id='b1',dialogue={'text':text})
+    result=enrich_parts(engine,context,beat,wire,[],[StagedThought(text=after,stage='after')],{},request.character_id)
+    assert existing in result
+    assert [p['text'] for p in result if p['kind']=='thought']==[before,after]
+    assert ''.join(p['text'] for p in result if p['kind']=='dialogue')==text
+    assert result[-1]['at']==1
+    assert provider.calls==[]
+    store.db.close()
+
+def test_late_asides_still_filter_wrong_language_repeat_and_hidden(tmp_path):
+    from services.character_ai.parallel_performance import enrich_parts
+    from services.character_ai.schemas import Beat, StagedThought
+    store,provider,engine,request=setup(tmp_path)
+    wire=dict(dialogue=dict(text='Tell me more.'),parts=[dict(kind='dialogue',text='Tell me more.',at=0)])
+    context=dict(goal_context={'config':{'mode':'task','task':'english'}},recent_asides_to_avoid=['I feel curious about your book.'])
+    beat=Beat(beat_id='b1',dialogue={'text':'Tell me more.'})
+    bad=[StagedThought(text='我在认真听。'),StagedThought(text='I feel curious about your book.')]
+    assert enrich_parts(engine,context,beat,wire,[],bad,{},request.character_id)==wire['parts']
+    beat.asides=[StagedThought(text='I have a private thought.',visibility='hidden')]
+    assert enrich_parts(engine,context,beat,wire,[],[StagedThought(text='I wish I knew more.')],{},request.character_id)==wire['parts']
+    store.db.close()
