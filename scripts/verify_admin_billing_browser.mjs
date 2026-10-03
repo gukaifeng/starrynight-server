@@ -41,8 +41,10 @@ try {
   await page.goto(base + "/#billing");
   if (!fixture) {
     await expect(page.getByRole("heading", { name: "管理员登录" })).toBeVisible();
-    const unauth = await page.request.get(base + "/admin-api/v1/billing?month=" + month);
-    expect(unauth.status()).toBe(401);
+    // Use Chrome's network stack: Node's separate APIRequestContext can fail
+    // through the host proxy even while the real page reaches production.
+    const unauth = await page.evaluate(async month => (await fetch("/admin-api/v1/billing?month=" + month)).status, month);
+    expect(unauth).toBe(401);
     await page.getByLabel("账号", { exact: true }).fill(process.env.ADMIN_TEST_USERNAME || "owner");
     await page.getByLabel("密码", { exact: true }).fill((await fs.readFile(process.env.ADMIN_TEST_PASSWORD_FILE, "utf8")).trim());
     await page.getByRole("button", { name: "登录控制台" }).click();

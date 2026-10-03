@@ -31,3 +31,13 @@ Go vet / race 单元测试、前端 9 项单元测试、TypeScript / Vite 生产
 真实 Chrome 的本地明确夹具验收通过：1512×1050 与 390×844、计费明细、小额金额、退款、分页、CSV、Bucket 页面与授权提示，无页面错误、无整体横向溢出。截图和测试结果在忽略目录 `.local/billing-browser/`。这属于界面验收，不代表已获得阿里云真实费用。
 
 官方依据：[账单 API 概览](https://help.aliyun.com/zh/user-center/developer-reference/api-overview-1)、[账单汇总及授权](https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-querybilloverview)、[实例账单](https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-describeinstancebill)、[Bucket 分账](https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-describesplititembill)、[百炼账单字段](https://help.aliyun.com/zh/model-studio/bill-query-and-cost-management)、[RPC 签名规则](https://help.aliyun.com/en/cmn/developer-reference/signature-mechanism)。
+
+## 云端发布与只读验收
+
+运行版本 `20261003T040355Z-452cd59031a3`，实现提交 `452cd59031a3a872c5e6e6d21e405111282f9e87`。发布清单 297 个文件，经现有 active updater 的 check-only 校验后上线。PG 备份保留于 `~/app/backups/before-api-20261003T040355Z-452cd59031a3`；没有新增数据库迁移，也没有修改公开 App API 或角色、AI 源码。AI 进程 PID 和启动时间在发布前后完全一致。
+
+公网实际验收：App 8443 和管理 8444 readiness 均为 200，API / Admin / AI / Caddy 均 active；匿名费用请求 401。真实主管理员会话查询百炼汇总、OSS 汇总、百炼明细、当前 Bucket 分账，管理接口均返回 200 的明确 unavailable 状态及阿里云 `NotAuthorized`，没有返回虚假的金额。当前 Bucket 配置已正确用于分账请求。
+
+真实 Chrome 公网验收通过登录、费用与 Bucket 页面、刷新、1512×1050 和 390×844，无页面错误或整体横向溢出。此前 Node 独立 APIRequestContext 遇到本机连接 EBADF；改为页面内 fetch，使用与用户相同的浏览器网络路径后完成匿名认证校验。未修改 TLS 校验或略过匿名检查。原始结果及截图在 `.local/billing-production/`，不公开提交。
+
+**尚未完成的外部条件：RAM 账单只读授权。** 当前凭据没有对应权限；页面与接口均已上线，授权后刷新可重新读取，失败状态没有缓存。真实费用数值、百炼产品代码的实际账单匹配及 Bucket 分账是否已启用仍需在授权后验证，不能把本地夹具验证当作真实费用验收。
