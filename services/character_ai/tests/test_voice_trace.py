@@ -58,3 +58,24 @@ async def test_trace_snapshot_correlates_and_counts_actual_wait(tmp_path):
     # Same trace ID in another account must not overwrite the first account.
     other=vt.Trace(store,'other','character','reply',trace.id);other.save()
     assert store.db.execute('SELECT count(*) FROM voice_traces').fetchone()[0]==2
+
+@pytest.mark.asyncio
+async def test_muted_reply_keeps_generation_and_performance_timing(tmp_path):
+    store=Store(tmp_path/'state.sqlite3')
+    trace=vt.Trace(store,'owner','character','reply')
+    trace.flags['wants_audio']=False
+    async def output():
+        with vt.span('model.plan.stream'):await asyncio.sleep(.005)
+        yield {'type':'reply.narration.ready','message_id':'muted-message'}
+        with vt.span('model.performance.http'):await asyncio.sleep(.005)
+        yield {'type':'reply.visuals.updated'}
+        yield {'type':'reply.completed'}
+    items=[item async for item in vt.source(trace,output())]
+    data=items[-1]['trace']
+    assert items[-1]['type']=='voice.trace' and data['status']=='completed'
+    assert data['flags']['wants_audio'] is False
+    assert data['marks']['text_ready']>0 and data['total_ms']>=10
+    assert {s['name'] for s in data['spans']}=={'model.plan.stream','model.performance.http'}
+    assert 'first_audio_egress' not in data['marks']
+    saved=json.loads(store.db.execute('SELECT data FROM voice_traces WHERE id=?',(trace.id,)).fetchone()[0])
+    assert saved['spans']==data['spans']
