@@ -28,6 +28,7 @@ func (s *Server) managementRoutes(r *gin.RouterGroup) {
 	r.POST("/files/ai/delete", s.workerDelete)
 	r.POST("/library/upload", s.libraryUpload)
 	r.GET("/objects", s.objects)
+	r.GET("/objects/detail", s.objectDetail)
 	r.GET("/objects/download", s.objectDownload)
 	r.POST("/objects/upload", s.objectUpload)
 	r.POST("/objects/delete", s.objectDelete)

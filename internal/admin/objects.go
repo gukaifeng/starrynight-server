@@ -89,19 +89,42 @@ func (s *Server) objects(c *gin.Context) {
 	var detail any
 	detailError := ""
 	if key != "" {
-		head, e := signer.Client.HeadObject(ctx, &oss.HeadObjectRequest{Bucket: oss.Ptr(signer.Bucket), Key: oss.Ptr(key)})
-		if e == nil {
-			references, err := s.objectReferences(ctx, key)
-			if err != nil {
-				fail(c, err)
-				return
-			}
-			detail = gin.H{"key": key, "bytes": head.ContentLength, "etag": oss.ToString(head.ETag), "metadata": head.Metadata, "references": references, "content_type": oss.ToString(head.ContentType), "modified": head.LastModified, "storage_class": oss.ToString(head.StorageClass)}
-		} else {
+		var err error
+		detail, err = s.readObjectDetail(ctx, key)
+		if err != nil {
 			detailError = "文件信息读取失败，文件可能已移动或当前存储类型需要恢复"
 		}
 	}
 	c.JSON(200, gin.H{"configured": true, "bucket": signer.Bucket, "prefix": prefix, "directories": directories, "items": out, "next": oss.ToString(result.NextContinuationToken), "detail": detail, "detail_error": detailError})
+}
+func (s *Server) readObjectDetail(ctx context.Context, key string) (gin.H, error) {
+	head, err := s.Config.Signer.Client.HeadObject(ctx, &oss.HeadObjectRequest{Bucket: oss.Ptr(s.Config.Signer.Bucket), Key: oss.Ptr(key)})
+	if err != nil {
+		return nil, bad("文件信息读取失败，文件可能已移动或当前存储类型需要恢复")
+	}
+	references, err := s.objectReferences(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+	return gin.H{"key": key, "bytes": head.ContentLength, "etag": oss.ToString(head.ETag), "metadata": head.Metadata, "references": references, "content_type": oss.ToString(head.ContentType), "modified": head.LastModified, "storage_class": oss.ToString(head.StorageClass)}, nil
+}
+func (s *Server) objectDetail(c *gin.Context) {
+	if !writable(c, true) {
+		return
+	}
+	key := c.Query("key")
+	if !safeObjectRead(key) || s.Config.Signer == nil {
+		fail(c, bad("无效对象或尚未配置 OSS"))
+		return
+	}
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
+	defer cancel()
+	detail, err := s.readObjectDetail(ctx, key)
+	if err != nil {
+		fail(c, err)
+		return
+	}
+	c.JSON(200, detail)
 }
 func (s *Server) objectDownload(c *gin.Context) {
 	if !writable(c, true) {

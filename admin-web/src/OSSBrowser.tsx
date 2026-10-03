@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ChevronRight,
@@ -11,7 +11,7 @@ import {
 import { Heading, object, Panel, State, text, useData } from "./ConsoleUI";
 import { bytes, time } from "./Management";
 import { ResourcePreview } from "./MediaLibrary";
-import type { Row } from "./api";
+import { api, type Row } from "./api";
 
 type OSSObject = {
   key: string;
@@ -39,12 +39,35 @@ export function OSSBrowser({ refresh }: { refresh: number }) {
     [history, setHistory] = useState<string[]>([]),
     [selected, setSelected] = useState<OSSObject | null>(null),
     [preview, setPreview] = useState(false);
+  const [detail, setDetail] = useState<Row | null>(null),
+    [detailError, setDetailError] = useState(""),
+    [detailLoading, setDetailLoading] = useState(false);
+  const selectedKey = selected?.key;
+  useEffect(() => {
+    const controller = new AbortController();
+    setDetail(null);
+    setDetailError("");
+    setDetailLoading(Boolean(selectedKey));
+    if (!selectedKey) return;
+    api<Row>("/objects/detail?key=" + encodeURIComponent(selectedKey), {
+      signal: controller.signal,
+    })
+      .then((value) => {
+        if (!controller.signal.aborted) setDetail(value);
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted) setDetailError(error.message);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setDetailLoading(false);
+      });
+    return () => controller.abort();
+  }, [selectedKey, refresh]);
   const query = new URLSearchParams({
     prefix,
     after,
     folders: String(folders),
   });
-  if (selected) query.set("key", selected.key);
   const { data, error, loading } = useData<OSSListing>(
     "/objects?" + query,
     refresh,
@@ -67,7 +90,6 @@ export function OSSBrowser({ refresh }: { refresh: number }) {
   const directories = data?.directories ?? [],
     items = data?.items ?? [];
   const crumbs = prefix.split("/").filter(Boolean);
-  const detail = data?.detail;
   const download = selected
     ? "/admin-api/v1/objects/download?key=" + encodeURIComponent(selected.key)
     : "";
@@ -316,13 +338,16 @@ export function OSSBrowser({ refresh }: { refresh: number }) {
                     {text(detail?.storage_class) || selected.storage_class}
                   </dd>
                   <dt>文件类型</dt>
-                  <dd>{text(detail?.content_type) || "正在读取…"}</dd>
+                  <dd>
+                    {text(detail?.content_type) ||
+                      (detailLoading ? "正在读取…" : "未提供")}
+                  </dd>
                   <dt>ETag</dt>
                   <dd className="mono">
                     {text(detail?.etag) || selected.etag}
                   </dd>
                 </dl>
-                <State error={data.detail_error} />
+                <State error={detailError} loading={detailLoading} />
                 <div className="oss-file-actions">
                   <a className="secondary" href={download}>
                     <Download size={14} />

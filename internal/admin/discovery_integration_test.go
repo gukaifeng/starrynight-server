@@ -102,6 +102,7 @@ func testDiscoveryAndBucket(t *testing.T, app *Server, get func(string) (int, []
 		t.Fatal("unconfigured storage not explicit")
 	}
 	var calls atomic.Int64
+	var lists atomic.Int64
 	provider := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls.Add(1)
 		if r.Header.Get("Authorization") == "" {
@@ -124,6 +125,7 @@ func testDiscoveryAndBucket(t *testing.T, app *Server, get func(string) (int, []
 			return
 		}
 		if r.URL.Query().Get("list-type") == "2" {
+			lists.Add(1)
 			q := r.URL.Query()
 			if q.Get("delimiter") != "/" || q.Get("max-keys") != "50" || q.Get("encoding-type") != "url" {
 				t.Error("directory grouping or bounded page lost")
@@ -172,6 +174,12 @@ func testDiscoveryAndBucket(t *testing.T, app *Server, get func(string) (int, []
 	}
 	if code != 200 || json.Unmarshal(body, &listing) != nil || len(listing.Directories) != 1 || listing.Directories[0] != "models/cat/" || listing.Items[0].Key != key || listing.Next != "a+b/=" || listing.Detail["content_type"] != "image/png" {
 		t.Fatalf("directory, encoded key, cursor or HEAD information lost: status %d: %s", code, body)
+	}
+	listCount := lists.Load()
+	code, body = get("/objects/detail?key=" + url.QueryEscape(key))
+	var detail map[string]any
+	if code != 200 || json.Unmarshal(body, &detail) != nil || detail["content_type"] != "image/png" || lists.Load() != listCount {
+		t.Fatal("independent HEAD failed or re-listed the bucket")
 	}
 	code, body = get("/objects?folders=true&key=models%2F")
 	if code != 200 || json.Unmarshal(body, &listing) != nil || listing.Detail["bytes"] != float64(0) {

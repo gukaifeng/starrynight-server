@@ -132,7 +132,7 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/directory/users", nil, "", "")
 	assert(code, 401, data)
-	for _, path := range []string{"/discovery", "/discovery/anime-kipfel/media/cover", "/objects?folders=true"} {
+	for _, path := range []string{"/discovery", "/discovery/anime-kipfel/media/cover", "/objects?folders=true", "/objects/detail?key=models/a.glb"} {
 		code, data = request(srv.URL, "GET", path, nil, "", "")
 		assert(code, 401, data)
 	}
@@ -384,6 +384,8 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	code, data = request(srv.URL, "GET", "/billing/analysis?month=2026-10", nil, "", "")
 	assert(code, 403, data)
 	code, data = request(srv.URL, "GET", "/objects?folders=true", nil, "", "")
+	assert(code, 403, data)
+	code, data = request(srv.URL, "GET", "/objects/detail?key=models/a.glb", nil, "", "")
 	assert(code, 403, data)
 	code, data = request(srv.URL, "GET", "/discovery", nil, "", "")
 	assert(code, 200, data)

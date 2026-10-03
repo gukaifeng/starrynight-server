@@ -199,6 +199,17 @@ async function mock() {
             }
           : null,
       };
+    } else if (p.endsWith("/objects/detail")) {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      data = {
+        key: u.searchParams.get("key"),
+        bytes: 123,
+        content_type: "application/json",
+        metadata: { sha256: "fixture-sha" },
+        references: [
+          { character_id: "anime-chiffon", kind: "marketplace", enabled: true },
+        ],
+      };
     } else if (p.endsWith("/objects/download"))
       data = { schema_version: 1, name: "Fixture object" };
     else data = {};
@@ -394,11 +405,13 @@ try {
   }
   const files = page.getByRole("button", { name: /^查看文件 / });
   await files.first().click();
+  await expect(page.locator(".oss-file-list")).toBeVisible();
   await expect(page.locator(".oss-object-detail")).toContainText("文件类型", {
     timeout: 25000,
   });
   await expect(page.locator(".oss-object-detail")).toContainText(
     "角色资源引用",
+    { timeout: 25000 },
   );
   await expect(
     page.locator(".oss-object-detail").getByRole("link", { name: "下载文件" }),
