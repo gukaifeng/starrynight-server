@@ -40,4 +40,23 @@ Go vet / race 单元测试、前端 9 项单元测试、TypeScript / Vite 生产
 
 真实 Chrome 公网验收通过登录、费用与 Bucket 页面、刷新、1512×1050 和 390×844，无页面错误或整体横向溢出。此前 Node 独立 APIRequestContext 遇到本机连接 EBADF；改为页面内 fetch，使用与用户相同的浏览器网络路径后完成匿名认证校验。未修改 TLS 校验或略过匿名检查。原始结果及截图在 `.local/billing-production/`，不公开提交。
 
-**尚未完成的外部条件：RAM 账单只读授权。** 当前凭据没有对应权限；页面与接口均已上线，授权后刷新可重新读取，失败状态没有缓存。真实费用数值、百炼产品代码的实际账单匹配及 Bucket 分账是否已启用仍需在授权后验证，不能把本地夹具验证当作真实费用验收。
+上述是初次发布时的权限状态；随后完成了以下授权后验收。
+
+## RAM 授权后真实账单验收
+
+用户为既有 OSS AccessKey 所属 RAM 用户添加 `AliyunBSSReadOnlyAccess` 后，2026-10-03 公网只读验收确认权限已经生效。该系统策略是账号费用读取策略，当前明确包含 `bss:Describe*`、`bssapi:Describe*`、`bssapi:Query*` 以及百炼 `modelstudio:ListBilling*`、`modelstudio:GetBilling*`，因此同一身份也可以读取百炼账单，并非只允许查看这个 RAM 用户或原 OSS Bucket 自己产生的费用。控制台路径为 RAM → 身份管理 → 用户 → 目标用户新增授权 → 账号级别 → 系统策略。也可继续使用本仓库仅三个操作的自定义策略；两者不必重复添加。依据：[系统策略内容](https://help.aliyun.com/zh/ram/developer-reference/aliyunbssreadonlyaccess)、[RAM 用户授权](https://help.aliyun.com/zh/ram/user-guide/grant-permissions-to-the-ram-user)。
+
+真实主管理员会话的接口结果：
+
+| 账期 | 产品与范围 | 状态 | 返回条数 |
+| --- | --- | --- | --- |
+| 2026-10 | 百炼账号汇总 | ready | 3 |
+| 2026-10 | OSS 账号汇总 | ready | 1 |
+| 2026-10 | 百炼计费明细 | ready | 18，无后续分页 |
+| 2026-10 | 当前项目 Bucket 分账 | ready | 0 |
+| 2026-09 | 百炼账号汇总 | ready | 3 |
+| 2026-09 | OSS 账号汇总 | ready | 0 |
+
+百炼默认产品代码 `sfm` 已与实际返回的「大模型服务平台百炼」匹配。账号汇总已返回官方真实金额；不在公开仓库记录账号财务数值、API Key ID 或 Bucket 名称。本月金额尚未最终结算，也不能声称是星夜专属费用。Bucket 查询成功且过滤已配置，但空结果不能证明项目费用为零，也不能据此证明分账数据已经开始生成；该部分仍需核对控制台分账启用状态及出账延迟。
+
+真实 Chrome 再次通过公网登录、匿名 401、费用及 Bucket 页面、1512×1050 和 390×844 检查，无页面错误或整体横向溢出。截图、结果与受限财务响应保留于忽略目录 `.local/billing-after-grant/`。本次仅查询和记录验证结果，没有修改客户端、云端运行代码或云资源配置，也没有调用付费模型。
