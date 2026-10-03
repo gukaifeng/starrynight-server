@@ -263,13 +263,35 @@ class Orchestrator:
             async for item in source:yield item
 
     async def compose_reply(self,owner,request,context,budget=None,*,draft=False):
+        # Foreground and speculative jobs share the same bounded recovery.
+        # A known quality rejection before delivery can use the established
+        # role planner; transport failures and already delivered speech never
+        # start another paid generation. Planned recovery spends the SAME budget.
+        budget=budget if budget is not None else [2 if draft else 3]
+        delivered=False
+        try:
+            async with aclosing(self._compose_once(owner,request,context,budget,draft=draft)) as source:
+                async for item in source:
+                    if item.get('script'):delivered=True
+                    yield item
+        except ValueError as error:
+            if str(error)!='REPLY_REPEATED' or delivered or not budget[0]:raise
+            correction=getattr(request,'_stream_correction',None)
+            if correction is None:raise # No certified unpublished stream rejection.
+            vt.flag('quality_recovery','role_planner')
+            vt.flag('quality_recovery_model',self.settings.preparation_model if context.get('speculative_generation') else self.settings.character_model)
+            reviewed={**context,'novelty_correction':correction}
+            async with aclosing(self._compose_once(owner,request,reviewed,budget,draft=draft,planned=True)) as source:
+                async for item in source:yield item
+
+    async def _compose_once(self,owner,request,context,budget,*,draft=False,planned=False):
         visuals=None
         try:
             if request.parallel_performance and request.timeline_reply and request.available_assets:
                 visuals=asyncio.create_task(parallel_performance.plan_performance(self,owner,request,context))
-            if self.settings.streaming_core and request.timeline_reply and request.parallel_performance and hasattr(self.provider,'stream_beats'):
+            if not planned and self.settings.streaming_core and request.timeline_reply and request.parallel_performance and hasattr(self.provider,'stream_beats'):
                 from .streaming_reply import reply
-                if budget is not None:budget[0]-=1
+                budget[0]-=1
                 output=reply(self,owner,request,context,visuals,draft=draft)
             else:output=self._planned_reply(owner,request,context,budget,visuals,draft=draft)
             async with aclosing(output) as source:

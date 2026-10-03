@@ -6,7 +6,7 @@ request text is recorded. Parallel spans overlap and must never be summed.
 import asyncio
 from contextlib import contextmanager, aclosing
 from contextvars import ContextVar
-import time, uuid, functools, json
+import time, uuid, functools, json, re
 
 class WorkerClock:
     """Pure ASGI entry timestamp; does not buffer or wrap the response stream."""
@@ -123,5 +123,7 @@ async def source(trace, iterator):
             if data:yield dict(type='voice.trace',trace_id=trace.id,trace=data)
         except BaseException as error:
             trace.flags['error_type']=type(error).__name__
+            code=str(error) if isinstance(error,ValueError) else getattr(error,'code','')
+            if isinstance(code,str) and re.fullmatch(r'[A-Z][A-Z0-9_]{0,99}',code):trace.flags['error_code']=code
             trace.save('cancelled' if isinstance(error,(asyncio.CancelledError,GeneratorExit)) else 'failed')
             raise

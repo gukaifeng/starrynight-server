@@ -16,10 +16,11 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
     script=dict(message_id=str(uuid.uuid4()),character_id=char,beats=[],text='',trigger=request.trigger,
         idle_decision='proactive_speech' if request.trigger=='idle' else None,memory_suggestions=[])
     controls=asyncio.Queue(maxsize=16);segments=asyncio.Queue(maxsize=4);end=object()
-    published=False;announced=asyncio.Event()
+    published=False;exposed=False;announced=asyncio.Event()
     pending_visuals=None
     async def produce():
-        nonlocal published
+        nonlocal published,exposed
+        repeated=0;seen=0
         try:
             async with aclosing(engine.provider.stream_beats(owner,char,context)) as source:
                 async for raw in source:
@@ -35,6 +36,8 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                         script['memory_suggestions']=[m.content for m in plan.memory_updates]
                         continue
                     if len(plan.beats)>=3:continue
+                    seen+=1
+                    if seen>3:continue
                     b=beat(raw,len(plan.beats)+1)
                     b.asides=[a for a in b.asides if aside_quality.allowed_language(a.text,goals.spoken_language(char,context['goal_context']))]
                     proposed=Plan(beats=[b])
@@ -50,7 +53,11 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                             vt.flag('quality_rejected',True)
                             vt.flag('quality_match',duplicate['reason'] if duplicate else 'meaning')
                             request._stream_correction=dict(rejected_text=candidate,instruction='直接回应当前输入，换一个尚未讲过的具体细节、观点或继续方向，不用同义改写，也不以泛泛的肯定作为第一句。保留角色、语言、正确事实与心声。')
-                            raise ValueError('REPLY_REPEATED')
+                            # A complete repeated lead-in is not the whole reply.
+                            # Keep reading this SAME paid stream for an independent
+                            # fresh beat; rejected words never reach TTS/history.
+                            repeated+=1;vt.flag('skipped_repeated_beats',repeated)
+                            continue
                     vt.mark('first_sentence_validated')
                     resolved=engine.director.beat(owner,char,b,context['relationship'],context['state'],request.available_assets,
                         b.dialogue.speech.emotion,request.trigger,record_usage=not draft)
@@ -58,16 +65,18 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                         narrations=[],vocal_events=[],visuals=parallel_performance.resolved_visuals(resolved),
                         parts=compile_parts(b,resolved,language=goals.spoken_language(char,context['goal_context']),recent_asides=context['recent_asides_to_avoid'],visible_details=context['visible_details']),
                         reading_duration=duration_hint(b.dialogue.text),language=goals.spoken_language(char,context['goal_context']))
-                    plan.beats.append(b);script['beats'].append(wire);script['text']=candidate
+                    updated={**script,'beats':script['beats']+[wire],'text':candidate}
                     if not draft:
                         if not published:
-                            engine.store.publish_reply(owner,char,rid,request.text,script)
-                            engine.store.complete(owner,char,rid,script);published=True
-                        else:engine.store.enrich_reply(owner,char,rid,script)
+                            engine.store.publish_reply(owner,char,rid,request.text,updated)
+                            engine.store.complete(owner,char,rid,updated);published=True
+                        else:engine.store.enrich_reply(owner,char,rid,updated)
+                    plan.beats.append(b);script.update(updated)
                     if draft:await controls.put(dict(type='reaction.draft',plan=plan.model_dump()))
                     await controls.put(dict(type='reply.narration.ready' if len(plan.beats)==1 else 'reply.script.updated',script=copy.deepcopy(script),cached=False,core_streaming=True))
+                    exposed=True
                     await segments.put(copy.deepcopy(wire))
-            if not plan.beats:raise ValueError('EMPTY_REPLY')
+            if not plan.beats:raise ValueError('REPLY_REPEATED' if repeated else 'EMPTY_REPLY')
             vt.mark('core_generation_completed')
             if draft:await controls.put(dict(type='reaction.draft',plan=plan.model_dump()))
             else:
@@ -77,7 +86,9 @@ async def reply(engine,owner,request,context,visuals,*,draft=False):
                 engine.store.enrich_reply(owner,char,rid,script)
             await controls.put(dict(type='reply.script.updated',script=copy.deepcopy(script),core_complete=True))
         except Exception as error:
-            if not plan.beats:await controls.put(error)
+            # Appending a beat before its atomic publication is not delivery.
+            # A publication collision still needs private quality recovery.
+            if not exposed:await controls.put(error)
             else:
                 # Keep accepted, replayable speech if an optional tail/transport
                 # fails. Never bill a blind second generation after publication.
