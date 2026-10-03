@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { Heading, Panel, State, Tabs, useData } from "./ConsoleUI";
+import { BailianAnalysis } from "./BailianAnalysis";
+import { modelInfo } from "./BillingAnalysis";
+export { modelInfo } from "./BillingAnalysis";
 
 type BillRow = Record<string, string>;
 export type BillReport = {
@@ -17,6 +20,10 @@ export type BillReport = {
   total_count: number;
   error?: { code: string; message: string; request_id?: string };
   permissions: string[];
+  complete?: boolean;
+  granularity?: string;
+  start_date?: string;
+  end_date?: string;
 };
 
 export function months(now = new Date()) {
@@ -31,11 +38,6 @@ export function months(now = new Date()) {
 // Display the provider's decimal text without rounding tiny charges to zero.
 export function money(value: string | undefined, currency: string) {
   return value === undefined || value === "" ? "—" : `${value} ${currency}`;
-}
-
-export function modelInfo(id = "") {
-  const parts = id.split(";").map(v => v.trim());
-  return parts.length === 6 ? { key: parts[0], workspace: parts[1], model: parts[2], kind: parts[3], channel: parts[4] } : null;
 }
 
 function Unavailable({ data }: { data: BillReport }) {
@@ -130,11 +132,11 @@ export function Billing({ refresh }: { refresh: number }) {
       <label>按日查看（可选）<input aria-label="账单日期" type="date" min={month + "-01"} max={month + "-" + new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0).getDate()} value={date} onChange={e => setDate(e.target.value)} /></label>
       {date && <button className="secondary" onClick={() => setDate("")}>查看整月</button>}
     </div>
-    <Details key={`${month}:${product}:${view}:${date}`} month={month} product={product} view={view} date={date} refresh={refresh} />
+    {product === "bailian" ? <BailianAnalysis key={`${month}:${date}`} month={month} date={date} refresh={refresh} /> : <Details key={`${month}:${product}:${view}:${date}`} month={month} product={product} view={view} date={date} refresh={refresh} />}
     <Panel title="账单口径与更新时间"><div className="billing-notes">
       <p>普通账单约延迟 24 小时更新，实例信息约延迟 48 小时。Bucket 分账可能延迟 72 小时，且需先在费用中心启用分账。查询结果在服务端缓存 5 分钟。</p>
       <p>当月金额不包含尚未出账的费用；普通月账单在次月 3 日 12 点后可核对，分账在次月 4 日 12 点后可核对。现金支付、应付金额和未结清金额分别展示，退款与调账保留原始符号。不同币种分别计算。</p>
-      <p>用量为阿里云计费项用量，不同单位不能相加。例如按小时出账的存储用量汇总并不等于当前占用空间。CSV 仅导出当前页，模型信息仅在账单实例 ID 符合官方六段格式时解析。</p>
+      <p>用量为阿里云计费项用量，不同单位不能相加。例如按小时出账的存储用量汇总并不等于当前占用空间。百炼统计覆盖所选范围全部明细，支持导出筛选明细或分组汇总；OSS CSV 仅导出当前页。模型信息支持官方六段格式及接口实际返回的缺少调用渠道的五段格式，原始实例 ID 始终保留；未提供的维度会单独列出。</p>
       <p><a href="https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-describeinstancebill" target="_blank" rel="noreferrer">官方普通账单说明 ↗</a> · <a href="https://help.aliyun.com/zh/user-center/developer-reference/api-bssopenapi-2017-12-14-describesplititembill" target="_blank" rel="noreferrer">官方分账说明 ↗</a></p>
     </div></Panel>
   </>;

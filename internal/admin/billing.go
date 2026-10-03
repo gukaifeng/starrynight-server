@@ -30,6 +30,10 @@ type billReport struct {
 	TotalCount  int                 `json:"total_count"`
 	Error       *billing.Error      `json:"error,omitempty"`
 	Permissions []string            `json:"permissions"`
+	Complete    bool                `json:"complete,omitempty"`
+	Granularity string              `json:"granularity,omitempty"`
+	StartDate   string              `json:"start_date,omitempty"`
+	EndDate     string              `json:"end_date,omitempty"`
 }
 
 func billingMonth(value string, now time.Time, months int) bool {
@@ -44,7 +48,7 @@ func billingMonth(value string, now time.Time, months int) bool {
 
 // Only documented billing fields can leave the server. Never forward arbitrary
 // upstream extensions, account credentials, or signed URLs to the browser.
-var billFields = []string{"ProductCode", "PipCode", "ProductName", "ProductDetail", "ProductType", "CommodityCode", "Currency", "Item", "SubscriptionType", "BillingDate", "SplitBillingDate", "Region", "InstanceID", "SplitItemID", "SplitItemName", "BillingItem", "BillingItemCode", "Usage", "UsageUnit", "ListPrice", "ListPriceUnit", "PretaxAmount", "PretaxGrossAmount", "AfterDiscountAmount", "InvoiceDiscount", "DeductedByCashCoupons", "DeductedByResourcePackage", "DeductedByPrepaidCard", "PaymentAmount", "OutstandingAmount"}
+var billFields = []string{"ProductCode", "PipCode", "ProductName", "ProductDetail", "ProductType", "CommodityCode", "Currency", "Item", "SubscriptionType", "BillingDate", "SplitBillingDate", "Region", "Zone", "Tag", "CostUnit", "ResourceGroup", "InstanceID", "SplitItemID", "SplitItemName", "BillingItem", "BillingItemCode", "Usage", "UsageUnit", "ListPrice", "ListPriceUnit", "PretaxAmount", "PretaxGrossAmount", "AfterDiscountAmount", "InvoiceDiscount", "DeductedByCashCoupons", "DeductedByResourcePackage", "DeductedByPrepaidCard", "PaymentAmount", "OutstandingAmount"}
 
 func billRows(raw json.RawMessage) ([]map[string]string, error) {
 	raw = bytes.TrimSpace(raw)

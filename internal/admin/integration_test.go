@@ -128,6 +128,8 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/billing?month=2026-10", nil, "", "")
 	assert(code, 401, data)
+	code, data = request(srv.URL, "GET", "/billing/analysis?month=2026-10", nil, "", "")
+	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/directory/users", nil, "", "")
 	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/avatar", nil, "", "")
@@ -373,6 +375,8 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	json.Unmarshal(data, &session)
 	csrf = session.CSRF
 	code, data = request(srv.URL, "GET", "/billing?month=2026-10", nil, "", "")
+	assert(code, 403, data)
+	code, data = request(srv.URL, "GET", "/billing/analysis?month=2026-10", nil, "", "")
 	assert(code, 403, data)
 	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, csrf)
 	assert(code, 403, data)
