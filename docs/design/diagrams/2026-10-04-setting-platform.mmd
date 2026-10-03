@@ -1,0 +1,37 @@
+flowchart TB
+    App["📱 iOS App\n编辑器、本机草稿、发现、实例对话"]
+    Admin["👤 作者 / 管理台\n按内容范围授权与审计"]
+    subgraph Cloud["☁️ 星夜服务器：受信运行边界"]
+        Gateway["Caddy / Gin + Huma\n会话、对象权限、访问代次；公开 DTO 白名单"]
+        Authoring["📝 草稿 / 修订 / 发布\n编辑源稿仅给作者"]
+        Catalog["🔎 公开目录 + CEL 匹配\n人物与设定双向选择"]
+        Compiler["🔐 Prompt Compiler\n固定角色 + 私有设定 + 实例状态"]
+        PG[("💾 PostgreSQL\n权威内容、实例、outbox、任务账本")]
+        Private["🔐 PG 私有源稿表\n独立权限、信封加密、密钥引用"]
+        Redis[("⚡ Redis\n会话、限流、缓存、Asynq 投递")]
+        Worker["⚙️ AI worker\n可信上下文、有界并发、流式文字/音频/标签"]
+    end
+    OSS[("📦 OSS\n模型、公开素材、按权限交付的音频")]
+    Provider["☁️ 百炼\n运行所需上下文"]
+    App -->|"HTTPS：自己源稿 / 公开资料 / 实例请求"| Gateway
+    Admin -->|"独立权限"| Gateway
+    Gateway --> Authoring
+    Gateway --> Catalog
+    Gateway --> Compiler
+    Gateway --> Redis
+    Authoring --> PG
+    Authoring --> Private
+    Catalog -->|"公开投影 / 授权属性"| PG
+    Compiler -->|"版本与本实例状态"| PG
+    Compiler -->|"获授权后解密"| Private
+    Compiler -->|"私网 RunContext"| Worker
+    Worker -->|"供应商鉴权"| Provider
+    Worker -->|"产物清单"| OSS
+    classDef client fill:#182434,stroke:#8ED7EC,color:#F5F7FC
+    classDef service fill:#E1EFF8,stroke:#39738F,color:#152E3B
+    classDef data fill:#EAE4F4,stroke:#80699B,color:#342741
+    classDef secret fill:#F5E5DE,stroke:#9E5E42,color:#4A291B
+    class App client
+    class Gateway,Authoring,Catalog,Compiler,Worker,Provider,Admin service
+    class PG,Redis,OSS data
+    class Private secret

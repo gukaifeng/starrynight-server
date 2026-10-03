@@ -1,0 +1,38 @@
+sequenceDiagram
+    autonumber
+    actor Creator as 👤 创作者
+    participant UI as 📱 编辑器
+    participant Local as 💾 本机持久化
+    participant API as ⚙️ Go API
+    participant PG as 🗄️ PostgreSQL
+    participant Jobs as 📬 验证 / 发布任务
+    Creator->>UI: 编辑字段 / 长文本
+    UI->>Local: 写编辑操作与恢复状态
+    Local-->>UI: 提交成功：本机版本 L
+    UI-->>Creator: 已保存至本机
+    UI->>API: 合并同步，If-Match + mutation_id
+    API->>PG: 所有权、CAS、密文、同步事件同事务
+    alt 版本一致
+        PG-->>API: 新版本 V 与写入回执
+        API-->>UI: V + ETag + 回执
+        UI->>Local: 确认 V；保留后续新编辑
+        UI-->>Creator: 已同步
+    else 另一设备已修改
+        PG-->>API: 条件失败
+        API-->>UI: 412；只读获取云端新版本
+        UI->>Local: 保留本机保护副本
+        UI-->>Creator: 三方合并 / 选择冲突内容
+    end
+    Creator->>UI: 启用私有 / 发布公开
+    UI->>Local: 确认当前草稿已持久化
+    UI->>API: 提交精确草稿版本与发布幂等键
+    API->>PG: 冻结修订 + 任务 + outbox
+    API-->>UI: 提交回执；后续编辑仍为草稿
+    PG->>Jobs: 至少一次投递冻结修订任务
+    Jobs->>PG: 记录验证 / 审查结果
+    alt 通过且提交仍有效
+        Jobs->>PG: 原子发布公开投影或私有可用版本
+        PG-->>UI: 同步发布状态
+    else 未通过 / 已撤销
+        PG-->>UI: 可修复项；保留草稿与旧发布版
+    end

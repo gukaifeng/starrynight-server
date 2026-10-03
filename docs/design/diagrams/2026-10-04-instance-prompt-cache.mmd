@@ -1,0 +1,23 @@
+flowchart TB
+    Pair["👤 角色 + 设定 + 参数"] --> Resolve["⚙️ 权限 / 兼容 / 版本解析"]
+    Resolve --> Instance["📋 独立实例\nowner + conversation_id + epoch"]
+    Fixed["固定人物与能力修订"] --> Compile["🔐 确定性编译\n不可变上下文快照"]
+    Setting["私有设定修订"] --> Compile
+    Instance --> Compile
+    State["本实例历史 / 记忆 / 目标"] --> Compile
+    Compile --> Key["⚡ 快照缓存键\n语言、声线、动作协议、触发"]
+    Key --> Ready{"本机可播放内容就绪？"}
+    Ready -->|"是"| Claim["认领同一候选\n幂等登记真实事件"]
+    Ready -->|"否"| Work["续接已有任务 / 有界生成"]
+    Work --> Media["文本 + 心声 + 标签 + 音频"]
+    Media --> Claim
+    Claim --> Play["📱 播放与标准表演\n未选候选不进历史"]
+    Play --> Refill["后台补一组\n受上下文与预算约束"]
+    classDef service fill:#E1EFF8,stroke:#39738F,color:#152E3B
+    classDef private fill:#F5E5DE,stroke:#9E5E42,color:#4A291B
+    classDef state fill:#EAE4F4,stroke:#80699B,color:#342741
+    classDef choice fill:#FFF3CD,stroke:#8E742C,color:#493B16
+    class Pair,Resolve,Key,Claim,Work,Media,Play,Refill service
+    class Compile,Fixed,Setting private
+    class Instance,State state
+    class Ready choice
