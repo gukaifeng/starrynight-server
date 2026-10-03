@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
 	"github.com/gin-gonic/gin"
 	"github.com/gukaifeng/starrynight-server/internal/assets"
@@ -14,10 +15,16 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 func safeObject(key string) bool {
 	return key != "" && len(key) < 1024 && path.Clean(key) == key && !strings.HasPrefix(key, "/") && !strings.HasPrefix(key, "../") && !strings.ContainsAny(key, "\x00\r\n\\")
+}
+func safeObjectRead(key string) bool {
+	// OSS can contain a zero-byte object for a directory itself. Read it as an
+	// object without relaxing the write-side canonical asset path restrictions.
+	return safeObject(key) || strings.HasSuffix(key, "/") && safeObject(strings.TrimSuffix(key, "/"))
 }
 func (s *Server) objectReferences(ctx context.Context, key string) ([]map[string]any, error) {
 	rows, e := s.DB.Pool.Query(ctx, `
@@ -56,7 +63,16 @@ func (s *Server) objects(c *gin.Context) {
 	}
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 15*time.Second)
 	defer cancel()
-	result, e := signer.Client.ListObjectsV2(ctx, &oss.ListObjectsV2Request{Bucket: oss.Ptr(signer.Bucket), Prefix: oss.Ptr(c.Query("prefix")), ContinuationToken: oss.Ptr(c.Query("after")), MaxKeys: 50})
+	prefix, key := c.Query("prefix"), c.Query("key")
+	if len(prefix) > 1024 || !utf8.ValidString(prefix) || strings.HasPrefix(prefix, "/") || strings.ContainsAny(prefix, "\x00\r\n") || len(c.Query("after")) > 4096 || key != "" && !safeObjectRead(key) {
+		fail(c, bad("对象路径或分页参数无效"))
+		return
+	}
+	request := &oss.ListObjectsV2Request{Bucket: oss.Ptr(signer.Bucket), Prefix: oss.Ptr(prefix), ContinuationToken: oss.Ptr(c.Query("after")), MaxKeys: 50, EncodingType: oss.Ptr("url")}
+	if c.Query("folders") == "true" {
+		request.Delimiter = oss.Ptr("/")
+	}
+	result, e := signer.Client.ListObjectsV2(ctx, request)
 	if e != nil {
 		fail(c, bad("OSS 列表不可用，请检查存储配置与授权"))
 		return
@@ -66,23 +82,41 @@ func (s *Server) objects(c *gin.Context) {
 		key := oss.ToString(object.Key)
 		out = append(out, map[string]any{"key": key, "bytes": object.Size, "etag": oss.ToString(object.ETag), "modified": object.LastModified, "storage_class": object.StorageClass})
 	}
+	directories := []string{}
+	for _, directory := range result.CommonPrefixes {
+		directories = append(directories, oss.ToString(directory.Prefix))
+	}
 	var detail any
-	if key := c.Query("key"); key != "" && safeObject(key) {
+	detailError := ""
+	if key != "" {
 		head, e := signer.Client.HeadObject(ctx, &oss.HeadObjectRequest{Bucket: oss.Ptr(signer.Bucket), Key: oss.Ptr(key)})
 		if e == nil {
-			references, _ := s.objectReferences(ctx, key)
-			detail = gin.H{"key": key, "bytes": head.ContentLength, "etag": oss.ToString(head.ETag), "metadata": head.Metadata, "references": references}
+			references, err := s.objectReferences(ctx, key)
+			if err != nil {
+				fail(c, err)
+				return
+			}
+			detail = gin.H{"key": key, "bytes": head.ContentLength, "etag": oss.ToString(head.ETag), "metadata": head.Metadata, "references": references, "content_type": oss.ToString(head.ContentType), "modified": head.LastModified, "storage_class": oss.ToString(head.StorageClass)}
+		} else {
+			detailError = "文件信息读取失败，文件可能已移动或当前存储类型需要恢复"
 		}
 	}
-	c.JSON(200, gin.H{"configured": true, "bucket": signer.Bucket, "items": out, "next": oss.ToString(result.NextContinuationToken), "detail": detail})
+	c.JSON(200, gin.H{"configured": true, "bucket": signer.Bucket, "prefix": prefix, "directories": directories, "items": out, "next": oss.ToString(result.NextContinuationToken), "detail": detail, "detail_error": detailError})
 }
 func (s *Server) objectDownload(c *gin.Context) {
 	if !writable(c, true) {
 		return
 	}
 	key := c.Query("key")
-	if !safeObject(key) || s.Config.Signer == nil {
+	if !safeObjectRead(key) || s.Config.Signer == nil {
 		fail(c, bad("无效对象或尚未配置 OSS"))
+		return
+	}
+	s.serveOSSObject(c, key, c.Query("preview") == "true")
+}
+func (s *Server) serveOSSObject(c *gin.Context, key string, inline bool) {
+	if !safeObjectRead(key) {
+		c.Status(404)
 		return
 	}
 	result, e := s.Config.Signer.Client.GetObject(c.Request.Context(), &oss.GetObjectRequest{Bucket: oss.Ptr(s.Config.Signer.Bucket), Key: oss.Ptr(key), Range: oss.Ptr(c.GetHeader("Range"))})
@@ -92,7 +126,7 @@ func (s *Server) objectDownload(c *gin.Context) {
 	}
 	defer result.Body.Close()
 	ext := strings.ToLower(filepath.Ext(key))
-	preview := c.Query("preview") == "true" && contains([]string{".png", ".jpg", ".jpeg", ".webp", ".glb", ".vrm", ".fbx", ".wav", ".mp3", ".ogg", ".json"}, ext)
+	preview := inline && contains([]string{".png", ".jpg", ".jpeg", ".webp", ".gif", ".glb", ".vrm", ".fbx", ".wav", ".mp3", ".m4a", ".ogg", ".mp4", ".webm", ".mov", ".json"}, ext)
 	disposition := "attachment"
 	if preview {
 		disposition = "inline"
@@ -104,6 +138,10 @@ func (s *Server) objectDownload(c *gin.Context) {
 	c.Header("Content-Type", kind)
 	c.Header("Cache-Control", "no-store")
 	c.Header("Content-Disposition", mime.FormatMediaType(disposition, map[string]string{"filename": path.Base(key)}))
+	c.Header("Accept-Ranges", "bytes")
+	if result.ContentLength >= 0 {
+		c.Header("Content-Length", fmt.Sprint(result.ContentLength))
+	}
 	if cr := oss.ToString(result.ContentRange); cr != "" {
 		c.Header("Content-Range", cr)
 		c.Status(206)

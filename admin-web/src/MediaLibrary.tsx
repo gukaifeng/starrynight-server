@@ -79,7 +79,7 @@ function JSONPreview({ url }: { url: string }) {
     </>
   );
 }
-function Preview({ name, url }: { name: string; url: string }) {
+export function ResourcePreview({ name, url }: { name: string; url: string }) {
   const ext = name.toLowerCase().split(".").pop();
   if (ext === "json") return <JSONPreview url={url} />;
   if (["glb", "vrm", "fbx"].includes(ext ?? ""))
@@ -97,6 +97,16 @@ function Preview({ name, url }: { name: string; url: string }) {
         <audio controls preload="none" src={url} />
         <p>播放已有文件，不调用语音生成服务。</p>
       </div>
+    );
+  if (["mp4", "webm", "mov"].includes(ext ?? ""))
+    return (
+      <video
+        className="resource-video"
+        controls
+        preload="metadata"
+        src={url}
+        aria-label="文件视频预览"
+      />
     );
   return (
     <p className="panel-note">
@@ -344,7 +354,7 @@ export function MediaLibrary({
               </button>
             </div>
             <p className="file-size">{bytes(selected.bytes)}</p>
-            <Preview
+            <ResourcePreview
               name={String(selected.name ?? selected.key)}
               url={preview}
             />

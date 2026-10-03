@@ -25,6 +25,8 @@ import { Heading, Panel, scalar, State, Stats, useData } from "./ConsoleUI";
 import { Management, tools, type Ask } from "./Management";
 import { VoiceTimings } from "./VoiceTimings";
 import { Billing } from "./Billing";
+import { Discovery } from "./Discovery";
+import { OSSBrowser } from "./OSSBrowser";
 type Confirmation = Parameters<Ask>[0];
 function route() {
   try {
@@ -204,19 +206,23 @@ export default function App() {
     resource = resources.find((r) => (r.ai ? "ai:" : "") + r.id === view);
   const title =
     resource?.name ||
-    (view === "backend"
-      ? "数据分类"
-      : view === "overview"
-        ? "总览"
-        : view === "operations"
-          ? "服务运行"
-          : view === "voice-timings"
-            ? "语音耗时"
-            : view === "billing"
-              ? "云服务费用"
-              : view.startsWith("manage:")
-                ? tools.find((t) => view === "manage:" + t.id)?.name
-                : undefined);
+    (view === "discovery"
+      ? "发现"
+      : view === "oss"
+        ? "OSS Bucket"
+        : view === "backend"
+          ? "数据分类"
+          : view === "overview"
+            ? "总览"
+            : view === "operations"
+              ? "服务运行"
+              : view === "voice-timings"
+                ? "语音耗时"
+                : view === "billing"
+                  ? "云服务费用"
+                  : view.startsWith("manage:")
+                    ? tools.find((t) => view === "manage:" + t.id)?.name
+                    : undefined);
   const renderResource = (r: Resource, scope: Scope) => (
     <DataWorkspace
       key={(r.ai ? "ai:" : "") + r.id + JSON.stringify(scope)}
@@ -271,11 +277,13 @@ export default function App() {
           <span className="nav-caption">常用工具</span>
           {[
             { id: "overview", name: "总览" },
+            { id: "discovery", name: "App 发现页" },
             { id: "voice-timings", name: "语音耗时" },
             { id: "operations", name: "服务运行" },
             ...(user.role === "owner"
               ? [
                   { id: "billing", name: "云服务费用" },
+                  { id: "oss", name: "OSS Bucket" },
                   { id: "manage:library", name: "资源与模型" },
                   { id: "manage:audio", name: "声音文件" },
                   { id: "admin_audit", name: "管理审计" },
@@ -387,6 +395,10 @@ export default function App() {
             <VoiceTimings refresh={refresh} />
           ) : view === "billing" && user.role === "owner" ? (
             <Billing refresh={refresh} />
+          ) : view === "discovery" ? (
+            <Discovery refresh={refresh} navigate={navigate} />
+          ) : view === "oss" && user.role === "owner" ? (
+            <OSSBrowser refresh={refresh} />
           ) : view.startsWith("manage:") && user.role === "owner" ? (
             <Management
               key={view}

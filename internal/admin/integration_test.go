@@ -132,6 +132,10 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/directory/users", nil, "", "")
 	assert(code, 401, data)
+	for _, path := range []string{"/discovery", "/discovery/anime-kipfel/media/cover", "/objects?folders=true"} {
+		code, data = request(srv.URL, "GET", path, nil, "", "")
+		assert(code, 401, data)
+	}
 	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/avatar", nil, "", "")
 	assert(code, 401, data)
 	code, data = request(srv.URL, "POST", "/login", map[string]string{"username": ownerName, "password": password}, "https://evil.test", "")
@@ -149,6 +153,7 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 		t.Fatal("unconfigured billing claimed successful amounts")
 	}
 	testBillingReports(t, app, func(path string) (int, []byte) { return request(srv.URL, "GET", path, nil, "", "") })
+	testDiscoveryAndBucket(t, app, func(path string) (int, []byte) { return request(srv.URL, "GET", path, nil, "", "") })
 	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/cover", nil, "", "")
 	assert(code, 200, data)
 	if !bytes.Equal(data, artwork) {
@@ -378,6 +383,10 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	assert(code, 403, data)
 	code, data = request(srv.URL, "GET", "/billing/analysis?month=2026-10", nil, "", "")
 	assert(code, 403, data)
+	code, data = request(srv.URL, "GET", "/objects?folders=true", nil, "", "")
+	assert(code, 403, data)
+	code, data = request(srv.URL, "GET", "/discovery", nil, "", "")
+	assert(code, 200, data)
 	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, csrf)
 	assert(code, 403, data)
 	code, data = request(srv.URL, "GET", "/cache", nil, "", "")

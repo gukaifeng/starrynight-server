@@ -104,6 +104,8 @@ func New(cfg Config, db *store.Store, cache *redis.Client, prefix string) (*Serv
 	api.GET("/overview", s.overview)
 	api.GET("/billing", s.bills)
 	api.GET("/billing/analysis", s.billAnalysis)
+	api.GET("/discovery", s.discovery)
+	api.GET("/discovery/:id/media/:kind", s.discoveryMedia)
 	api.GET("/resources/:resource", s.list)
 	api.POST("/resources/:resource/mutate", s.mutate)
 	api.POST("/create/:resource", s.create)

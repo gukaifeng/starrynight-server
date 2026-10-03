@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "characters": {
+    "anime-chiffon": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 10
+    },
+    "anime-fiona": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 20
+    },
+    "anime-hikarun": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 30
+    },
+    "anime-ichigo": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 40
+    },
+    "anime-koharu": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 50
+    },
+    "anime-lime": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 60
+    },
+    "anime-mafuyu": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 70
+    },
+    "anime-meiyun": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 80
+    },
+    "anime-milfy": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 90
+    },
+    "anime-mao": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 100
+    },
+    "anime-mizuki": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 110
+    },
+    "anime-perula": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 120
+    },
+    "anime-plum": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 130
+    },
+    "anime-ramune": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 140
+    },
+    "anime-shinano": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 150
+    },
+    "anime-sio": {
+      "categories": [
+        "角色"
+      ],
+      "featured": false,
+      "rank": 160
+    }
+  }
+}
