@@ -1,15 +1,23 @@
 """Optional, turn-owned avatar planning. Failures never fail core conversation."""
 import asyncio
 import time
+from typing import Literal
 from pydantic import Field
 from .schemas import Strict, PerformanceCue, Performance, StagedThought
 from .prompts import PERFORMER
 from .provider import planner_data
 from .profiles import assets
 
+class Observation(Strict):
+    group: str = Field(min_length=1,max_length=96)
+    intent: str = Field(min_length=1,max_length=96)
+    text: str = Field(min_length=1,max_length=96)
+    stage: Literal['before','after'] = 'before'
+
 class PerformancePlan(Strict):
     cues: list[PerformanceCue] = Field(default_factory=list,max_length=24)
     asides: list[StagedThought] = Field(default_factory=list,max_length=3)
+    observations: list[Observation] = Field(default_factory=list,max_length=2)
 
 def performance_context(context):
     data=planner_data(context)
@@ -64,7 +72,7 @@ def merge_visuals(base,extra,elapsed_ms):
     return sorted(result,key=lambda v:v['offset_ms'])
 
 def late_patch(engine,owner,request,context,plan,extra,script,elapsed_ms,draft=False):
-    if not extra or not (extra.cues or extra.asides) or not plan.beats:return None
+    if not extra or not (extra.cues or extra.asides or extra.observations) or not plan.beats:return None
     if draft:elapsed_ms=0  # Preparation time is not elapsed performance time.
     beat=plan.beats[0].model_copy(deep=True)
     beat.performance=Performance(intensity=beat.performance.intensity,cues=extra.cues)
@@ -81,14 +89,14 @@ def late_patch(engine,owner,request,context,plan,extra,script,elapsed_ms,draft=F
     visuals=resolved_visuals(resolved)
     groups={v['group'] for v in visuals}
     merged=merge_visuals(base,visuals,elapsed_ms)
-    parts=enrich_parts(engine,context,beat,script['beats'][0],merged,extra.asides,catalogue,request.character_id)
+    parts=enrich_parts(engine,context,beat,script['beats'][0],merged,extra.asides,catalogue,request.character_id,extra.observations)
     if not visuals and parts==script['beats'][0].get('parts'):return None
     enriched={**script,'beats':[{**b,'visuals':merged,'parts':parts} if i==0 else b for i,b in enumerate(script['beats'])]}
     if not draft:engine.store.enrich_reply(owner,request.character_id,str(request.request_id),enriched)
     return dict(type='reply.visuals.updated',message_id=script['message_id'],beat_id=beat.beat_id,script=enriched,
                 visuals=current_visuals([v for v in merged if v['group'] in groups],elapsed_ms))
 
-def enrich_parts(engine,context,beat,wire,visuals,extra_asides,catalogue,character):
+def enrich_parts(engine,context,beat,wire,visuals,extra_asides,catalogue,character,external=()):
     """Enrich optional prose on the existing parallel lane, never regenerate speech.
 
     Source thoughts and observed annotations retain their clause anchors. New
@@ -108,7 +116,17 @@ def enrich_parts(engine,context,beat,wire,visuals,extra_asides,catalogue,charact
     # Existing annotations have already passed quality checks. Preserve them
     # exactly, including their anchors, even after this turn enters history.
     seen=[*context.get('recent_asides_to_avoid',[]),*(p['text'] for p in existing)]
-    additions=compile_text_parts(text,candidates,performances,goals.spoken_language(character,context['goal_context']),seen)
+    from .aside_quality import flatten,allowed_language,repeated
+    from .schemas import CONTROL_TEXT
+    confirmed={(p['asset']['group'],p['asset']['intent']) for p in performances if p['active']}
+    language=goals.spoken_language(character,context['goal_context']);details=[];chosen=set();observed=list(seen)
+    for o in external:
+        value=flatten(o.text)
+        if (o.group,o.intent) not in confirmed or CONTROL_TEXT.search(value) or not allowed_language(value,language) or repeated(value,observed):continue
+        details.append((value,o.stage));observed.append(value);chosen.add((o.group,o.intent))
+    # Do not describe the same confirmed cue twice using a fixed label as well.
+    performances=[p for p in performances if (p['asset']['group'],p['asset']['intent']) not in chosen]
+    additions=compile_text_parts(text,candidates,performances,language,seen,details,[v for v,_ in details])
     added=[]
     for p in additions:
         if p['kind']=='thought' and thoughts<2:added.append(p);thoughts+=1

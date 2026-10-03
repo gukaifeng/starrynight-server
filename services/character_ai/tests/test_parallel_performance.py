@@ -193,3 +193,21 @@ def test_late_asides_still_filter_wrong_language_repeat_and_hidden(tmp_path):
     beat.asides=[StagedThought(text='I have a private thought.',visibility='hidden')]
     assert enrich_parts(engine,context,beat,wire,[],[StagedThought(text='I wish I knew more.')],{},request.character_id)==wire['parts']
     store.db.close()
+
+
+def test_external_observation_requires_resolved_active_capability(tmp_path):
+    from services.character_ai.parallel_performance import enrich_parts,Observation
+    from services.character_ai.schemas import Beat
+    store,provider,engine,request=setup(tmp_path)
+    text='我想听听你的想法。'
+    wire=dict(dialogue=dict(text=text),parts=[dict(kind='dialogue',text=text,at=0)])
+    context=dict(goal_context={},recent_asides_to_avoid=[])
+    asset=dict(asset_id='confirmed',group='ears',intent='ear_wiggle',observable_effects=['耳朵轻轻动了起来'])
+    catalogue={'confirmed':asset};visual=[dict(asset_id='confirmed',active=True,offset_ms=0)]
+    extra=[Observation(group='ears',intent='ear_wiggle',text='耳尖随这句问话轻轻晃动。'),Observation(group='pose',intent='jump',text='一跃而起。')]
+    result=enrich_parts(engine,context,Beat(beat_id='b1',dialogue={'text':text}),wire,visual,[],catalogue,request.character_id,extra)
+    assert any(p['text']==extra[0].text for p in result)
+    assert not any(p['text']==extra[1].text for p in result)
+    assert ''.join(p['text'] for p in result if p['kind']=='dialogue')==text
+    assert enrich_parts(engine,context,Beat(beat_id='b1'),wire,[dict(asset_id='confirmed',active=False,offset_ms=0)],[],catalogue,request.character_id,extra)==wire['parts']
+    store.db.close()
