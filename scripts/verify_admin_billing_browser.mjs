@@ -42,6 +42,27 @@ async function mock() {
 }
 async function snap(name, fullPage = true) { await page.screenshot({ path: path.join(output, name + ".png"), fullPage, animations: "disabled" }); }
 async function noOverflow() { expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false); }
+async function rankingReturn() {
+  const ranking = page.locator(".billing-ranking");
+  const count = await ranking.locator(".billing-bar").count();
+  expect(count).toBeGreaterThan(0);
+  await expect(ranking.getByRole("button", { name: "返回上一级", exact: true })).toHaveCount(0);
+  await ranking.locator(".billing-bar").first().click();
+  await expect(ranking.locator(".billing-bar")).toHaveCount(1);
+  // Repeated clicks on the selected model should still need only one return.
+  await ranking.locator(".billing-bar").first().click();
+  await expect(ranking.getByRole("button", { name: "返回上一级", exact: true })).toBeVisible();
+  await ranking.getByRole("button", { name: "返回上一级", exact: true }).click();
+  await expect(ranking.locator(".billing-bar")).toHaveCount(count);
+  await expect(page.getByLabel("筛选模型", { exact: true })).toHaveValue("");
+  await expect(page.getByLabel("筛选币种", { exact: true })).toHaveValue("");
+  await expect(ranking.getByRole("button", { name: "返回上一级", exact: true })).toHaveCount(0);
+  // The local reset also clears the drill history; no trip to the top is needed.
+  await ranking.locator(".billing-bar").first().click();
+  await ranking.getByRole("button", { name: "查看全部", exact: true }).click();
+  await expect(ranking.locator(".billing-bar")).toHaveCount(count);
+  await expect(ranking.getByRole("button", { name: "返回上一级", exact: true })).toHaveCount(0);
+}
 try {
   if (fixture) await mock();
   await page.goto(base + "/#billing");
@@ -58,6 +79,8 @@ try {
   await expect(page.getByRole("heading", { name: "云服务费用", exact: true })).toBeVisible();
   await expect(page.locator(".billing-summary")).toHaveCount(2);
   await expect(page.getByRole("status").filter({ hasText: "正在读取" })).toHaveCount(0, { timeout: 25000 });
+  await expect(page.locator(".billing-analysis-status")).toBeVisible({ timeout: 25000 });
+  await rankingReturn();
   if (fixture) {
     await expect(page.locator(".billing-table")).toContainText("0.000001 CNY");
     await expect(page.locator(".billing-table")).toContainText("qwen-max");
@@ -65,6 +88,42 @@ try {
     await page.getByRole("button", { name: "下一明细页", exact: true }).click();
     await expect(page.locator(".billing-analysis-details .pagination")).toContainText("第 2 页");
     await page.getByRole("button", { name: "上一明细页", exact: true }).click();
+    // A model drill restores both manual Key and search filters on return.
+    const ranking = page.locator(".billing-ranking");
+    await page.getByLabel("筛选API Key ID", { exact: true }).selectOption("456");
+    await page.getByLabel("搜索账单", { exact: true }).fill("input_token");
+    await expect(page.locator(".billing-analysis-status")).toContainText("筛选后 55 条");
+    await ranking.getByRole("button", { name: "查看分组 qwen-max CNY", exact: true }).click();
+    await expect(page.locator(".billing-analysis-status")).toContainText("筛选后 35 条");
+    await ranking.getByRole("button", { name: "返回上一级", exact: true }).click();
+    await expect(page.getByLabel("筛选API Key ID", { exact: true })).toHaveValue("456");
+    await expect(page.getByLabel("搜索账单", { exact: true })).toHaveValue("input_token");
+    await expect(page.getByLabel("筛选模型", { exact: true })).toHaveValue("");
+    await expect(page.locator(".billing-analysis-status")).toContainText("筛选后 55 条");
+    await ranking.getByRole("button", { name: "查看全部", exact: true }).click();
+    await expect(page.getByLabel("搜索账单", { exact: true })).toHaveValue("");
+    // Drill from model to Key, then return one level at a time.
+    await ranking.getByRole("button", { name: "查看分组 qwen-max CNY", exact: true }).click();
+    await page.getByLabel("一级分组", { exact: true }).selectOption("key");
+    await ranking.getByRole("button", { name: "查看分组 456 CNY", exact: true }).click();
+    await expect(page.getByLabel("筛选API Key ID", { exact: true })).toHaveValue("456");
+    await ranking.getByRole("button", { name: "返回上一级", exact: true }).click();
+    await expect(page.getByLabel("筛选API Key ID", { exact: true })).toHaveValue("");
+    await expect(page.getByLabel("筛选模型", { exact: true })).toHaveValue("qwen-max");
+    await ranking.getByRole("button", { name: "返回上一级", exact: true }).click();
+    await expect(page.getByLabel("筛选模型", { exact: true })).toHaveValue("");
+    await expect(page.locator(".billing-analysis-status")).toContainText("筛选后 112 条");
+    await page.getByLabel("一级分组", { exact: true }).selectOption("model");
+    // The table uses the same navigation, and editing a filter discards old history.
+    const table = page.locator(".billing-group-table");
+    await table.getByRole("button", { name: "查看明细", exact: true }).first().click();
+    await expect(table.getByRole("button", { name: "返回上一级", exact: true })).toBeVisible();
+    await table.getByRole("button", { name: "返回上一级", exact: true }).click();
+    await expect(page.locator(".billing-analysis-status")).toContainText("筛选后 112 条");
+    await ranking.locator(".billing-bar").first().click();
+    await page.getByLabel("搜索账单", { exact: true }).fill("output_token");
+    await expect(ranking.getByRole("button", { name: "返回上一级", exact: true })).toHaveCount(0);
+    await ranking.getByRole("button", { name: "查看全部", exact: true }).click();
     await page.getByLabel("二级分组", { exact: true }).selectOption("key");
     await expect(page.locator(".billing-group-table")).toContainText("456");
     await page.getByLabel("筛选模型", { exact: true }).selectOption("qwen-max");
@@ -81,12 +140,20 @@ try {
     await expect(page.getByRole("heading", { name: "按日费用趋势", exact: true })).toBeVisible();
     await page.getByRole("button", { name: `筛选日期 ${month}-01 CNY`, exact: true }).click();
     await expect(page.locator(".billing-analysis-status")).toContainText("筛选后 56 条");
-    await page.getByRole("button", { name: "清除全部筛选", exact: true }).click();
+    await page.locator(".billing-trend").getByRole("button", { name: "返回上一级", exact: true }).click();
+    await expect(page.locator(".billing-analysis-status")).toContainText("筛选后 112 条");
   }
   await snap("billing-desktop"); await noOverflow();
   await page.locator(".billing-statistics").scrollIntoViewIfNeeded();
   await snap("analysis-panels-desktop", false);
   await page.setViewportSize({ width: 390, height: 844 });
+  if (fixture) await page.getByLabel("二级分组", { exact: true }).selectOption("");
+  await rankingReturn();
+  await page.locator(".billing-ranking .billing-bar").first().click();
+  await noOverflow();
+  await page.locator(".billing-ranking").scrollIntoViewIfNeeded();
+  await snap("ranking-navigation-mobile", false);
+  await page.locator(".billing-ranking").getByRole("button", { name: "返回上一级", exact: true }).click();
   await noOverflow(); await snap("billing-data-mobile");
   await page.locator(".billing-chart-grid").scrollIntoViewIfNeeded();
   await snap("analysis-charts-mobile", false);
@@ -108,6 +175,6 @@ try {
   await noOverflow(); await snap("billing-mobile");
   expect(errors).toEqual([]);
   expect(requests.some(p => /restart|mutate|\/create\//.test(p))).toBe(false);
-  await fs.writeFile(path.join(output, "result.json"), JSON.stringify({ base, fixture, browser_errors: errors, checked: ["authentication", "desktop", "mobile", "bucket_scope", ...(fixture ? ["small_amounts", "refund", "pagination", "csv_all_filtered_rows", "two_dimensions", "model_filter", "daily_trend", "drill_down", "permission_state"] : [])], requests }, null, 2));
+  await fs.writeFile(path.join(output, "result.json"), JSON.stringify({ base, fixture, browser_errors: errors, checked: ["authentication", "desktop", "mobile", "bucket_scope", "ranking_return", "ranking_reset", "repeated_drill", ...(fixture ? ["small_amounts", "refund", "pagination", "csv_all_filtered_rows", "two_dimensions", "model_filter", "daily_trend", "drill_down", "manual_filter_restore", "two_level_return", "table_return", "manual_edit_resets_history", "permission_state"] : [])], requests }, null, 2));
   console.log(JSON.stringify({ verified: true, fixture, output }));
 } finally { await browser.close(); }

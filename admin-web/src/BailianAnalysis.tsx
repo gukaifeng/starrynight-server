@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Download, Filter, X } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ArrowLeft, Download, Filter, X } from "lucide-react";
 import { Panel, State, useData } from "./ConsoleUI";
 import type { BillReport } from "./Billing";
 import {
@@ -72,19 +72,50 @@ function Usage({ values }: { values: BillRow }) {
   );
 }
 
+function BillingNavigation({
+  canGoBack,
+  filtered,
+  onBack,
+  onClear,
+}: {
+  canGoBack: boolean;
+  filtered: boolean;
+  onBack: () => void;
+  onClear: () => void;
+}) {
+  if (!canGoBack && !filtered) return null;
+  return (
+    <div className="billing-navigation">
+      {canGoBack && (
+        <button className="secondary" onClick={onBack}>
+          <ArrowLeft size={14} />
+          返回上一级
+        </button>
+      )}
+      {filtered && (
+        <button className="secondary" onClick={onClear}>
+          查看全部
+        </button>
+      )}
+    </div>
+  );
+}
+
 function CostBars({
   groups,
   keys,
   totals,
   onSelect,
+  navigation,
 }: {
   groups: Aggregate[];
   keys: Dimension[];
   totals: Aggregate[];
   onSelect: (g: Aggregate, keys: Dimension[]) => void;
+  navigation: ReactNode;
 }) {
   return (
-    <Panel title="费用排行" className="billing-ranking">
+    <Panel title="费用排行" className="billing-ranking" action={navigation}>
       <p className="billing-caption">
         按正向应付费用排序 · 点击查看该组 · 负向调整与退款单列
       </p>
@@ -139,14 +170,16 @@ function CostBars({
 function DailyTrend({
   rows,
   onSelect,
+  navigation,
 }: {
   rows: BillRow[];
   onSelect: (g: Aggregate, keys: Dimension[]) => void;
+  navigation: ReactNode;
 }) {
   const days = aggregate(rows, ["date"]);
   const currencies = [...new Set(days.map((d) => d.currency))];
   return (
-    <Panel title="按日费用趋势" className="billing-trend">
+    <Panel title="按日费用趋势" className="billing-trend" action={navigation}>
       <p className="billing-caption">
         点击日期筛选 · 仅绘制已出账记录 · 不同币种分别展示
       </p>
@@ -210,6 +243,9 @@ export function BailianAnalysis({
   const [grain, setGrain] = useState("monthly"),
     [filters, setFilters] = useState<Filters>({}),
     [search, setSearch] = useState("");
+  const [drillHistory, setDrillHistory] = useState<
+    { filters: Filters; search: string }[]
+  >([]);
   const [primary, setPrimary] = useState<Dimension>("model"),
     [secondary, setSecondary] = useState<Dimension | "">("");
   const [order, setOrder] = useState("amount-desc"),
@@ -259,21 +295,47 @@ export function BailianAnalysis({
   };
   function setFilter(key: Dimension | "currency", value: string) {
     setFilters((old) => ({ ...old, [key]: value }));
+    setDrillHistory([]);
     resetPages();
   }
   function selectGroup(g: Aggregate, selected: Dimension[]) {
-    setFilters((old) => ({
-      ...old,
+    const next = {
+      ...filters,
       currency: g.currency,
       ...Object.fromEntries(selected.map((k, i) => [k, g.values[i]])),
-    }));
+    };
+    // Clicking the same selected group again must not add a redundant level.
+    if (
+      Object.entries(next).every(
+        ([key, value]) => filters[key as keyof Filters] === value,
+      )
+    ) return;
+    setDrillHistory((old) => [...old, { filters, search }]);
+    setFilters(next);
+    resetPages();
+  }
+  function goBack() {
+    const previous = drillHistory.at(-1);
+    if (!previous) return;
+    setFilters(previous.filters);
+    setSearch(previous.search);
+    setDrillHistory((old) => old.slice(0, -1));
     resetPages();
   }
   function clear() {
     setFilters({});
     setSearch("");
+    setDrillHistory([]);
     resetPages();
   }
+  const navigation = (
+    <BillingNavigation
+      canGoBack={drillHistory.length > 0}
+      filtered={active.length > 0 || Boolean(search)}
+      onBack={goBack}
+      onClear={clear}
+    />
+  );
   function select(d: Dimension) {
     const values = [...new Set(all.map((r) => dimensionValue(r, d)))].sort();
     return (
@@ -389,6 +451,7 @@ export function BailianAnalysis({
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
+                  setDrillHistory([]);
                   resetPages();
                 }}
                 disabled={!ready}
@@ -555,6 +618,7 @@ export function BailianAnalysis({
               keys={keys}
               totals={totals}
               onSelect={selectGroup}
+              navigation={navigation}
             />
             <Panel title="计费用量构成" className="billing-usage">
               <p className="billing-caption">
@@ -590,7 +654,11 @@ export function BailianAnalysis({
             </Panel>
           </div>
           {data.granularity === "daily" ? (
-            <DailyTrend rows={rows} onSelect={selectGroup} />
+            <DailyTrend
+              rows={rows}
+              onSelect={selectGroup}
+              navigation={navigation}
+            />
           ) : (
             <p className="billing-daily-hint">
               查看每天的费用变化：将统计颗粒度切换为「按日展开」。月汇总记录没有逐日日期，不会被当作每日数据。
@@ -600,19 +668,22 @@ export function BailianAnalysis({
             title="分组汇总"
             className="billing-group-table"
             action={
-              <button
-                className="secondary"
-                disabled={!groups.length}
-                onClick={() =>
-                  saveCSV(
-                    groupedCSV(groups, keys),
-                    `starrynight-bailian-${month}-groups.csv`,
-                  )
-                }
-              >
-                <Download size={14} />
-                导出全部分组 CSV
-              </button>
+              <div className="billing-panel-actions">
+                {navigation}
+                <button
+                  className="secondary"
+                  disabled={!groups.length}
+                  onClick={() =>
+                    saveCSV(
+                      groupedCSV(groups, keys),
+                      `starrynight-bailian-${month}-groups.csv`,
+                    )
+                  }
+                >
+                  <Download size={14} />
+                  导出全部分组 CSV
+                </button>
+              </div>
             }
           >
             <div className="table-scroll">
@@ -698,14 +769,17 @@ export function BailianAnalysis({
             title="筛选后的全部计费明细"
             className="billing-analysis-details"
             action={
-              <button
-                className="secondary"
-                disabled={!rows.length}
-                onClick={downloadDetails}
-              >
-                <Download size={14} />
-                导出筛选明细 CSV
-              </button>
+              <div className="billing-panel-actions">
+                {navigation}
+                <button
+                  className="secondary"
+                  disabled={!rows.length}
+                  onClick={downloadDetails}
+                >
+                  <Download size={14} />
+                  导出筛选明细 CSV
+                </button>
+              </div>
             }
           >
             <div className="table-scroll">

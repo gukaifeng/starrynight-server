@@ -42,6 +42,8 @@
 .billing-advanced > summary { display: flex; gap: 7px; align-items: center; cursor: pointer; color: var(--brand); font-size: 12px; }
 .billing-advanced > .billing-filter-grid { margin-top: 16px; }
 .billing-filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.billing-navigation, .billing-panel-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.billing-ranking .section-head, .billing-trend .section-head, .billing-group-table .section-head, .billing-analysis-details .section-head { flex-wrap: wrap; gap: 10px; }
 .billing-filter-chips button { background: var(--tint); color: var(--brand); padding: 5px 9px; border-radius: 5px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; overflow-wrap: anywhere; max-width: 100%; text-align: left; }
 .billing-analysis-status { padding: 14px 18px; background: var(--tint); color: var(--brand); font-size: 12px; border-top: 1px solid var(--line); }
 .billing-analysis-status small { color: var(--muted); font-size: 11px; }
