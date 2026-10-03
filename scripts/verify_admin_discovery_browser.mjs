@@ -281,6 +281,10 @@ try {
         [
           "--noproxy",
           "*",
+          "--connect-timeout",
+          "10",
+          "--max-time",
+          "30",
           "-fsS",
           "https://39.105.116.74:8443/v1/store/characters?limit=200&platform=ios&after=" +
             encodeURIComponent(after),
@@ -305,19 +309,23 @@ try {
       );
     }
   }
-  await expect
-    .poll(
-      () =>
-        page
-          .locator(".discover-card img")
-          .evaluateAll(
+  // Visit each card so below-fold lazy covers are actually requested. A cold
+  // browser should exercise the same scroll-to-load behavior as a person.
+  for (const card of await page.locator(".discover-card").all()) {
+    await card.scrollIntoViewIfNeeded();
+    await expect
+      .poll(
+        () =>
+          card.locator("img").evaluateAll(
             (images) =>
               images.filter((image) => image.complete && image.naturalWidth > 0)
                 .length,
           ),
-      { timeout: 30000 },
-    )
-    .toBe(fullCount);
+        { timeout: 30000 },
+      )
+      .toBe(1);
+  }
+  await page.locator(".discover-card").first().scrollIntoViewIfNeeded();
   await noOverflow();
   await snap("discovery-desktop");
   await page.getByLabel("搜索发现内容").fill("Fiona");
