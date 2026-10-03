@@ -23,4 +23,6 @@
 
 ## 部署
 
-待记录不可变 release、在线备份、健康检查和私有失败样本重新校验结果。
+已部署不可变 release `20261003T092428Z-65bb00ce5127`，源码 `65bb00ce5127552c8c273df53cce687260089892`。发布工具先通过 `--check-only`，随后完成 PostgreSQL 与 AI SQLite 在线备份、兼容迁移、API/AI 重启，返回 `ready:true`、`ai_restarted:true`。公共 HTTPS 健康接口 8443 返回 200，管理员会话接口 8444 未鉴权返回 401。
+
+在云端新 release 中以只读 SQLite 打开实际 Shinano schema_failure，用新适配器重新验证原始 JSON：忽略 4 个错误位置的可选字段，核心计划通过校验，台词逐字保留，付费调用为 0。没有清空用户记录、记忆或音频缓存。
