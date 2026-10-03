@@ -20,6 +20,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
@@ -125,6 +126,8 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	}
 	code, data := request(srv.URL, "GET", "/resources", nil, "", "")
 	assert(code, 401, data)
+	code, data = request(srv.URL, "GET", "/billing?month=2026-10", nil, "", "")
+	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/directory/users", nil, "", "")
 	assert(code, 401, data)
 	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/avatar", nil, "", "")
@@ -138,6 +141,12 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	}
 	json.Unmarshal(data, &session)
 	csrf = session.CSRF
+	code, data = request(srv.URL, "GET", "/billing?month="+time.Now().In(time.FixedZone("Shanghai", 8*3600)).Format("2006-01"), nil, "", "")
+	assert(code, 200, data)
+	if !bytes.Contains(data, []byte(`"NotConfigured"`)) || bytes.Contains(data, []byte(`"status":"ready"`)) {
+		t.Fatal("unconfigured billing claimed successful amounts")
+	}
+	testBillingReports(t, app, func(path string) (int, []byte) { return request(srv.URL, "GET", path, nil, "", "") })
 	code, data = request(srv.URL, "GET", "/record-images/character/anime-kipfel/cover", nil, "", "")
 	assert(code, 200, data)
 	if !bytes.Equal(data, artwork) {
@@ -363,6 +372,8 @@ func TestConsoleAuthenticationAndBusinessEdits(t *testing.T) {
 	assert(code, 200, data)
 	json.Unmarshal(data, &session)
 	csrf = session.CSRF
+	code, data = request(srv.URL, "GET", "/billing?month=2026-10", nil, "", "")
+	assert(code, 403, data)
 	code, data = request(srv.URL, "POST", "/resources/users/mutate", body, app.Config.Origin, csrf)
 	assert(code, 403, data)
 	code, data = request(srv.URL, "GET", "/cache", nil, "", "")

@@ -1,4 +1,38 @@
 @import "tailwindcss";
+.billing-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+.billing-controls label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
+.billing-controls input, .billing-controls select { padding: 8px 10px; min-height: 38px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; color: var(--ink); }
+.billing-controls > span, .billing-caption, .billing-scope { color: var(--muted); font-size: 12px; }
+.billing-summaries { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.billing-summary { min-width: 0; }
+.billing-summary .billing-caption { padding: 12px 18px; }
+.billing-amounts { padding: 18px; border-bottom: 1px solid var(--line); }
+.billing-amounts > div { display: grid; gap: 6px; }
+.billing-amounts span { color: var(--muted); font-size: 12px; }
+.billing-amounts strong { font: 600 26px "IBM Plex Mono", monospace; overflow-wrap: anywhere; color: var(--brand); }
+.billing-amounts dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 20px 0 0; }
+.billing-amounts dt { font-size: 12px; color: var(--muted); }
+.billing-amounts dd { margin: 4px 0 0; font: 12px "IBM Plex Mono", monospace; overflow-wrap: anywhere; }
+.billing-scope { margin: 12px 0 24px; }
+.billing-problem { margin: 16px 18px; padding: 14px; background: var(--page); border-left: 3px solid var(--brand); overflow-wrap: anywhere; }
+.billing-problem strong { display: block; margin-bottom: 8px; }
+.billing-problem p { margin-top: 8px; }
+.billing-problem small { color: var(--muted); font-size: 11px; }
+.billing-problem ul { padding-left: 18px; }
+.billing-table { min-width: 1100px; }
+.billing-table th, .billing-table td { padding: 14px 12px; vertical-align: top; }
+.billing-table td { max-width: 280px; overflow-wrap: anywhere; }
+.billing-table small { display: block; color: var(--muted); font-size: 11px; margin-top: 6px; }
+.billing-table details { margin-top: 8px; font-size: 11px; }
+.billing-table summary { color: var(--brand); cursor: pointer; }
+.billing-table details code { display: block; margin-top: 6px; white-space: normal; }
+.billing-number { text-align: right; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.billing-payable { border-left: 2px solid var(--brand); background: var(--tint); font-weight: 600; }
+.billing-notes { padding: 18px; color: var(--muted); font-size: 12px; }
+.billing-notes p + p { margin-top: 10px; }
+.billing-notes a { color: var(--brand); text-decoration: underline; }
+.panel > .billing-caption { padding: 12px 18px; }
+@media (max-width: 900px) { .billing-summaries { grid-template-columns: 1fr; gap: 12px; } .billing-amounts strong { font-size: 22px; } }
 @theme {
   --color-brand: #0d807b;
   --font-sans:

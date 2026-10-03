@@ -14,6 +14,7 @@ import (
 	"github.com/go-redis/redis_rate/v10"
 	"github.com/google/uuid"
 	"github.com/gukaifeng/starrynight-server/internal/assets"
+	"github.com/gukaifeng/starrynight-server/internal/billing"
 	"github.com/gukaifeng/starrynight-server/internal/identity"
 	"github.com/gukaifeng/starrynight-server/internal/store"
 	"github.com/jackc/pgx/v5"
@@ -32,6 +33,7 @@ import (
 type Config struct {
 	Origin, WebRoot, AIURL, AIToken, AIClientToken string
 	Signer                                         *assets.Signer
+	Billing                                        *billing.Client
 	Secure                                         bool
 	Operations                                     bool
 	RuntimeRoot, ReleaseRoot                       string
@@ -100,6 +102,7 @@ func New(cfg Config, db *store.Store, cache *redis.Client, prefix string) (*Serv
 	})
 	api.GET("/resources", func(c *gin.Context) { c.JSON(200, Resources) })
 	api.GET("/overview", s.overview)
+	api.GET("/billing", s.bills)
 	api.GET("/resources/:resource", s.list)
 	api.POST("/resources/:resource/mutate", s.mutate)
 	api.POST("/create/:resource", s.create)

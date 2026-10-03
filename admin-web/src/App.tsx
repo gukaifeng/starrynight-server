@@ -24,6 +24,7 @@ import {
 import { Heading, Panel, scalar, State, Stats, useData } from "./ConsoleUI";
 import { Management, tools, type Ask } from "./Management";
 import { VoiceTimings } from "./VoiceTimings";
+import { Billing } from "./Billing";
 type Confirmation = Parameters<Ask>[0];
 function route() {
   try {
@@ -211,9 +212,11 @@ export default function App() {
           ? "服务运行"
           : view === "voice-timings"
             ? "语音耗时"
-            : view.startsWith("manage:")
-              ? tools.find((t) => view === "manage:" + t.id)?.name
-              : undefined);
+            : view === "billing"
+              ? "云服务费用"
+              : view.startsWith("manage:")
+                ? tools.find((t) => view === "manage:" + t.id)?.name
+                : undefined);
   const renderResource = (r: Resource, scope: Scope) => (
     <DataWorkspace
       key={(r.ai ? "ai:" : "") + r.id + JSON.stringify(scope)}
@@ -272,6 +275,7 @@ export default function App() {
             { id: "operations", name: "服务运行" },
             ...(user.role === "owner"
               ? [
+                  { id: "billing", name: "云服务费用" },
                   { id: "manage:library", name: "资源与模型" },
                   { id: "manage:audio", name: "声音文件" },
                   { id: "admin_audit", name: "管理审计" },
@@ -381,6 +385,8 @@ export default function App() {
             <Operations refresh={refresh} user={user} ask={ask} />
           ) : view === "voice-timings" ? (
             <VoiceTimings refresh={refresh} />
+          ) : view === "billing" && user.role === "owner" ? (
+            <Billing refresh={refresh} />
           ) : view.startsWith("manage:") && user.role === "owner" ? (
             <Management
               key={view}

@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gukaifeng/starrynight-server/internal/admin"
 	"github.com/gukaifeng/starrynight-server/internal/assets"
+	"github.com/gukaifeng/starrynight-server/internal/billing"
 	"github.com/gukaifeng/starrynight-server/internal/config"
 	"github.com/gukaifeng/starrynight-server/internal/store"
 	"github.com/redis/go-redis/v9"
@@ -144,7 +145,11 @@ func run() error {
 	if e != nil {
 		return e
 	}
-	app, e := admin.New(admin.Config{Origin: origin, Secure: strings.HasPrefix(origin, "https://"), WebRoot: root, AIURL: cfg.AIUpstream, AIToken: token, AIClientToken: cfg.AIServiceToken, Signer: signer, Operations: os.Getenv("ADMIN_SYSTEMD") == "true", RuntimeRoot: os.Getenv("ADMIN_RUNTIME_ROOT"), ReleaseRoot: os.Getenv("ADMIN_RELEASE_ROOT")}, db, cache, cfg.RedisPrefix)
+	bills, e := billing.FromEnvironment()
+	if e != nil {
+		return e
+	}
+	app, e := admin.New(admin.Config{Origin: origin, Secure: strings.HasPrefix(origin, "https://"), WebRoot: root, AIURL: cfg.AIUpstream, AIToken: token, AIClientToken: cfg.AIServiceToken, Signer: signer, Billing: bills, Operations: os.Getenv("ADMIN_SYSTEMD") == "true", RuntimeRoot: os.Getenv("ADMIN_RUNTIME_ROOT"), ReleaseRoot: os.Getenv("ADMIN_RELEASE_ROOT")}, db, cache, cfg.RedisPrefix)
 	if e != nil {
 		return e
 	}
